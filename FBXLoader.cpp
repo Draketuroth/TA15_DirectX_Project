@@ -1,0 +1,595 @@
+//----------------------------------------------------------------------------------------------------------------------------------//
+// FBX Loader.cpp DirectX11
+// Based in FBX SDK 2015 for Visual Studio 2012
+// BTH - Fredrik Linde TA15 2016
+//----------------------------------------------------------------------------------------------------------------------------------//
+
+#include "FBXLoader.h"
+
+//----------------------------------------------------------------------------------------------------------------------------------//
+// PRIMARY FUNCTIONS
+//----------------------------------------------------------------------------------------------------------------------------------//
+
+FbxImport::FbxImport() {
+
+
+}
+
+FbxImport::~FbxImport() {
+
+
+}
+
+HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
+
+	HRESULT hr;
+
+	// Data parsing file declaration
+	ofstream logFile;
+	// Storing a pointer for the FBX Manager
+	FbxManager* gFbxSdkManager = nullptr;
+
+	// Initialize the FBX loader and instruct it what types of data to load...
+
+	if (gFbxSdkManager == nullptr) {
+
+		// We create our Fbx manager and store it in the Fbx manager pointer variable
+
+		gFbxSdkManager = FbxManager::Create();
+
+		// ...which is the FbxIoSettings, and we can use it to load only meshes and their belonging materials
+
+		FbxIOSettings* pIOsettings = FbxIOSettings::Create(gFbxSdkManager, IOSROOT);
+
+		// We set our Fbx Manager IOsettings with the previously recieved settings specified in the variable above
+
+		gFbxSdkManager->SetIOSettings(pIOsettings);
+	}
+
+	FbxImporter* pImporter = FbxImporter::Create(gFbxSdkManager, "");
+
+	FbxScene* pFbxScene = FbxScene::Create(gFbxSdkManager, "");
+
+	/* // FbxAxisSystem Conversion might work in some cases, but not this one. ConvertScene only converts parent and not its children
+
+	FbxAxisSystem SceneAxisSystem = pFbxScene->GetGlobalSettings().GetAxisSystem();
+	FbxAxisSystem LeftAxisSystem(FbxAxisSystem::DirectX);
+
+	if (SceneAxisSystem != LeftAxisSystem) {
+
+		SceneAxisSystem.ConvertScene(pFbxScene);
+	}
+
+	*/
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// LOG FILE: FBX HEADER
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	logFile.open("log.txt", ios::out);
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n"
+				"# Skeletal Animation Log\n"
+				"# Based in Autodesk FBX SDK\n"
+				"# Fredrik Linde TA15 2016\n"
+				"# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n";
+	logFile << "BONE NAMES AND PARENT INDEX:\n";
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
+
+	logFile.close();
+
+	// We load the FBX file from a selected directory and get its root node (it can be seen as the "handle" to the FBX contents)
+
+	bool bSuccess = pImporter->Initialize("FbxModel\\simple.fbx", -1, gFbxSdkManager->GetIOSettings());
+
+	// We only start importing and receiving the file data if initilization of the file went right
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	bSuccess = pImporter->Import(pFbxScene);
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	pImporter->Destroy();
+
+	FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
+
+	// Go through each item in the FBX file and ignore any items that aren't meshes
+	// IMPORTANT! Every polygon in the mesh must be a triangle! Either triangulate the mesh directly in Maya or implement this feature in the code
+	
+	ProcessControlPoints(pFbxRootNode);
+
+	LoadSkeletonHierarchy(pFbxRootNode);
+
+	GatherAnimationData(pFbxRootNode, pFbxScene);
+
+	logFile.open("log.txt", ios::out | ios::app);
+
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n";
+	logFile << "VERTEX WEIGHTS:\n";
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
+
+	logFile.close();
+
+	CreateVertexData(pFbxRootNode, pOutVertexVector);
+
+	logFile.open("log.txt", ios::out | ios::app);
+
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n";
+	logFile << "BIND POSE MATRICES:\n";
+	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
+
+	logFile.close();
+
+	InitializeAnimation();
+
+	gFbxSdkManager->Destroy();
+	
+	return hr;
+}
+
+void FbxImport::LoadSkeletonHierarchy(FbxNode* rootNode) {
+
+	ofstream logFile;
+	logFile.open("log.txt", ios::out | ios::app);
+
+	// Hierarchy depth variable is used for debugging purposes to track the depth of our tree
+
+	meshSkeleton.hierarchyDepth = 0;	// This variable is only here for debugging purposes to track the depth of the recursive search
+
+	for (int subNodeIndex = 0; subNodeIndex < rootNode->GetChildCount(); subNodeIndex++) {
+
+		FbxNode* currentChildNode = rootNode->GetChild(subNodeIndex);	// Get current node in the file
+		RecursiveDepthFirstSearch(currentChildNode, meshSkeleton.hierarchyDepth, 0, -1);	// Skeleton root node should be labeled with an index of -1
+		
+	}
+
+	logFile << "\n";
+	logFile.close();
+}
+
+void FbxImport::RecursiveDepthFirstSearch(FbxNode* node, int depth, int index, int parentIndex) {
+
+	ofstream logFile;
+	logFile.open("log.txt", ios::out | ios::app);
+
+	// Recurvise depth first search function will first control that the actual node is a valid skeleton node
+
+	if (node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() && node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton){
+	
+	// A "joint" object is created for every valid skeleton node in which its parent index and name is stored
+
+	Joint currentJoint;
+	currentJoint.ParentIndex = parentIndex;
+	currentJoint.Name = node->GetName();
+	logFile << currentJoint.Name << "   " << currentJoint.ParentIndex << "\n";
+	meshSkeleton.hierarchy.push_back(currentJoint);
+
+	}
+
+	// Function is called again to traverse the hierarchy, if there is any, underneath this node
+
+	for (int i = 0; i < node->GetChildCount(); i++) {
+
+		RecursiveDepthFirstSearch(node->GetChild(i), depth + 1, meshSkeleton.hierarchy.size(), index);
+	}
+
+	logFile.close();
+}
+
+void FbxImport::CreateVertexData(FbxNode* pFbxRootNode, vector<Vertex_Bone>* pOutVertexVector) {
+
+	if (pFbxRootNode) {
+
+		// Data parsing file declaration
+		ofstream logFile;
+		logFile.open("log.txt", ios::out | ios::app);
+		int vertexCounter = 0;
+
+		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++) {
+
+			FbxVector4* pVertices = currentMesh->GetControlPoints();
+
+			for (int j = 0; j < currentMesh->GetPolygonCount(); j++) {
+
+				int iNumVertices = currentMesh->GetPolygonSize(j);	// Retreive the size of every polygon which should be represented as a triangle
+				assert(iNumVertices == 3);	// Reassure that every polygon is a triangle and if not, don't allow the user to pass this point
+
+				for (int k = 0; k < iNumVertices; k++) {	// Process every vertex in the triangle
+
+					int iControlPointIndex = currentMesh->GetPolygonVertex(j, k);	// Retrieve the vertex index to know which control point in the vector to use
+					ControlPoint* currentControlPoint = controlPoints[iControlPointIndex];
+					
+					Vertex_Bone vertex;
+					vertex.pos = currentControlPoint->Position;	// Initialize the vertex position from the corresponding control point in the vector
+					
+					FbxVector2 FBXTexcoord;	
+					bool unmapped;
+					iControlPointIndex = currentMesh->GetPolygonVertexUV(j, k, "map1", FBXTexcoord, unmapped);	// Initialize texture coordinates to store in the output vertex
+
+					vertex.uv.x = (float)FBXTexcoord.mData[0];
+					vertex.uv.y = (float)FBXTexcoord.mData[1];
+					vertex.uv.y = 1 - vertex.uv.y;
+
+					FbxVector4 FBXNormal;
+
+					iControlPointIndex = currentMesh->GetPolygonVertexNormal(j, k, FBXNormal); // Initialize normals to store in the output vertex
+
+					vertex.normal.x = (float)FBXNormal.mData[0];
+					vertex.normal.y = (float)FBXNormal.mData[1];
+					vertex.normal.z = (float)FBXNormal.mData[2];
+
+					// Retreive Blending Weight info for each vertex in the mesh
+					// Every vertex must have three weights and four influencing bone indices
+
+					logFile << "----------------\n" << "Vertex " << vertexCounter << "\n----------------" << endl;
+
+					vertex.weights[0] = 0.0f;
+					vertex.weights[1] = 0.0f;
+					vertex.weights[2] = 0.0f;
+					vertex.weights[3] = 0.0f;
+
+					for(unsigned int i = 0; i < currentControlPoint->BlendingInfo.size(); i++){
+
+						VertexBlendInfo currentBlendingInfo;
+						currentBlendingInfo.BlendingIndex = currentControlPoint->BlendingInfo[i].BlendIndex;
+						currentBlendingInfo.BlendingWeight = currentControlPoint->BlendingInfo[i].BlendWeight;
+						logFile << currentControlPoint->BlendingInfo[i].BlendWeight << "  " << currentControlPoint->BlendingInfo[i].BlendIndex << "\n";
+					
+						// Store weight pairs in a separate blending weight vector
+
+						vertex.boneIndices[i] = currentControlPoint->BlendingInfo[i].BlendIndex;
+						vertex.weights[i] = currentControlPoint->BlendingInfo[i].BlendWeight;
+					
+						vertexBlend.VertexBlendingInfoList.push_back(currentBlendingInfo);
+
+					}
+
+					logFile << "\n";
+
+					// Alternatively, the weights should be sorted by weight but this affects compilation time. Use optimized search sort for this type of operation
+					//vertexBlend.SortBlendingInfoByWeight();
+
+					vertices.push_back(vertex);	// Store all vertices in a separate vector
+
+					indices.push_back(vertexCounter);	// Store indices so that vertices doesn't have to be loaded twice into the pipeline
+
+					// Copy over the data for the 3 vertices that make up the triangle into the pOutVertexVector
+					
+					pOutVertexVector->push_back(vertex);
+
+					vertexCounter++;
+				}
+			}
+
+		}
+
+		int size = controlPoints.size();
+
+		logFile.close();
+	}
+}
+
+void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
+
+	currentMesh = GetMeshFromRoot(node);	// Get the mesh from the root node
+
+	unsigned int deformerCount = currentMesh->GetDeformerCount();	// A deformer is associated with manipulating geometry through clusters, which are the joints we're after
+
+	FbxAMatrix geometryTransform = GetGeometryTransformation(node); // Geometric offset must be taken into account, even though it's often an identity matrix
+
+	for (unsigned int deformerIndex = 0; deformerIndex < deformerCount; deformerIndex++) {	
+
+		// To reach the link to the joint, we must go through a skin node containing the skinning data holding vertex weights from the binded mesh
+
+		FbxSkin* currentSkin = reinterpret_cast<FbxSkin*>(currentMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+	
+		if (!currentSkin) {
+
+			continue;
+		}
+
+		unsigned int clusterCount = currentSkin->GetClusterCount();	// Every joint is technically a deformer, so we must process through each one in the hierarchy
+
+		for (unsigned int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
+
+			FbxCluster* currentCluster = currentSkin->GetCluster(clusterIndex); // Current joint being processed in the hierarchy
+			std::string currentJointName = currentCluster->GetLink()->GetName();	// Here is the direct link to the joint required to retrieve its name and other attributes
+			unsigned int currentJointIndex = FindJointIndexByName(currentJointName, meshSkeleton);	// Call to function to retrieve joint index from skeleton hierarchy
+
+			// Declarations of the required matrices needed to create the Global Bind Pose Inverse matrix for every joint
+
+			FbxAMatrix transformMatrix;
+			FbxAMatrix transformLinkMatrix;
+			FbxAMatrix globalBindPoseInverseMatrix;
+
+			currentCluster->GetTransformMatrix(transformMatrix);	// This is the transformation of the mesh at bind time
+			currentCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster (in our case the joint) at binding time from local space to world space
+			globalBindPoseInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+			
+			ConvertToLeftHanded(globalBindPoseInverseMatrix);
+
+			// Next we must update the matrices in the skeleton hierarchy 
+			meshSkeleton.hierarchy[currentJointIndex].TransformMatrix = transformMatrix;
+			meshSkeleton.hierarchy[currentJointIndex].TransformLinkMatrix = transformLinkMatrix;
+			meshSkeleton.hierarchy[currentJointIndex].GlobalBindposeInverse = globalBindPoseInverseMatrix;
+
+			// KFbxNode was used in previous versions of the FBX SDK to receive the cluster link, but now we only use a normal FbxNode
+			meshSkeleton.hierarchy[currentJointIndex].Node = currentCluster->GetLink();
+
+			// Associate the joint with the control points it affects
+			unsigned int indicesCount = currentCluster->GetControlPointIndicesCount();
+
+			for (unsigned int i = 0; i < indicesCount; i++) {
+
+				BlendingIndexWeightPair currentBlendPair;
+				currentBlendPair.BlendIndex = currentJointIndex;
+				currentBlendPair.BlendWeight = currentCluster->GetControlPointWeights()[i];
+				controlPoints[currentCluster->GetControlPointIndices()[i]]->BlendingInfo.push_back(currentBlendPair);
+			
+			}
+
+			// Now we can start loading the animation data
+
+			// Alternatively, we can define a ClassId condition and use it in the GetSrcObject function. I found it handy, so I kept this as a comment
+			FbxCriteria animLayerCondition = FbxCriteria::ObjectTypeStrict(FbxAnimLayer::ClassId);
+			//FbxAnimStack* currentAnimStack = FbxCast<FbxAnimStack>(scene->GetSrcObject(condition, 0));
+	
+			FbxAnimStack* currentAnimStack = scene->GetSrcObject<FbxAnimStack>(0);	// Retrieve the animation stack which holds the animation layers
+			int numAnimLayers = currentAnimStack->GetMemberCount(animLayerCondition);
+			FbxAnimLayer* animLayer = currentAnimStack->GetMember<FbxAnimLayer>(0);
+
+			FbxString animStackName = currentAnimStack->GetName();	// Retrieve the name of the animation stack
+			
+			animationName = animStackName.Buffer();
+
+			FbxTakeInfo* takeInformation = node->GetScene()->GetTakeInfo(animStackName);	// A take is a group of animation data grouped by name
+			FbxTime startTime = takeInformation->mLocalTimeSpan.GetStart();	// Retrieve start time for the animation (either 0 or the user-specified beginning in the time-line)
+			FbxTime endTime = takeInformation->mLocalTimeSpan.GetStop();	// Retrieve end time for the animation (often user specified or default )
+
+			animationLength = endTime.GetFrameCount(FbxTime::eFrames24) - startTime.GetFrameCount(FbxTime::eFrames24) + 1;	// To receive the total animation length, just subtract the start time frame with end time frame
+
+			Keyframe** currentAnimation = &meshSkeleton.hierarchy[currentJointIndex].Animation;	// Get an individual bone in the hierarchy and store its animation data
+
+			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= endTime.GetFrameCount(FbxTime::eFrames24); i++) {
+
+				FbxTime currentTime;
+				currentTime.SetFrame(i, FbxTime::eFrames24);
+				*currentAnimation = new Keyframe();
+				(*currentAnimation)->FrameNumber = i;
+				FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currentTime) * geometryTransform;	// Receives global transformation at time t
+				(*currentAnimation)->GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
+				currentAnimation = &((*currentAnimation)->Next);
+
+			}
+
+		}
+
+	}
+}
+
+void FbxImport::SetGlobalTransform() {
+
+	meshSkeleton.hierarchy[0].TransformLinkMatrix = meshSkeleton.hierarchy[0].TransformLinkMatrix;
+
+	for (int i = 1; i < meshSkeleton.hierarchy.size(); i++) {
+
+		meshSkeleton.hierarchy[i].TransformLinkMatrix = meshSkeleton.hierarchy[meshSkeleton.hierarchy[i].ParentIndex].TransformLinkMatrix * meshSkeleton.hierarchy[i].TransformLinkMatrix;	// Global Transform
+		meshSkeleton.hierarchy[i].GlobalBindposeInverse = meshSkeleton.hierarchy[i].TransformLinkMatrix.Inverse();	// Inverse Global Bind Pose
+	}
+}
+
+void FbxImport::UpdateAnimation(VS_SKINNED_DATA* boneBufferPointer, float dt) {
+
+	if (frameIndex == animationLength) {
+
+		frameIndex = 0;
+
+		for(int i = 0; i < meshSkeleton.hierarchy.size(); i++){
+
+			offset[i] = offsetStart[i];
+
+		}
+	}
+
+	for(int i = 0; i < meshSkeleton.hierarchy.size(); i++){
+
+	//ConvertToLeftHanded(offset[i]->GlobalTransform);
+	
+	boneBufferPointer->gBoneTransform[i] = Load4X4Transformations(offset[i]->GlobalTransform.Transpose()) * XMMatrixTranspose(localTransform[i]);
+	
+	offset[i] = offset[i]->Next;
+
+	}
+
+	frameIndex++;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------//
+// SECONDARY FUNCTIONS
+//----------------------------------------------------------------------------------------------------------------------------------//
+
+void FbxImport::InitializeAnimation() {
+
+	size_t hierarchySize = meshSkeleton.hierarchy.size();
+
+	offset.resize(hierarchySize);
+	offsetStart.resize(hierarchySize);
+
+	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
+
+		offsetStart[i] = offset[i] = meshSkeleton.hierarchy[i].Animation;
+	}
+}
+
+FbxAMatrix FbxImport::GetGeometryTransformation(FbxNode* node) {
+
+	// Geometric offset is to allow this offset to not inherit and propagate to children or its parents
+
+	if (!node) {	// If the node is valid, continue processing the transformation
+
+		throw std::exception("NULL for mesh geometry");
+
+	}
+
+	const FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+	const FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
+	const FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
+
+	return FbxAMatrix(T, R, S);
+}
+
+XMMATRIX FbxImport::Load4X4JointTransformations(Joint joint, int transformIndex){	// Function to specifically convert joint transformations to XMFLOAT4X4
+
+	ofstream logFile;
+	logFile.open("log.txt", ios::out | ios::app);
+
+	logFile << "---------------------------\n" << "gBoneTransform " << transformIndex << "\n---------------------------" << endl;
+
+	XMFLOAT4X4 matrix;
+	
+	matrix.m[0][0] = joint.GlobalBindposeInverse.Get(0, 0);
+	matrix.m[0][1] = joint.GlobalBindposeInverse.Get(0, 1);
+	matrix.m[0][2] = joint.GlobalBindposeInverse.Get(0, 2);
+	matrix.m[0][3] = joint.GlobalBindposeInverse.Get(0, 3);
+	logFile << (int)matrix.m[0][0] << " " << (int)matrix.m[0][1] << " " << (int)matrix.m[0][2] << " " << (int)matrix.m[0][3] << "\n";
+
+	matrix.m[1][0] = joint.GlobalBindposeInverse.Get(1, 0);
+	matrix.m[1][1] = joint.GlobalBindposeInverse.Get(1, 1);
+	matrix.m[1][2] = joint.GlobalBindposeInverse.Get(1, 2);
+	matrix.m[1][3] = joint.GlobalBindposeInverse.Get(1, 3);
+	logFile << (int)matrix.m[1][0] << " " << (int)matrix.m[1][1] << " " << (int)matrix.m[1][2] << " " << (int)matrix.m[1][3] << "\n";
+
+	matrix.m[2][0] = joint.GlobalBindposeInverse.Get(2, 0);
+	matrix.m[2][1] = joint.GlobalBindposeInverse.Get(2, 1);
+	matrix.m[2][2] = joint.GlobalBindposeInverse.Get(2, 2);
+	matrix.m[2][3] = joint.GlobalBindposeInverse.Get(2, 3);
+	logFile << (int)matrix.m[2][0] << " " << (int)matrix.m[2][1] << " " << (int)matrix.m[2][2] << " " << (int)matrix.m[2][3] << "\n";
+
+	matrix.m[3][0] = joint.GlobalBindposeInverse.Get(3, 0);
+	matrix.m[3][1] = joint.GlobalBindposeInverse.Get(3, 1);
+	matrix.m[3][2] = joint.GlobalBindposeInverse.Get(3, 2);
+	matrix.m[3][3] = joint.GlobalBindposeInverse.Get(3, 3);
+	logFile << (int)matrix.m[3][0] << " " << (int)matrix.m[3][1] << " " << (int)matrix.m[3][2] << " " << (int)matrix.m[3][3] << "\n";
+	
+	XMMATRIX converted = XMLoadFloat4x4(&matrix);
+
+	logFile << "\n";
+	logFile.clear();
+
+	return converted;
+}
+
+XMMATRIX FbxImport::Load4X4Transformations(FbxAMatrix fbxMatrix) {
+
+	XMFLOAT4X4 matrix;
+
+	matrix.m[0][0] = fbxMatrix.Get(0, 0);
+	matrix.m[0][1] = fbxMatrix.Get(0, 1);
+	matrix.m[0][2] = fbxMatrix.Get(0, 2);
+	matrix.m[0][3] = fbxMatrix.Get(0, 3);
+
+	matrix.m[1][0] = fbxMatrix.Get(1, 0);
+	matrix.m[1][1] = fbxMatrix.Get(1, 1);
+	matrix.m[1][2] = fbxMatrix.Get(1, 2);
+	matrix.m[1][3] = fbxMatrix.Get(1, 3);
+
+	matrix.m[2][0] = fbxMatrix.Get(2, 0);
+	matrix.m[2][1] = fbxMatrix.Get(2, 1);
+	matrix.m[2][2] = fbxMatrix.Get(2, 2);
+	matrix.m[2][3] = fbxMatrix.Get(2, 3);
+
+	matrix.m[3][0] = fbxMatrix.Get(3, 0);
+	matrix.m[3][1] = fbxMatrix.Get(3, 1);
+	matrix.m[3][2] = fbxMatrix.Get(3, 2);
+	matrix.m[3][3] = fbxMatrix.Get(3, 3);
+	
+	XMMATRIX converted = XMLoadFloat4x4(&matrix);
+
+	return converted;
+}
+
+unsigned int FbxImport::FindJointIndexByName(string& jointName, Skeleton skeleton) {
+
+	for (unsigned int i = 0; i < skeleton.hierarchy.size(); i++) {
+
+		if (skeleton.hierarchy[i].Name == jointName) {	// It's possible to compare a constant character with a string, which is the case here
+
+			return i;
+		}
+	}
+
+	// If Skeleton information can't be read, inform the user of the problem
+
+	throw std::exception("Skeleton information in FBX file cannot be received and might be corrupt");
+}
+
+FbxMesh* FbxImport::GetMeshFromRoot(FbxNode* node) {	// Function to receive a mesh from the root node
+
+	FbxMesh* currentMesh;
+
+	for (int i = 0; i < node->GetChildCount(); i++) {	// Get number of children nodes from the root node
+
+		FbxNode* pFbxChildNode = node->GetChild(i);	// Current child being processed in the file
+
+		if (pFbxChildNode->GetNodeAttribute() == NULL) {
+
+			continue;
+		}
+
+		FbxNodeAttribute::EType AttributeType = pFbxChildNode->GetNodeAttribute()->GetAttributeType();	// Get the attribute type of the child node
+
+		if (AttributeType != FbxNodeAttribute::eMesh) {	
+
+			continue;
+		}
+
+		currentMesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
+
+	}
+
+	return currentMesh;
+}
+
+void FbxImport::ProcessControlPoints(FbxNode* node) {	// Function to process every vertex in the mesh
+
+	FbxMesh* pMesh = GetMeshFromRoot(node);		// Receive current mesh from the root node
+	unsigned int controlPointCount = pMesh->GetControlPointsCount();	// Store the total amount of control points
+
+	// Loop through all vertices and create individual controlpoints that are store in the control points vector
+
+	for (unsigned int i = 0; i < controlPointCount; i++) {
+
+		ControlPoint* currentControlPoint = new ControlPoint();	
+		XMFLOAT3 position;
+		position.x = static_cast<float>(pMesh->GetControlPointAt(i).mData[0]);
+		//logFile << "        " << position.x << "  ";
+		position.y = static_cast<float>(pMesh->GetControlPointAt(i).mData[1]);
+		//logFile << position.y << "  ";
+		position.z = static_cast<float>(pMesh->GetControlPointAt(i).mData[2]);
+		//logFile << position.z << "\n";
+
+		currentControlPoint->Position = position;
+		controlPoints[i] = currentControlPoint;
+	}
+}
+
+void FbxImport::ConvertToLeftHanded(FbxAMatrix &matrix) {
+
+	FbxVector4 translation = matrix.GetT();
+	FbxVector4 rotation = matrix.GetR();
+
+	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2]);
+	rotation.Set(-rotation.mData[0], -rotation.mData[1], rotation.mData[2]);
+
+	matrix.SetT(translation);
+	matrix.SetR(rotation);
+}
