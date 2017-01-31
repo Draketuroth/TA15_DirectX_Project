@@ -83,10 +83,6 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
-	terrain.LoadHeightMap();
-	terrain.CalculateGridDimension();
-	terrain.BuildQuadPatchVB(gHandler.gDevice);
-
 	if (!tHandler.CreateTexture(gHandler.gDevice)) {
 
 		MessageBox(
@@ -100,6 +96,10 @@ int main() {
 }
 
 int RunApplication() {
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PREDEFINED VARIABLES
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
 
@@ -138,6 +138,10 @@ int RunApplication() {
 
 		else {
 
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// DELTA TIMING
+			//----------------------------------------------------------------------------------------------------------------------------------//
+
 			VS_SKINNED_DATA* boneBufferPointer = (VS_SKINNED_DATA*)boneMappedResource.pData;
 			gHandler.gDeviceContext->Map(fbxImporter.gBoneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMappedResource);
 
@@ -172,7 +176,7 @@ int RunApplication() {
 					mCam.Strafe(-0.05f * deltaTime);
 				}
 
-				//fbxImporter.UpdateAnimation(boneBufferPointer, deltaTime);
+				fbxImporter.UpdateAnimation(boneBufferPointer, deltaTime);
 
 				POINT p;
 				GetCursorPos(&p);
@@ -186,9 +190,19 @@ int RunApplication() {
 
 			gHandler.gDeviceContext->Unmap(fbxImporter.gBoneBuffer, 0);
 
-			mCam.UpdateViewMatrix();
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// CAMERA UPDATE
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			XMMATRIX tViewProj = XMMatrixTranspose(mCam.ViewProj());
+			mCam.UpdateViewMatrix();	// Update Camera View and Projection Matrix for each frame
+
+			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
+			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
+			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
+
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// CONSTANT BUFFER UPDATE
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			// Here we disable GPU access to the vertex buffer data so I can change it on the CPU side and update it by sending it back when finished
 
@@ -203,13 +217,21 @@ int RunApplication() {
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
-			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix  * tViewProj);// XMMatrixRotationY(angle);
-			cBufferPointer->matrixWorld = bHandler.tWorldMatrix; //* XMMatrixRotationY(angle);
+			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix  * tCameraViewProj);
+			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
+			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
+			cBufferPointer->matrixProjection = tCameraProjection;
+
+			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 
 			// At last we have to reenable GPU access to the vertex buffer data
 
 			gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// RENDER
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			// Now we can render using the new updated buffers on the GPU
 
@@ -222,9 +244,14 @@ int RunApplication() {
 			angle = angle - 0.001;	// Angle is updated for every frame
 		}
 
-		mCam.~Camera();
-
 	}
+
+	bHandler.~BufferComponents();
+	gHandler.~GraphicComponents();
+	tHandler.~TextureComponents();
+	fbxImporter.~FbxImport();
+
+	DestroyWindow(windowHandle);
 
 	return static_cast<int>(windowMessage.wParam);
 }

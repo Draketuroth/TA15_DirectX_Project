@@ -116,7 +116,7 @@ struct ControlPoint { // Resembles a physical vertex point in the FBX SDK
 
 struct Skeleton { // Stores every joint in the skeleton hierarchy from the loaded FBX file
 
-	vector<Joint>hierarchy;
+	vector<Joint> hierarchy;
 	int hierarchyDepth;
 
 };
@@ -167,8 +167,8 @@ public:
 	// BUFFERS
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	ID3D11Buffer* gBoneBuffer = nullptr;
-	ID3D11Buffer* gBoneVertexBuffer = nullptr;
+	ID3D11Buffer* gBoneBuffer;
+	ID3D11Buffer* gBoneVertexBuffer;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PRIMARY FUNCTIONS AND VARIABLES
@@ -178,17 +178,17 @@ public:
 	// Returns the output data for the vertex class used in the vertex buffer
 	HRESULT LoadFBX(vector<Vertex_Bone>* pOutVertexVector);
 
-	Skeleton meshSkeleton;
 	XMMATRIX Load4X4JointTransformations(Joint joint, int transformIndex);
 	XMMATRIX Load4X4Transformations(FbxAMatrix fbxMatrix);
 	void UpdateAnimation(VS_SKINNED_DATA* boneBufferPointer, float dt);
 	
+	Skeleton meshSkeleton;
 	int frameIndex;
+
+	XMMATRIX localTransform[18];	// Bind pose matrix
 
 	vector<Keyframe*> offset;
 	vector<Keyframe*> offsetStart;
-	XMMATRIX localTransform[18];	// Bind pose matrix
-
 	vector<Vertex_Bone>vertices;	// Extra copy of vertices
 
 private:

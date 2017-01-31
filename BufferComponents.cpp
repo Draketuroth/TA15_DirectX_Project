@@ -14,6 +14,9 @@ BufferComponents::~BufferComponents() {
 
 	gVertexBuffer->Release();
 	gConstantBuffer->Release();
+	depthStencil->Release();
+	depthState->Release();
+	depthView->Release();
 
 }
 
@@ -176,7 +179,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float nearPlane = 0.1f;
 
-	float farPlane = 20.f;
+	float farPlane = 50.f;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -194,7 +197,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	// Here I supply the vertex shader constant data
+	// Here we supply the constant buffer data
 
 	GS_CONSTANT_BUFFER GsConstData;
 
@@ -202,6 +205,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.matrixView = { XMMatrixTranspose(viewMatrix) };
 	GsConstData.matrixProjection = { XMMatrixTranspose(projectionMatrix) };
 	GsConstData.worldViewProj = { tWorldViewProj };
+	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
@@ -214,14 +218,14 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	constBufferDesc.MiscFlags = 0;
 	constBufferDesc.StructureByteStride = 0;
 
-	// I set the the subresource data
+	// We set the the subresource data
 
 	D3D11_SUBRESOURCE_DATA constData;
 	constData.pSysMem = &GsConstData;
 	constData.SysMemPitch = 0;
 	constData.SysMemSlicePitch = 0;
 
-	// Finally after creating description and subresource data, 
+	// Finally after creating description and subresource data, we create the constant buffer
 
 	hr = gDevice->CreateBuffer(&constBufferDesc, &constData, &gConstantBuffer);
 

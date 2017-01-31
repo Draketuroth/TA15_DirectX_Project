@@ -1,7 +1,7 @@
 
 #define PI 3.14159265359
 
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 1024
+#define HEIGHT 768
 
 #define LaunchInWindowedMode TRUE;

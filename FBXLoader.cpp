@@ -12,11 +12,14 @@
 
 FbxImport::FbxImport() {
 
-
+	gBoneBuffer = nullptr;
+	gBoneVertexBuffer = nullptr;
 }
 
 FbxImport::~FbxImport() {
 
+	gBoneBuffer->Release();
+	gBoneVertexBuffer->Release();
 
 }
 
@@ -402,11 +405,11 @@ void FbxImport::UpdateAnimation(VS_SKINNED_DATA* boneBufferPointer, float dt) {
 
 	for(int i = 0; i < meshSkeleton.hierarchy.size(); i++){
 
-	//ConvertToLeftHanded(offset[i]->GlobalTransform);
+		//ConvertToLeftHanded(offset[i]->GlobalTransform);
 	
-	boneBufferPointer->gBoneTransform[i] = Load4X4Transformations(offset[i]->GlobalTransform.Transpose()) * XMMatrixTranspose(localTransform[i]);
+		boneBufferPointer->gBoneTransform[i] = Load4X4Transformations(offset[i]->GlobalTransform.Transpose()) * XMMatrixTranspose(localTransform[i]);
 	
-	offset[i] = offset[i]->Next;
+		//offset[i] = offset[i]->Next;
 
 	}
 

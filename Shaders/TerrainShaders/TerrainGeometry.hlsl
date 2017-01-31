@@ -3,8 +3,10 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
 	matrix worldViewProj;
 	matrix matrixWorld;
+	matrix matrixView;
+	matrix matrixProjection;
+	matrix floorRot;
 	float3 cameraPos;
-	matrix worldView;
 
 };
 

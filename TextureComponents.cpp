@@ -8,6 +8,13 @@ TextureComponents::TextureComponents() {
 	ID3D11SamplerState* texSampler = nullptr;
 }
 
+TextureComponents::~TextureComponents() {
+
+	standardResource->Release();
+	boneResource->Release();
+	texSampler->Release();
+}
+
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 
 	HRESULT hr;

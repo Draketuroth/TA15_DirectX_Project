@@ -21,6 +21,7 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixView;
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
+	XMFLOAT3 cameraPos;
 
 };
 

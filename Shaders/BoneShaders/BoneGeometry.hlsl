@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
-// Geometry Shader DirectX11
+// Bone Geometry Shader DirectX11
 //
 // BTH - Fredrik Linde TA15 2016
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -12,8 +12,10 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
 	matrix worldViewProj;
 	matrix matrixWorld;
+	matrix matrixView;
+	matrix matrixProjection;
+	matrix floorRot;
 	float3 cameraPos;
-	matrix worldView;
 
 };
 
@@ -46,9 +48,9 @@ struct GS_OUT
 	 float3 normal, viewVector;
 
 	 normal = (input[0].Norm);
-	 normal = normalize(mul(normal, worldView));
+	 normal = normalize(mul(normal, matrixView));
 
-	 viewVector = normalize(mul(input[0].Pos , worldView));
+	 viewVector = normalize(mul(input[0].Pos , matrixView));
 
 	 // UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	 uint i;

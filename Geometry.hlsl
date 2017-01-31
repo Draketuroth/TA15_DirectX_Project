@@ -73,7 +73,9 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream)
 
 		triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	}
+
 	triStream.RestartStrip();
+
 	for (i = 0; i < 3; i++)
 	{
 		output.WPos = mul(float4(input[i].Pos.xyz, 1.0f) + float4(offSet, 0.0f), matrixWorld);

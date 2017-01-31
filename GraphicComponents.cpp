@@ -13,6 +13,11 @@ GraphicComponents::GraphicComponents() {
 	gPixelTerrainShader = nullptr;
 	gGeometryTerrainShader = nullptr;
 
+	gVertexLayout = nullptr;
+	gVertexShader = nullptr;
+	gPixelShader = nullptr;
+	gGeometryShader = nullptr;
+
 	gVertexBoneLayout = nullptr;
 	gVertexBoneShader = nullptr;
 	gPixelBoneShader = nullptr;
@@ -21,14 +26,25 @@ GraphicComponents::GraphicComponents() {
 
 GraphicComponents::~GraphicComponents() {
 
-	gVertexTerrainLayout->Release();
-	gVertexTerrainShader->Release();
-	gPixelTerrainShader->Release();
-
 	gBackbufferRTV->Release();
 	gSwapChain->Release();
 	gDevice->Release();
 	gDeviceContext->Release();
+
+	gVertexTerrainLayout->Release();
+	gVertexTerrainShader->Release();
+	gPixelTerrainShader->Release();
+	gGeometryTerrainShader->Release();
+
+	gVertexLayout->Release();
+	gVertexShader->Release();
+	gPixelShader->Release();
+	gGeometryShader->Release();
+
+	gVertexBoneLayout->Release();
+	gVertexBoneShader->Release();
+	gPixelBoneShader->Release();
+	gGeometryBoneShader->Release();
 
 }
 
@@ -49,6 +65,11 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 	}
 
 	SetViewport();
+
+	if (!CreateStandardShaders()) {
+
+		return false;
+	}
 
 	if (!CreateTerrainShaders()) {
 
@@ -171,6 +192,142 @@ void GraphicComponents::SetViewport() {
 	viewport.Height = 1080;	// This viewport will use a height of user defined pixels. We are using the already defined macro values
 
 	gDeviceContext->RSSetViewports(1, &viewport);	// Sets the viewport to be used
+}
+
+bool GraphicComponents::CreateStandardShaders() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\Vertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gVertexLayout);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Shader Input Layout could not be created" << endl;
+	}
+
+	vsBlob->Release();
+
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\Fragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		0,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gPixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
+
+	ID3DBlob* gsBlob = nullptr;
+	ID3DBlob* gsErrorBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\Geometry.hlsl",
+		nullptr,
+		nullptr,
+		"GS_main",
+		"gs_5_0",
+		0,
+		0,
+		&gsBlob,
+		&gsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Geometry Shader Error: Geometry Shader could not be compiled or loaded from file" << endl;
+
+		if (gsErrorBlob) {
+
+			OutputDebugStringA((char*)gsBlob->GetBufferPointer());
+			gsErrorBlob->Release();
+		}
+
+	}
+
+	hr = gDevice->CreateGeometryShader(gsBlob->GetBufferPointer(), gsBlob->GetBufferSize(), nullptr, &gGeometryShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Geometry Shader Error: Geometry Shader could not be created" << endl;
+		return false;
+	}
+
+	gsBlob->Release();
+
+	return true;
 }
 
 bool GraphicComponents::CreateTerrainShaders() {

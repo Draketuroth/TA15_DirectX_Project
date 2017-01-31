@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
-// Vertex Shader DirectX11
+// Bone Vertex Shader DirectX11
 //
 // BTH - Fredrik Linde TA15 2016
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -46,7 +46,7 @@ VS_OUT VS_main(VS_IN input)
 		normal += input.Weight[i] * mul(input.Norm, (float3x3)gBoneTransforms[input.BoneIndices[i]]);
 	}
 	
-	output.Pos = position;
+	output.Pos = position;		// Switch to Input position to temporarily disable animation update
 
 	output.Tex = input.Tex;
 

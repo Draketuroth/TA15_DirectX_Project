@@ -22,10 +22,15 @@ public:
 	ID3D11DeviceContext* gDeviceContext;	// Graphic Contect
 	ID3D11RenderTargetView* gBackbufferRTV;	// Render Target View
 
-	ID3D11InputLayout* gVertexTerrainLayout;	// Vertex Layout
-	ID3D11VertexShader* gVertexTerrainShader;	// Vertex Shader
-	ID3D11PixelShader* gPixelTerrainShader;	// Pixel Shader
-	ID3D11GeometryShader* gGeometryTerrainShader; // Geometry Shader
+	ID3D11InputLayout* gVertexLayout;	
+	ID3D11VertexShader* gVertexShader;	
+	ID3D11PixelShader* gPixelShader;	
+	ID3D11GeometryShader* gGeometryShader; 
+
+	ID3D11InputLayout* gVertexTerrainLayout;	
+	ID3D11VertexShader* gVertexTerrainShader;	
+	ID3D11PixelShader* gPixelTerrainShader;	
+	ID3D11GeometryShader* gGeometryTerrainShader;
 
 	ID3D11InputLayout* gVertexBoneLayout;
 	ID3D11VertexShader* gVertexBoneShader;
@@ -36,6 +41,7 @@ public:
 	bool CreateRenderTargetView(BufferComponents &bHandler);	// We require a render target view for rendering and we create this by taking the back buffer from the swap chain
 	bool CreateSwapChainAndDevice(HWND &windowHandle);	// Function to create the graphic device responsible for interactions with the graphic card and the swap chain to switch between back & front buffer
 
+	bool CreateStandardShaders();
 	bool CreateTerrainShaders();	// Function to create all the potential shaders to be used in the application
 	bool CreateBoneShaders();
 
