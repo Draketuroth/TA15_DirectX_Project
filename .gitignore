@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#FBX SDK should not be included
+FBX SDK/*
+
 # User-specific files
 *.suo
 *.user
