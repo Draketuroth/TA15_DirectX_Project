@@ -509,3 +509,5 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	return true;
 }
+
+//Enter shadow map stuff
