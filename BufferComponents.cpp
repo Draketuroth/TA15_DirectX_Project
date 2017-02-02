@@ -2,7 +2,7 @@
 
 void importer(vector<OBJStruct> &ImportStruct)
 {
-	//fuck
+	//fuck aöorisf diosz
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
