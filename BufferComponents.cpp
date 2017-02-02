@@ -1,5 +1,8 @@
 #include "BufferComponents.h"
 
+
+// OBJ PARSER FUNCTION
+// is very cool lvl 1 red slime
 void importer(vector<OBJStruct> &ImportStruct)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
