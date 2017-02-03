@@ -26,6 +26,7 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
 	XMFLOAT3 cameraPos;
+	XMMATRIX lighViewProj;
 
 };
 
@@ -39,7 +40,7 @@ public:
 	~BufferComponents();
 
 // Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
-
+	XMMATRIX tLightViewProj;
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
