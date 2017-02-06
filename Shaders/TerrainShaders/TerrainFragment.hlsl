@@ -2,12 +2,25 @@
 SamplerState texSampler: register(s0);
 Texture2D tex0 : register(t0);
 
+cbuffer MTL_STRUCT : register (b0)
+{
+
+	float3 kd;
+	float3 Ka;
+	float3 tf;
+	float ni;
+	float illum;
+
+};
+
+
+
 struct PS_IN
 {
 	float3 Norm: NORMAL;
 	float2 Tex : TEXCOORD0;
 	float4 Pos : SV_POSITION;
-	float4 WPos : WPOSITION;
+	float4 WPos : POSITION;
 };
 
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer

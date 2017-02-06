@@ -26,9 +26,19 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
 	XMFLOAT3 cameraPos;
-	XMMATRIX lighViewProj;
 
 };
+
+struct MTL_STRUCT
+	{
+
+	XMFLOAT3 kd;
+	XMFLOAT3 Ka;
+	XMFLOAT3 tf;
+	float ni;
+	float illum;
+
+	};
 
 class BufferComponents {
 	
@@ -36,11 +46,12 @@ public:
 
 
 	vector<OBJStruct> ImportStruct;
+	MTL_STRUCT MTLConstantData;
 	BufferComponents();
 	~BufferComponents();
 
 // Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
-	XMMATRIX tLightViewProj;
+
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
@@ -50,6 +61,7 @@ public:
 	ID3D11Buffer* gVertexBuffer;	// Vertex buffer
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
 	ID3D11Buffer* gConstantBuffer;	// Constant buffer to provide the vertex shader with updated transformation data per frame
+	ID3D11Buffer* gMTLBuffer;
 
 	ID3D11Texture2D* depthStencil;	// Depth-stencil texture
 	ID3D11DepthStencilState* depthState;	// Depth-stencil state used for the output merger
@@ -61,6 +73,7 @@ public:
 	bool CreateVertexBuffer(ID3D11Device* &gDevice);
 	bool CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &fbxImporter);
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
+	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 
 };
 

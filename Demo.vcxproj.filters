@@ -125,9 +125,6 @@
     <FxCompile Include="Shaders\TerrainShaders\TerrainGeometry.hlsl">
       <Filter>Source Files\HLSL\TerrainShaders</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowVS.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferComponents.h">
