@@ -457,11 +457,32 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
 
+
+	//Matrices for the light, worldViewProjection, to use it for shadowmapping
+
+	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 0.5, -2));
+	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
+	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
+
+	//Light View matrix
+	float lFov = PI * 0.20f;
+
+	float lAspect = WIDTH / HEIGHT;
+
+	float lNearPlane = 0.1f;
+
+	float lFarPlane = 50.0f;
+
+	XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect, lNearPlane, lFarPlane);
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Final calculation for the transform matrix and the transpose function rearranging it to "Column Major" before being sent to the GPU
 	// (Required for the HLSL to read it correctly, doesn't accept matrices written in "Row Major"
-
+	XMMATRIX finalLightView = XMMatrixTranspose(lightView);
+	XMMATRIX finalLightProj = XMMatrixTranspose(lightProj);
 	XMMATRIX finalCalculation = worldMatrix * viewMatrix * projectionMatrix;
 	XMMATRIX tWorld = XMMatrixTranspose(worldMatrix);
 	XMMATRIX tWorldViewProj = XMMatrixTranspose(finalCalculation);
