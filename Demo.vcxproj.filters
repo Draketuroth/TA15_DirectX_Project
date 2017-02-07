@@ -64,6 +64,9 @@
     <Filter Include="Source Files\HLSL\TerrainShaders">
       <UniqueIdentifier>{bc975474-1fb1-4c09-b6a5-bb9fd532d9c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\ShadowShaders">
+      <UniqueIdentifier>{45d4cfad-9abf-4088-86ae-28ba89d91683}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -125,8 +128,8 @@
     <FxCompile Include="Shaders\TerrainShaders\TerrainGeometry.hlsl">
       <Filter>Source Files\HLSL\TerrainShaders</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowVS.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    <FxCompile Include="Shaders\ShadowShaders\ShadowVS.hlsl">
+      <Filter>Source Files\HLSL\ShadowShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

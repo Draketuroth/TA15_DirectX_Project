@@ -79,7 +79,7 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 
 	//Depth stencil view description
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-	descDSV.Format = texDesc.Format;
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
 	//Shader resource view description

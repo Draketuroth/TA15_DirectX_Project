@@ -75,6 +75,10 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
+	if (!CreateShadowMapShader())
+	{
+		return false;
+	}
 
 	if (!CreateBoneShaders()) {
 
@@ -122,7 +126,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		NULL,
+		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -154,7 +158,7 @@ bool GraphicComponents::CreateShadowMapShader()
 	ID3DBlob* vsErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
-		L"Shaders\\StandardShaders\\ShadowVS.hlsl",
+		L"Shaders\\ShadowShaders\\ShadowVS.hlsl",
 		nullptr,
 		nullptr,
 		"VS_main",
@@ -191,6 +195,11 @@ bool GraphicComponents::CreateShadowMapShader()
 		cout << "Shadow Vertex Shader Error: Vertex layout could not be created" << endl;
 	}
 	vsBlob->Release();
+
+
+	//Shadow PS
+	
+
 	return true;
 }
 bool GraphicComponents::CreateRenderTargetView(BufferComponents &bHandler){

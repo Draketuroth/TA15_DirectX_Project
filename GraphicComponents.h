@@ -29,6 +29,7 @@ public:
 
 	ID3D11InputLayout* gShadowVsLayout;
 	ID3D11VertexShader* gShadowVS;
+	ID3D11PixelShader* gShadowPS;
 
 	ID3D11InputLayout* gVertexTerrainLayout;	
 	ID3D11VertexShader* gVertexTerrainShader;	

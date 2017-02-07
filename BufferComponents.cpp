@@ -469,9 +469,11 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lNearPlane = 0.1f;
 
-	float lFarPlane = 50.0f;
+	float lFarPlane = 500.0f;
 
-	XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect, lNearPlane, lFarPlane);
+	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightViewProj = lightView * lightProj;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
@@ -482,9 +484,10 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX finalCalculation = worldMatrix * viewMatrix * projectionMatrix;
 	XMMATRIX tWorld = XMMatrixTranspose(worldMatrix);
 	XMMATRIX tWorldViewProj = XMMatrixTranspose(finalCalculation);
+	XMMATRIX finalLightViewProj = XMMatrixTranspose(lightViewProj);
 	transformMatrix = tWorldViewProj;
 	tWorldMatrix = tWorld;
-
+	tLightViewProj = finalLightViewProj;
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Here we supply the constant buffer data
@@ -497,7 +500,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.worldViewProj = { tWorldViewProj };
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
-
+	GsConstData.lighViewProj = { finalLightViewProj };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;
