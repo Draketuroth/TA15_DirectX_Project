@@ -42,7 +42,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexBuffer);
+	//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexBuffer);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);

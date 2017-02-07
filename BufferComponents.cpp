@@ -368,6 +368,7 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateSkeletalBuffers(gDevice, fbxImporter);
 	CreateConstantBuffer(gDevice, mCam);
 	CreateTerrainBuffer(gDevice);
+	CreateOBJBuffer(gDevice);
 
 }
 
