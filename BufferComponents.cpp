@@ -1,6 +1,6 @@
 #include "BufferComponents.h"
 
-void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch)
+void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -75,6 +75,13 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	if (ParserSwitch == 0)
 	{
 		fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
+
+		if (!file.is_open())
+		{
+			fileFound = false;
+			return;
+		}
+		fileFound = true;
 		string line;
 
 
@@ -367,30 +374,33 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 	
 	
-	importer(ImportStruct,MTLConstantData,0);
+	importer(ImportStruct,MTLConstantData,0,fileFound);
 
 	HRESULT hr;
 
 	
 
+	if (fileFound == true)
+	{
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = ImportStruct.size() * sizeof(OBJStruct);
 
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = &ImportStruct[0];
+		hr = gDevice->CreateBuffer(&bufferDesc, &data, &gTerrainBuffer);
+
+		if (FAILED(hr)) {
+
+			return false;
+		}
+
+	}
 	
 
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = ImportStruct.size() * sizeof(OBJStruct);
-
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &ImportStruct[0];
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gTerrainBuffer);
-
-	if (FAILED(hr)) {
-
-		return false;
-	}
-
+	
 	return true;
 }
 
@@ -615,7 +625,7 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 
 	
 
-	importer(ImportStruct,MTLConstantData,1);
+	importer(ImportStruct,MTLConstantData,1,fileFound);
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
