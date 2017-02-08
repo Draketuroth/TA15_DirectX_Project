@@ -582,7 +582,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
-	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 0.5, -2));
+	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 50, 1));
 	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
 	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 

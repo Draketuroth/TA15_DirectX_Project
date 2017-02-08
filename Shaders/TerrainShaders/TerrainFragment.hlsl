@@ -28,7 +28,7 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	float4 lightSource = float4(0.0f, 5000.0f, 500.0f, 0.0f);	// Light source in the form of a point light
+	float4 lightSource = float4(0.0f, 50.0f, 1.0f, 0.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
@@ -42,7 +42,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	//pixel depth for shadows
 	float depth = input.lPos.z / input.lPos.w;
 	
-	//float shadowDepth = (shadowMap.Sample(texSampler))
+	float shadowCheck = (shadowMap.Sample(texSampler, smTexture).r + 0.0001f < depth) ? 0.0f : 1.0f;
 
 	float nDotL;
 	float3 texColor;
@@ -82,5 +82,5 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	color = float4(texColor, 1.0f);
 
-	return float4(ads, 1.0f) * color;
+	return float4((ads, 1.0f) * color) * shadowCheck;
 };

@@ -23,6 +23,7 @@ public:
 
 	ID3D11ShaderResourceView* terrainResource;
 
+	ID3D11SamplerState* shadowSampler;
 	ID3D11SamplerState* texSampler;
 	ID3D11Texture2D* pShadowMap;
 	ID3D11DepthStencilView* pSmDepthView;
