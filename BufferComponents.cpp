@@ -7,7 +7,8 @@ void importer(vector<OBJStruct> &ImportStruct)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
+	//"C://Users//BTH//Desktop//test//cube.obj"
+	fstream file("C://Users//Fredrik//Desktop//cube.obj", ios::in | ios::ate);
 	string line;
 
 
@@ -357,7 +358,7 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 		XMMATRIX boneTransform = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
 
 		skinData.gBoneTransform[i] = boneTransform;
-		fbxImporter.localTransform[i] = boneTransform;
+		fbxImporter.invertedBindPose[i] = boneTransform;
 
 	}
 
@@ -373,6 +374,8 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	boneBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	boneBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	boneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	boneBufferDesc.MiscFlags = 0;
+	boneBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA boneData;
 	boneData.pSysMem = &skinData;
@@ -392,7 +395,7 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	// VERTEX BUFFER DESCRIPTION
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	D3D11_BUFFER_DESC bufferDesc;
+	D3D11_BUFFER_DESC bufferDesc = {};
 
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 

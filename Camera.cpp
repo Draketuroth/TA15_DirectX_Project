@@ -178,7 +178,8 @@ XMMATRIX Camera::ViewProj()const {
 // Strafe / Walk the camera a distance d
 void Camera::Strafe(float d) {
 
-	// mPosition += d*mRight
+	// mPosition += deltaTime * mRight
+	// If creating a vector from a single scalar variable, we use VectorReplicate
 	XMVECTOR s = XMVectorReplicate(d);
 	XMVECTOR r = XMLoadFloat3(&mRight);
 	XMVECTOR p = XMLoadFloat3(&mPosition);
@@ -187,7 +188,8 @@ void Camera::Strafe(float d) {
 
 void Camera::Walk(float d) {
 
-	// mPosition += d*mLook
+	// mPosition += deltaTime * mLook
+	// If creating a vector from a single scalar variable, we use VectorReplicate
 	XMVECTOR s = XMVectorReplicate(d);
 	XMVECTOR l = XMLoadFloat3(&mLook);
 	XMVECTOR p = XMLoadFloat3(&mPosition);

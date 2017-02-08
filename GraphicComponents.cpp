@@ -122,7 +122,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		NULL,
+		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -188,8 +188,8 @@ void GraphicComponents::SetViewport() {
 	viewport.TopLeftY = 0.0f;	// This is the top left corner's y coordinate in pixels from the window's top left corner
 	viewport.MinDepth = 0.0f;	// This is the minimum depth value used by DirectX
 	viewport.MaxDepth = 1.0f;	// This is the maximum depth value used by Direct3D
-	viewport.Width = 1920;		// This viewport will use a width of user defined pixels. We are using the already defined macro values
-	viewport.Height = 1080;	// This viewport will use a height of user defined pixels. We are using the already defined macro values
+	viewport.Width = WIDTH;		// This viewport will use a width of user defined pixels. We are using the already defined macro values
+	viewport.Height = HEIGHT;	// This viewport will use a height of user defined pixels. We are using the already defined macro values
 
 	gDeviceContext->RSSetViewports(1, &viewport);	// Sets the viewport to be used
 }
@@ -515,8 +515,8 @@ bool GraphicComponents::CreateBoneShaders() {
 		{ "POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "WEIGHT",			0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BONEINDICES",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "BLENDWEIGHT",			0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 
