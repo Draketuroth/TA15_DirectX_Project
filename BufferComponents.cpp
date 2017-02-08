@@ -1,11 +1,7 @@
 #include "BufferComponents.h"
 
-
-// OBJ PARSER FUNCTION
-// is very cool lvl 1 red slime
-void importer(vector<OBJStruct> &ImportStruct)
+void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound)
 {
-	//fuck aöorisf diosz
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
@@ -85,150 +81,267 @@ void importer(vector<OBJStruct> &ImportStruct)
 	string check4;
 
 
-	//----------------------------------------------------------------------------------//
-	while (!file.eof())
+	if (ParserSwitch == 0)
 	{
-		line.clear();
+		fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
 
-
-		getline(file, line);
-		istringstream stringParse(line);
-
-
-		stringParse >> check;
-
-		if (check == "v")
+		if (!file.is_open())
 		{
-			stringParse >> check2;
-			stringParse >> check3;
-			stringParse >> check4;
-
-			VertexArr.push_back(null);
-			VertexArr[Vsize].x = stod(check2, &sz);
-			VertexArr[Vsize].y = stod(check3, &sz);
-			VertexArr[Vsize].z = stod(check4, &sz);
-			Vsize++;
+			fileFound = false;
+			return;
 		}
+		fileFound = true;
+		string line;
 
-		if (check == "vt")
-		{
-			stringParse >> check2;
-			stringParse >> check3;
-			VertexTarr.push_back(null1);
-			VertexTarr[VTsize].x = stod(check2, &sz);
-			VertexTarr[VTsize].y = stod(check3, &sz);
-			VTsize++;
-		}
 
-		if (check == "vn")
-		{
-			stringParse >> check2;
-			stringParse >> check3;
-			stringParse >> check4;
-			VertexNarr.push_back(null);
-			VertexNarr[VNsize].x = stod(check2, &sz);
-			VertexNarr[VNsize].y = stod(check3, &sz);
-			VertexNarr[VNsize].z = stod(check4, &sz);
-			VNsize++;
-		}
+		file.seekg(0, file.end);
+		int size = file.tellg();
+		file.seekg(0, file.beg);
 
-		if (check == "f")
+
+	
+
+
+		//----------------------------------------------------------------------------------//
+		while (!file.eof())
 		{
+			line.clear();
+
+
+			getline(file, line);
+			istringstream stringParse(line);
+
+
 			stringParse >> check;
-			stringParse >> check2;
-			stringParse >> check3;
-			//stringParse >> check4;
 
-			Farr[Fsize] = check;
-			Fsize++;
-			Farr[Fsize] = check2;
-			Fsize++;
-			Farr[Fsize] = check3;
-			Fsize++;
-			/*Farr[Fsize] = check4;
-			Fsize++;*/
-		}
-
-		if (FarrSize - Fsize < 4)
-		{
-			FarrSize += 50;
-
-
-			string* temp = new string[FarrSize];
-
-
-			for (size_t i = 0; i < Fsize; i++)
+			if (check == "v")
 			{
-				temp[i] = Farr[i];
+				stringParse >> check2;
+				stringParse >> check3;
+				stringParse >> check4;
+
+				VertexArr.push_back(null);
+				VertexArr[Vsize].x = stod(check2, &sz);
+				VertexArr[Vsize].y = stod(check3, &sz);
+				VertexArr[Vsize].z = stod(check4, &sz);
+				Vsize++;
 			}
 
-			delete[] Farr;
-			Farr = temp;
+			if (check == "vt")
+			{
+				stringParse >> check2;
+				stringParse >> check3;
+				VertexTarr.push_back(null1);
+				VertexTarr[VTsize].x = stod(check2, &sz);
+				VertexTarr[VTsize].y = stod(check3, &sz);
+				VTsize++;
+			}
+
+			if (check == "vn")
+			{
+				stringParse >> check2;
+				stringParse >> check3;
+				stringParse >> check4;
+				VertexNarr.push_back(null);
+				VertexNarr[VNsize].x = stod(check2, &sz);
+				VertexNarr[VNsize].y = stod(check3, &sz);
+				VertexNarr[VNsize].z = stod(check4, &sz);
+				VNsize++;
+			}
+
+			if (check == "f")
+			{
+				stringParse >> check;
+				stringParse >> check2;
+				stringParse >> check3;
+				//stringParse >> check4;
+
+				Farr[Fsize] = check;
+				Fsize++;
+				Farr[Fsize] = check2;
+				Fsize++;
+				Farr[Fsize] = check3;
+				Fsize++;
+				/*Farr[Fsize] = check4;
+				Fsize++;*/
+			}
+
+			if (FarrSize - Fsize < 4)
+			{
+				FarrSize += 50;
+
+
+				string* temp = new string[FarrSize];
+
+
+				for (size_t i = 0; i < Fsize; i++)
+				{
+					temp[i] = Farr[i];
+				}
+
+				delete[] Farr;
+				Farr = temp;
+			}
+
+
+
 		}
 
 
-
-	}
-
-
 	
-	size_t pos = 0;
-	vector<String3> FaceList;
-	vector<XMFLOAT3> converter;
+		size_t pos = 0;
+		vector<String3> FaceList;
+		vector<XMFLOAT3> converter;
 	
 
-	for (int i = 0; i < Fsize; i++)
-	{
-		FaceList.push_back(initialize);
-		pos = Farr[i].find(delimiter);
-		FaceList[i].x = Farr[i].substr(0, pos);
-		Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
+		for (int i = 0; i < Fsize; i++)
+		{
+			FaceList.push_back(initialize);
+			pos = Farr[i].find(delimiter);
+			FaceList[i].x = Farr[i].substr(0, pos);
+			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
 
-		pos = Farr[i].find(delimiter);
-		FaceList[i].y = Farr[i].substr(0, pos);
-		Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
+			pos = Farr[i].find(delimiter);
+			FaceList[i].y = Farr[i].substr(0, pos);
+			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
 
-		FaceList[i].z = Farr[i];
+			FaceList[i].z = Farr[i];
 		
 
+		}
+		string::size_type typer;
+
+		for (int u = 0; u < Fsize; u++)
+		{
+			converter.push_back(initializeFloat3);
+			converter[u].x = stof(FaceList[u].x, &typer);
+			converter[u].y = stof(FaceList[u].y, &typer);
+			converter[u].z = stof(FaceList[u].z, &typer);
+			converter[u].x -= 1;
+			converter[u].y -= 1;
+			converter[u].z -= 1;
+
+			cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+		}
+
+	
+		for (size_t i = 0; i < Fsize; i++)
+		{
+		
+			ImportStruct.push_back(Filler);
+
+			ImportStruct[i].Varr.x = VertexArr[converter[i].x].x;
+			ImportStruct[i].Varr.y = VertexArr[converter[i].x].y;
+			ImportStruct[i].Varr.z = VertexArr[converter[i].x].z;
+
+			ImportStruct[i].VTarr.x = VertexTarr[converter[i].y].x;
+			ImportStruct[i].VTarr.y = VertexTarr[converter[i].y].y;
+
+			ImportStruct[i].VNarr.x = VertexNarr[converter[i].z].x;
+			ImportStruct[i].VNarr.y = VertexNarr[converter[i].z].y;
+			ImportStruct[i].VNarr.z = VertexNarr[converter[i].z].z;
+
+
+
+
+
+		}
 	}
-	string::size_type typer;
 
-	for (int u = 0; u < Fsize; u++)
+	if (ParserSwitch == 1)
 	{
-		converter.push_back(initializeFloat3);
-		converter[u].x = stof(FaceList[u].x, &typer);
-		converter[u].y = stof(FaceList[u].y, &typer);
-		converter[u].z = stof(FaceList[u].z, &typer);
-		converter[u].x -= 1;
-		converter[u].y -= 1;
-		converter[u].z -= 1;
-
-		cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+		fstream mtl_File("C://Users//BTH//Desktop//test//cube.mtl", ios::in | ios::ate);
+	
+		if (!mtl_File.is_open())
+		{
+			fileFound = false;
+			return;
+		}
+		fileFound = true;
+		string mtl_Line;
+	
+	
+		mtl_File.seekg(0, mtl_File.end);
+		int mtl_Size = mtl_File.tellg();
+		mtl_File.seekg(0, mtl_File.beg);
+	
+	
+	
+		//string material;
+		float illum;
+		XMFLOAT3 Kd;
+		XMFLOAT3 Ka;
+		XMFLOAT3 Tf;
+		float Ni;
+	
+	
+		while (!mtl_File.eof())
+		{
+			mtl_Line.clear();
+	
+	
+			getline(mtl_File, mtl_Line);
+			istringstream mtl_StringParse(mtl_Line);
+	
+			mtl_StringParse >> check;
+			/*if (check == "newmtl")
+			{
+				mtl_StringParse >> material;
+			}*/
+			if (check == "illum")
+			{
+				mtl_StringParse >>check;
+				illum = stof(check,&sz);
+			}
+			else if (check == "Kd")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Kd.x = stof(check2,&sz);
+				Kd.y = stof(check3,&sz);
+				Kd.z = stof(check4,&sz);
+	
+			}
+			else if (check == "Ka")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Ka.x = stof(check2,&sz);
+				Ka.y = stof(check3,&sz);
+				Ka.z = stof(check4,&sz);
+			}
+			else if (check == "Tf")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Tf.x = stof(check2,&sz);
+				Tf.y = stof(check3,&sz);
+				Tf.z = stof(check4,&sz);
+			}
+			else if (check == "Ni")
+			{
+				mtl_StringParse >> check;
+	
+				Ni = stof(check,&sz);
+			}
+	
+		}
+	
+		//cout << "material: " << material << endl;
+		cout << "illum: " << illum << endl;
+		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
+		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
+		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
+		cout << "Ni: " << Ni << endl;
 	}
 
 	
-	for (size_t i = 0; i < Fsize; i++)
-	{
-		
-		ImportStruct.push_back(Filler);
-
-		ImportStruct[i].Varr.x = VertexArr[converter[i].x].x;
-		ImportStruct[i].Varr.y = VertexArr[converter[i].x].y;
-		ImportStruct[i].Varr.z = VertexArr[converter[i].x].z;
-
-		ImportStruct[i].VTarr.x = VertexTarr[converter[i].y].x;
-		ImportStruct[i].VTarr.y = VertexTarr[converter[i].y].y;
-
-		ImportStruct[i].VNarr.x = VertexNarr[converter[i].z].x;
-		ImportStruct[i].VNarr.y = VertexNarr[converter[i].z].y;
-		ImportStruct[i].VNarr.z = VertexNarr[converter[i].z].z;
-
-
-
-
-
-	}
 
 	delete[] Farr;
 
@@ -271,33 +384,40 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateSkeletalBuffers(gDevice, fbxImporter);
 	CreateConstantBuffer(gDevice, mCam);
 	CreateTerrainBuffer(gDevice);
+	CreateOBJBuffer(gDevice);
 
 }
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
 	
-	importer(ImportStruct);
+	importer(ImportStruct,MTLConstantData,0,fileFound);
 
 	HRESULT hr;
 
 	
 
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = ImportStruct.size() * sizeof(OBJStruct);
+	if (fileFound == true)
+	{
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = ImportStruct.size() * sizeof(OBJStruct);
 
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &ImportStruct[0];
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gTerrainBuffer);
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = &ImportStruct[0];
+		hr = gDevice->CreateBuffer(&bufferDesc, &data, &gTerrainBuffer);
 
-	if (FAILED(hr)) {
+		if (FAILED(hr)) {
 
-		return false;
+			return false;
+		}
+
 	}
+	
 
+	
 	return true;
 }
 
@@ -358,7 +478,7 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 		XMMATRIX boneTransform = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
 
 		skinData.gBoneTransform[i] = boneTransform;
-		fbxImporter.localTransform[i] = boneTransform;
+		fbxImporter.invertedBindPose[i] = boneTransform;
 
 	}
 
@@ -374,6 +494,8 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	boneBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	boneBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	boneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	boneBufferDesc.MiscFlags = 0;
+	boneBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA boneData;
 	boneData.pSysMem = &skinData;
@@ -393,7 +515,7 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	// VERTEX BUFFER DESCRIPTION
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	D3D11_BUFFER_DESC bufferDesc;
+	D3D11_BUFFER_DESC bufferDesc = {};
 
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 
@@ -457,6 +579,28 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
 
+
+	//Matrices for the light, worldViewProjection, to use it for shadowmapping
+
+	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 0.5, -2));
+	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
+	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
+
+	//Light View matrix
+	float lFov = PI * 0.20f;
+
+	float lAspect = WIDTH / HEIGHT;
+
+	float lNearPlane = 0.1f;
+
+	float lFarPlane = 500.0f;
+
+	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightViewProj = lightView * lightProj;
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Final calculation for the transform matrix and the transpose function rearranging it to "Column Major" before being sent to the GPU
@@ -465,9 +609,10 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX finalCalculation = worldMatrix * viewMatrix * projectionMatrix;
 	XMMATRIX tWorld = XMMatrixTranspose(worldMatrix);
 	XMMATRIX tWorldViewProj = XMMatrixTranspose(finalCalculation);
+	XMMATRIX finalLightViewProj = XMMatrixTranspose(lightViewProj);
 	transformMatrix = tWorldViewProj;
 	tWorldMatrix = tWorld;
-
+	tLightViewProj = finalLightViewProj;
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Here we supply the constant buffer data
@@ -480,7 +625,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.worldViewProj = { tWorldViewProj };
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
-
+	GsConstData.lightViewProj = { finalLightViewProj };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;
@@ -510,4 +655,45 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	return true;
 }
 
-//Enter shadow map stuff
+bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
+{
+	HRESULT hr;
+
+	
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	// Here we supply the constant buffer data
+
+	
+
+	importer(ImportStruct,MTLConstantData,1,fileFound);
+
+	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
+
+	D3D11_BUFFER_DESC MTLBufferDesc;
+	MTLBufferDesc.ByteWidth = sizeof(MTL_STRUCT);
+	MTLBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	MTLBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	MTLBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	MTLBufferDesc.MiscFlags = 0;
+	MTLBufferDesc.StructureByteStride = 0;
+
+	// We set the the subresource data
+
+	D3D11_SUBRESOURCE_DATA MTLData;
+	MTLData.pSysMem = &MTLConstantData;
+	MTLData.SysMemPitch = 0;
+	MTLData.SysMemSlicePitch = 0;
+
+	// Finally after creating description and subresource data, we create the constant buffer
+
+	hr = gDevice->CreateBuffer(&MTLBufferDesc, &MTLData, &gMTLBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
