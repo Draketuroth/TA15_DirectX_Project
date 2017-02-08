@@ -14,10 +14,10 @@ Texture2D tex0 : register(t0);
 
 struct PS_IN
 {
-	linear float3 Norm: NORMAL;
+	float3 Norm: NORMAL;
 	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
-	float4 WPos : WPOSITION;
+	float4 WPos : POSITION;
 };
 
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer

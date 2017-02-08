@@ -68,6 +68,26 @@ bool WindowInitialize(HWND &windowHandle) {
 	return true;
 }
 
+void showFPS(HWND windowHandle, float deltaTime) {
+
+	static int interval;
+	
+	int fpsCounter = 1.0f / deltaTime;
+	
+	stringstream text_FPS;
+	
+	text_FPS << "FPS: " << fpsCounter;
+
+	interval++;
+
+	if (interval == 200) {
+
+		SetWindowTextA(windowHandle, text_FPS.str().c_str());
+
+		interval = 0;
+	}
+}
+
 LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {

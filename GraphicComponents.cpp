@@ -75,6 +75,10 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
+	if (!CreateShadowMapShader())
+	{
+		return false;
+	}
 
 	if (!CreateBoneShaders()) {
 
@@ -122,7 +126,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		NULL,
+		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -143,6 +147,59 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 		cout << "DirectX Error: DirectX 11 is not supported" << endl;
 		return false;
 	}
+
+	return true;
+}
+
+bool GraphicComponents::CreateShadowMapShader()
+{
+
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\ShadowShaders\\ShadowVS.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+	if (FAILED(hr))
+	{
+		cout << "Shadow Map Vertex Shader Error:  Vertex Shader could not be compiled or loaded from file" << endl;
+		if (vsErrorBlob)
+		{
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+		return false;
+	}
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gShadowVS);
+	if (FAILED(hr))
+	{
+		cout << "Shadow Map Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+		{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}	
+	};
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	hr = gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gShadowVsLayout);
+	
+	if (FAILED(hr))
+	{
+		cout << "Shadow Vertex Shader Error: Vertex layout could not be created" << endl;
+	}
+	vsBlob->Release();
+
+
+	//Shadow PS
+	
 
 	return true;
 }
@@ -188,8 +245,8 @@ void GraphicComponents::SetViewport() {
 	viewport.TopLeftY = 0.0f;	// This is the top left corner's y coordinate in pixels from the window's top left corner
 	viewport.MinDepth = 0.0f;	// This is the minimum depth value used by DirectX
 	viewport.MaxDepth = 1.0f;	// This is the maximum depth value used by Direct3D
-	viewport.Width = 1920;		// This viewport will use a width of user defined pixels. We are using the already defined macro values
-	viewport.Height = 1080;	// This viewport will use a height of user defined pixels. We are using the already defined macro values
+	viewport.Width = WIDTH;		// This viewport will use a width of user defined pixels. We are using the already defined macro values
+	viewport.Height = HEIGHT;	// This viewport will use a height of user defined pixels. We are using the already defined macro values
 
 	gDeviceContext->RSSetViewports(1, &viewport);	// Sets the viewport to be used
 }
@@ -378,6 +435,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		
 	};
 
 
@@ -515,8 +573,8 @@ bool GraphicComponents::CreateBoneShaders() {
 		{ "POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "WEIGHT",			0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BONEINDICES",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "BLENDWEIGHT",			0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 

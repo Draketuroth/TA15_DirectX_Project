@@ -31,7 +31,7 @@ using namespace std;
 
 struct VS_SKINNED_DATA { // Struct to hold the Inverse Global Bind Pose matrices on the GPU
 
-	XMMATRIX gBoneTransform[4];
+	XMMATRIX gBoneTransform[16];
 };
 
 struct VertexBlendInfo {
@@ -54,8 +54,11 @@ struct VertexBlendInfo {
 
 struct Keyframe { // Stores the attributes of a keyframe in an animation
 
-	FbxLongLong FrameNumber;
 	FbxAMatrix GlobalTransform;
+	float TimePos;
+	XMFLOAT3 Translation;
+	XMFLOAT3 Scale;
+	XMFLOAT4 RotationQuat;
 	Keyframe* Next;
 
 	Keyframe() :
@@ -180,16 +183,20 @@ public:
 
 	XMMATRIX Load4X4JointTransformations(Joint joint, int transformIndex);
 	XMMATRIX Load4X4Transformations(FbxAMatrix fbxMatrix);
-	void UpdateAnimation(VS_SKINNED_DATA* boneBufferPointer, float dt);
+	void UpdateAnimation(ID3D11DeviceContext* gDevice);
+	void Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDevice);
+	void InitializeAnimation();
 	
 	Skeleton meshSkeleton;
-	int frameIndex;
+	D3D11_MAPPED_SUBRESOURCE boneMappedResource;
+	float animTimePos;
 
-	XMMATRIX localTransform[18];	// Bind pose matrix
+	XMMATRIX invertedBindPose[16];	// Bind pose matrix
 
 	vector<Keyframe*> offset;
 	vector<Keyframe*> offsetStart;
 	vector<Vertex_Bone>vertices;	// Extra copy of vertices
+	FbxLongLong animationLength;
 
 private:
 
@@ -211,8 +218,6 @@ private:
 	// SECONDARY FUNCTIONS
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	void InitializeAnimation();
-
 	// Geometric transform must be taken into account, even though it's often just an identity matrix (especially in Maya)
 	FbxAMatrix GetGeometryTransformation(FbxNode* node);
 
@@ -233,7 +238,6 @@ private:
 	FbxMesh* currentMesh;
 	vector<int>indices;
 	string animationName;
-	FbxLongLong animationLength;
 
 };
 
