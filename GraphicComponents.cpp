@@ -75,6 +75,10 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
+	if (!CreateShadowMapShader())
+	{
+		return false;
+	}
 
 	if (!CreateBoneShaders()) {
 
@@ -147,6 +151,54 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 	return true;
 }
 
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\ShadowShaders\\ShadowVS.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+	if (FAILED(hr))
+	{
+		cout << "Shadow Map Vertex Shader Error:  Vertex Shader could not be compiled or loaded from file" << endl;
+		if (vsErrorBlob)
+		{
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+		return false;
+	}
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gShadowVS);
+	if (FAILED(hr))
+	{
+		cout << "Shadow Map Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+		{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}	
+	};
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	hr = gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gShadowVsLayout);
+	
+	if (FAILED(hr))
+	{
+		cout << "Shadow Vertex Shader Error: Vertex layout could not be created" << endl;
+	}
+	vsBlob->Release();
+
+
+	//Shadow PS
+	
+
+	return true;
+}
 bool GraphicComponents::CreateRenderTargetView(BufferComponents &bHandler){
 
 	// CreateRenderTargetView function is responsible for:

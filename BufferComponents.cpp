@@ -561,6 +561,28 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
 
+
+	//Matrices for the light, worldViewProjection, to use it for shadowmapping
+
+	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 0.5, -2));
+	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
+	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
+
+	//Light View matrix
+	float lFov = PI * 0.20f;
+
+	float lAspect = WIDTH / HEIGHT;
+
+	float lNearPlane = 0.1f;
+
+	float lFarPlane = 500.0f;
+
+	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightViewProj = lightView * lightProj;
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Final calculation for the transform matrix and the transpose function rearranging it to "Column Major" before being sent to the GPU
@@ -569,9 +591,10 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX finalCalculation = worldMatrix * viewMatrix * projectionMatrix;
 	XMMATRIX tWorld = XMMatrixTranspose(worldMatrix);
 	XMMATRIX tWorldViewProj = XMMatrixTranspose(finalCalculation);
+	XMMATRIX finalLightViewProj = XMMatrixTranspose(lightViewProj);
 	transformMatrix = tWorldViewProj;
 	tWorldMatrix = tWorld;
-
+	tLightViewProj = finalLightViewProj;
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Here we supply the constant buffer data
@@ -584,7 +607,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.worldViewProj = { tWorldViewProj };
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
-
+	GsConstData.lighViewProj = { finalLightViewProj };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;

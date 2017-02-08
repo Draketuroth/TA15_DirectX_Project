@@ -7,6 +7,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixProjection;
 	matrix floorRot;
 	float3 cameraPos;
+	matrix lightViewProj;
 
 };
 
