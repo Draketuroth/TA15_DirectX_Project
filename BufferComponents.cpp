@@ -242,87 +242,94 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	if (ParserSwitch == 1)
 	{
 		fstream mtl_File("C://Users//BTH//Desktop//test//cube.mtl", ios::in | ios::ate);
-	string mtl_Line;
-
-
-	mtl_File.seekg(0, mtl_File.end);
-	int mtl_Size = mtl_File.tellg();
-	mtl_File.seekg(0, mtl_File.beg);
-
-
-
-	//string material;
-	float illum;
-	XMFLOAT3 Kd;
-	XMFLOAT3 Ka;
-	XMFLOAT3 Tf;
-	float Ni;
-
-
-	while (!mtl_File.eof())
-	{
-		mtl_Line.clear();
-
-
-		getline(mtl_File, mtl_Line);
-		istringstream mtl_StringParse(mtl_Line);
-
-		mtl_StringParse >> check;
-		/*if (check == "newmtl")
+	
+		if (!mtl_File.is_open())
 		{
-			mtl_StringParse >> material;
-		}*/
-		if (check == "illum")
-		{
-			mtl_StringParse >>check;
-			illum = stof(check,&sz);
+			fileFound = false;
+			return;
 		}
-		else if (check == "Kd")
+		fileFound = true;
+		string mtl_Line;
+	
+	
+		mtl_File.seekg(0, mtl_File.end);
+		int mtl_Size = mtl_File.tellg();
+		mtl_File.seekg(0, mtl_File.beg);
+	
+	
+	
+		//string material;
+		float illum;
+		XMFLOAT3 Kd;
+		XMFLOAT3 Ka;
+		XMFLOAT3 Tf;
+		float Ni;
+	
+	
+		while (!mtl_File.eof())
 		{
-			mtl_StringParse >> check2;
-			mtl_StringParse >> check3;
-			mtl_StringParse >> check4;
-
-			Kd.x = stof(check2,&sz);
-			Kd.y = stof(check3,&sz);
-			Kd.z = stof(check4,&sz);
-
-		}
-		else if (check == "Ka")
-		{
-			mtl_StringParse >> check2;
-			mtl_StringParse >> check3;
-			mtl_StringParse >> check4;
-
-			Ka.x = stof(check2,&sz);
-			Ka.y = stof(check3,&sz);
-			Ka.z = stof(check4,&sz);
-		}
-		else if (check == "Tf")
-		{
-			mtl_StringParse >> check2;
-			mtl_StringParse >> check3;
-			mtl_StringParse >> check4;
-
-			Tf.x = stof(check2,&sz);
-			Tf.y = stof(check3,&sz);
-			Tf.z = stof(check4,&sz);
-		}
-		else if (check == "Ni")
-		{
+			mtl_Line.clear();
+	
+	
+			getline(mtl_File, mtl_Line);
+			istringstream mtl_StringParse(mtl_Line);
+	
 			mtl_StringParse >> check;
-
-			Ni = stof(check,&sz);
+			/*if (check == "newmtl")
+			{
+				mtl_StringParse >> material;
+			}*/
+			if (check == "illum")
+			{
+				mtl_StringParse >>check;
+				illum = stof(check,&sz);
+			}
+			else if (check == "Kd")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Kd.x = stof(check2,&sz);
+				Kd.y = stof(check3,&sz);
+				Kd.z = stof(check4,&sz);
+	
+			}
+			else if (check == "Ka")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Ka.x = stof(check2,&sz);
+				Ka.y = stof(check3,&sz);
+				Ka.z = stof(check4,&sz);
+			}
+			else if (check == "Tf")
+			{
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+				mtl_StringParse >> check4;
+	
+				Tf.x = stof(check2,&sz);
+				Tf.y = stof(check3,&sz);
+				Tf.z = stof(check4,&sz);
+			}
+			else if (check == "Ni")
+			{
+				mtl_StringParse >> check;
+	
+				Ni = stof(check,&sz);
+			}
+	
 		}
-
-	}
-
-	//cout << "material: " << material << endl;
-	cout << "illum: " << illum << endl;
-	cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
-	cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
-	cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
-	cout << "Ni: " << Ni << endl;
+	
+		//cout << "material: " << material << endl;
+		cout << "illum: " << illum << endl;
+		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
+		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
+		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
+		cout << "Ni: " << Ni << endl;
 	}
 
 	
@@ -607,7 +614,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.worldViewProj = { tWorldViewProj };
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
-	GsConstData.lighViewProj = { finalLightViewProj };
+	GsConstData.lightViewProj = { finalLightViewProj };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;

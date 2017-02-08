@@ -79,35 +79,38 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//Array of resourceviews for shadow map and textures
-	ID3D11ShaderResourceView* resourceArr[2];
-	resourceArr[0] = tHandler.standardResource;
-	resourceArr[1] = tHandler.pSmSRView;
+	if (bHandler.fileFound == true)
+	{
+		//Array of resourceviews for shadow map and textures
+		ID3D11ShaderResourceView* resourceArr[2];
+		resourceArr[0] = tHandler.standardResource;
+		resourceArr[1] = tHandler.pSmSRView;
 
-	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);	// Setting the Vertex Shader 
-	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
-	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
-	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	//gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
-	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
-	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+		gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);	// Setting the Vertex Shader 
+		gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
+		gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
+		gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
+		gHandler.gDeviceContext->PSSetConstantBuffers(0, 1, &bHandler.gMTLBuffer);
+		//gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
+		gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
-	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(OBJStruct);
-	offset = 0;
-	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
+		// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+		vertexSize = sizeof(OBJStruct);
+		offset = 0;
+		gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
 
-	// The input assembler will now recieve the vertices and the vertex layout
+		// The input assembler will now recieve the vertices and the vertex layout
 
-	// The vertices should be interpreted as parts of a triangle in the input assembler
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
+		// The vertices should be interpreted as parts of a triangle in the input assembler
+		gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
-	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
-
-
+		gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
 
 
+
+	}
 
 
 

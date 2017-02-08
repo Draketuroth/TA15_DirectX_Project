@@ -26,6 +26,7 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
 	XMFLOAT3 cameraPos;
+	XMMATRIX lightViewProj;
 
 };
 
@@ -55,6 +56,8 @@ public:
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
+
+	XMMATRIX tLightViewProj;
 
 	vector<Vertex_Bone> fbxVector;
 

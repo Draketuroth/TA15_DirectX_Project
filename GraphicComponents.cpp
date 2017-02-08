@@ -151,6 +151,10 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 	return true;
 }
 
+bool GraphicComponents::CreateShadowMapShader()
+{
+
+	HRESULT hr;
 	ID3DBlob* vsBlob = nullptr;
 	ID3DBlob* vsErrorBlob = nullptr;
 
@@ -199,6 +203,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 
 	return true;
 }
+
 bool GraphicComponents::CreateRenderTargetView(BufferComponents &bHandler){
 
 	// CreateRenderTargetView function is responsible for:
