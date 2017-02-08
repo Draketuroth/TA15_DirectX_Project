@@ -1,5 +1,6 @@
 
 #include "Window.h"
+#include <iostream>
 
 bool WindowInitialize(HWND &windowHandle) {
 

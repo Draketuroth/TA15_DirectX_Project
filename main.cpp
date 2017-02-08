@@ -91,6 +91,13 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
+	if (!tHandler.CreateShadowMap(gHandler.gDevice)) {
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Shadow map couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
 
 	return RunApplication();
 }
