@@ -85,7 +85,7 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 	// We load the FBX file from a selected directory and get its root node (it can be seen as the "handle" to the FBX contents)
 
-	bool bSuccess = pImporter->Initialize("FbxModel\\simple.fbx", -1, gFbxSdkManager->GetIOSettings());
+	bool bSuccess = pImporter->Initialize("FbxModel\\walk.fbx", -1, gFbxSdkManager->GetIOSettings());
 
 	// We only start importing and receiving the file data if initilization of the file went right
 
@@ -289,12 +289,12 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 	FbxAMatrix geometryTransform = GetGeometryTransformation(node); // Geometric offset must be taken into account, even though it's often an identity matrix
 
-	for (unsigned int deformerIndex = 0; deformerIndex < deformerCount; deformerIndex++) {	
+	for (unsigned int deformerIndex = 0; deformerIndex < deformerCount; deformerIndex++) {
 
 		// To reach the link to the joint, we must go through a skin node containing the skinning data holding vertex weights from the binded mesh
 
 		FbxSkin* currentSkin = reinterpret_cast<FbxSkin*>(currentMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-	
+
 		if (!currentSkin) {
 
 			continue;
@@ -317,7 +317,7 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 			currentCluster->GetTransformMatrix(transformMatrix);	// This is the transformation of the mesh at bind time
 			currentCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster (in our case the joint) at binding time from local space to world space
 			globalBindPoseInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
-			
+
 			ConvertToLeftHanded(globalBindPoseInverseMatrix);
 
 			// Next we must update the matrices in the skeleton hierarchy 
@@ -337,7 +337,7 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 				currentBlendPair.BlendIndex = currentJointIndex;
 				currentBlendPair.BlendWeight = currentCluster->GetControlPointWeights()[i];
 				controlPoints[currentCluster->GetControlPointIndices()[i]]->BlendingInfo.push_back(currentBlendPair);
-			
+
 			}
 
 			// Now we can start loading the animation data
@@ -345,14 +345,11 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 			// Alternatively, we can define a ClassId condition and use it in the GetSrcObject function. I found it handy, so I kept this as a comment
 			FbxCriteria animLayerCondition = FbxCriteria::ObjectTypeStrict(FbxAnimLayer::ClassId);
 			//FbxAnimStack* currentAnimStack = FbxCast<FbxAnimStack>(scene->GetSrcObject(condition, 0));
-	
+
 			FbxAnimStack* currentAnimStack = scene->GetSrcObject<FbxAnimStack>(0);	// Retrieve the animation stack which holds the animation layers
+			FbxString animStackName = currentAnimStack->GetName();	// Retrieve the name of the animation stack
 			int numAnimLayers = currentAnimStack->GetMemberCount(animLayerCondition);
 			FbxAnimLayer* animLayer = currentAnimStack->GetMember<FbxAnimLayer>(0);
-
-			FbxString animStackName = currentAnimStack->GetName();	// Retrieve the name of the animation stack
-			
-			animationName = animStackName.Buffer();
 
 			FbxTakeInfo* takeInformation = node->GetScene()->GetTakeInfo(animStackName);	// A take is a group of animation data grouped by name
 			FbxTime startTime = takeInformation->mLocalTimeSpan.GetStart();	// Retrieve start time for the animation (either 0 or the user-specified beginning in the time-line)
@@ -367,16 +364,33 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 				FbxTime currentTime;
 				currentTime.SetFrame(i, FbxTime::eFrames24);
 				*currentAnimation = new Keyframe();
-				(*currentAnimation)->FrameNumber = i;
+				(*currentAnimation)->TimePos = currentTime.GetFrameCount(FbxTime::eFrames24);
 				FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currentTime) * geometryTransform;	// Receives global transformation at time t
 				(*currentAnimation)->GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
+
+				(*currentAnimation)->Translation = XMFLOAT3(
+					(*currentAnimation)->GlobalTransform.GetT().mData[0],
+					(*currentAnimation)->GlobalTransform.GetT().mData[1],
+					(*currentAnimation)->GlobalTransform.GetT().mData[2]);
+
+				(*currentAnimation)->Scale = XMFLOAT3(
+					(*currentAnimation)->GlobalTransform.GetS().mData[0],
+					(*currentAnimation)->GlobalTransform.GetS().mData[1],
+					(*currentAnimation)->GlobalTransform.GetS().mData[2]);
+
+				(*currentAnimation)->RotationQuat = XMFLOAT4(
+					(*currentAnimation)->GlobalTransform.GetQ().mData[0],
+					(*currentAnimation)->GlobalTransform.GetQ().mData[1],
+					(*currentAnimation)->GlobalTransform.GetQ().mData[2],
+					(*currentAnimation)->GlobalTransform.GetQ().mData[3]);
+
 				currentAnimation = &((*currentAnimation)->Next);
 
 			}
 
 		}
-
 	}
+
 }
 
 void FbxImport::SetGlobalTransform() {
@@ -390,30 +404,61 @@ void FbxImport::SetGlobalTransform() {
 	}
 }
 
-void FbxImport::UpdateAnimation(VS_SKINNED_DATA* boneBufferPointer, float dt) {
+void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 
-	if (frameIndex == animationLength) {
+	gDeviceContext->Map(gBoneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMappedResource);
+	VS_SKINNED_DATA* boneBufferPointer = (VS_SKINNED_DATA*)boneMappedResource.pData;
 
-		frameIndex = 0;
+	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
 
-		for(int i = 0; i < meshSkeleton.hierarchy.size(); i++){
+		Interpolate(boneBufferPointer,i, gDeviceContext);
+	}
+
+	gDeviceContext->Unmap(gBoneBuffer, 0);
+
+}
+
+void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext) {
+
+	if (offset[jointIndex]->Next == NULL) {
+
+		for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
 
 			offset[i] = offsetStart[i];
-
 		}
 	}
 
-	for(int i = 0; i < meshSkeleton.hierarchy.size(); i++){
+	if (animTimePos >= offset[jointIndex]->TimePos && animTimePos <= offset[jointIndex]->Next->TimePos){
 
-		//ConvertToLeftHanded(offset[i]->GlobalTransform);
-	
-		boneBufferPointer->gBoneTransform[i] = Load4X4Transformations(offset[i]->GlobalTransform.Transpose()) * XMMatrixTranspose(localTransform[i]);
-	
-		//offset[i] = offset[i]->Next;
+		XMFLOAT4X4 M;
+		float kFirst = offset[jointIndex]->TimePos;
+		float kLast = offset[jointIndex]->Next->TimePos;
+
+		float interpolationProcent = (animTimePos - kFirst) / (kLast - kFirst);
+
+		XMVECTOR kFirstScale = XMLoadFloat3(&offset[jointIndex]->Scale);
+		XMVECTOR kLastScale = XMLoadFloat3(&offset[jointIndex]->Next->Scale);
+
+		XMVECTOR kFirstTranslation = XMLoadFloat3(&offset[jointIndex]->Translation);
+		XMVECTOR kLastTranslation = XMLoadFloat3(&offset[jointIndex]->Next->Translation);
+
+		XMVECTOR kFirstQuaternion = XMLoadFloat4(&offset[jointIndex]->RotationQuat);
+		XMVECTOR kLastQuaternion = XMLoadFloat4(&offset[jointIndex]->Next->RotationQuat);
+
+		XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, interpolationProcent);
+		XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, interpolationProcent);
+		XMVECTOR Q = XMQuaternionSlerp(kFirstQuaternion, kLastQuaternion, interpolationProcent);
+
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
+		
+		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
+
+		offset[jointIndex] = offset[jointIndex]->Next;
 
 	}
 
-	frameIndex++;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------//

@@ -118,20 +118,20 @@ int RunApplication() {
 	mCam.mLastMousePos.y = 0;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	D3D11_MAPPED_SUBRESOURCE boneMappedResource;
-	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
 	// Starting angle for the rotation matrix is stored in the angle variable
-
+	int interval = 0;
 	float angle = 0.05f;
-	fbxImporter.frameIndex = 0;
+	fbxImporter.animTimePos = 0.0f;
 
-	const int MAX_STEPS = 6;
-	const float MAX_DELTA_TIME = 1.0f;
-	const float DESIRED_FPS = 60.0f;
-	const float MS_PER_SECOND = 1000;
-	const float DESIRED_FRAMETIME = MS_PER_SECOND / DESIRED_FPS;
-	float previousTicks = GetTickCount();
+	// Storing the counts per second
+	__int64 countsPerSecond = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
+	float secondsPerCount = 1.0f / countsPerSecond;
+
+	// Initialize the previous time
+	__int64 previousTime = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 
 	while (windowMessage.message != WM_QUIT) {
 
@@ -149,53 +149,52 @@ int RunApplication() {
 			// DELTA TIMING
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			VS_SKINNED_DATA* boneBufferPointer = (VS_SKINNED_DATA*)boneMappedResource.pData;
-			gHandler.gDeviceContext->Map(fbxImporter.gBoneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMappedResource);
+			// Capture the current count
 
-			float newTicks = GetTickCount();
-			float frameTime = newTicks - previousTicks;
-			previousTicks = newTicks;
-			float totalDeltaTime = frameTime / DESIRED_FRAMETIME;
+			__int64 currentTime = 0;
+			QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
 
-			int i = 0;
+			// Calculate the delta time
 
-			while (totalDeltaTime > 0.0f && i < MAX_STEPS) {
+			float deltaTime = ((currentTime - previousTime) * secondsPerCount);
 
-				float deltaTime = min(totalDeltaTime, MAX_DELTA_TIME);
+			float speed = 10.0f;
 
-				if (GetAsyncKeyState('W') & 0x8000) {
+			if (GetAsyncKeyState('W') & 0x8000) {
 
-					mCam.Walk(-0.05f * deltaTime);
-				}
-
-				if (GetAsyncKeyState('S') & 0x8000) {
-
-					mCam.Walk(0.05f * deltaTime);
-				}
-
-				if (GetAsyncKeyState('A') & 0x8000) {
-
-					mCam.Strafe(0.05f * deltaTime);
-				}
-
-				if (GetAsyncKeyState('D') & 0x8000) {
-
-					mCam.Strafe(-0.05f * deltaTime);
-				}
-
-				fbxImporter.UpdateAnimation(boneBufferPointer, deltaTime);
-
-				POINT p;
-				GetCursorPos(&p);
-
-				mCam.OnMouseMove(WM_LBUTTONDOWN, p.x, p.y);
-
-				totalDeltaTime -= deltaTime;
-				i++;
-
+				mCam.Walk(-speed * deltaTime);
 			}
 
-			gHandler.gDeviceContext->Unmap(fbxImporter.gBoneBuffer, 0);
+			if (GetAsyncKeyState('S') & 0x8000) {
+
+				mCam.Walk(speed * deltaTime);
+			}
+
+			if (GetAsyncKeyState('A') & 0x8000) {
+
+				mCam.Strafe(speed * deltaTime);
+			}
+
+			if (GetAsyncKeyState('D') & 0x8000) {
+
+				mCam.Strafe(-speed * deltaTime);
+			}
+
+			showFPS(windowHandle, deltaTime);
+
+			fbxImporter.animTimePos += 1;
+
+			if (fbxImporter.animTimePos >= fbxImporter.animationLength){
+					
+				fbxImporter.animTimePos = 0.0f;
+			}
+
+			fbxImporter.UpdateAnimation(gHandler.gDeviceContext);
+
+			POINT p;
+			GetCursorPos(&p);
+
+			mCam.OnMouseMove(WM_LBUTTONDOWN, p.x, p.y);
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CAMERA UPDATE
@@ -249,6 +248,11 @@ int RunApplication() {
 			gHandler.gSwapChain->Present(0, 0); // Change front and back buffer
 
 			angle = angle - 0.001;	// Angle is updated for every frame
+
+			// Set previous time to current time after the frame ends
+
+			previousTime = currentTime;
+
 		}
 
 	}
