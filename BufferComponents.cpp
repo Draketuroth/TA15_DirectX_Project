@@ -332,7 +332,21 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			}
 	
 		}
-	
+
+		//--------- MTLCONSTANT DATA ASSIGNMENTS ---------------//
+		MTLConstandData.Illum = illum;
+		MTLConstandData.Ka.x = Ka.x;
+		MTLConstandData.Ka.y = Ka.y;
+		MTLConstandData.Ka.z = Ka.z;
+		MTLConstandData.Kd.x = Kd.x;
+		MTLConstandData.Kd.y = Kd.y;
+		MTLConstandData.Kd.z = Kd.z;
+		MTLConstandData.Tf.x = Tf.x;
+		MTLConstandData.Tf.y = Tf.y;
+		MTLConstandData.Tf.z = Tf.z;
+		MTLConstandData.Ni = Ni;
+		
+	//-----------------------------------------------------------------//
 		//cout << "material: " << material << endl;
 		cout << "illum: " << illum << endl;
 		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
@@ -671,6 +685,9 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
+
+
+	
 	
 	D3D11_BUFFER_DESC MTLBufferDesc;
 	MTLBufferDesc.ByteWidth = sizeof(MTL_STRUCT);
