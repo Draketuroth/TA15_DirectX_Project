@@ -25,7 +25,7 @@ struct GS_OUT
 	float4 WPos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float4 Norm: NORMAL;
-	
+	float4 lPos : TEXCOORD1;
 
 };
 
@@ -56,6 +56,8 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 		// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
 
 		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+
+		output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), lightViewProj);
 
 		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
 
