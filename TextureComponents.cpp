@@ -29,9 +29,9 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -47,11 +47,13 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 	CoInitialize(NULL);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 1024);
+	CreateWICTextureFromFile(gDevice,NULL, L"Textures\\small.jpg", NULL,&terrainResource,256);
 
 	if (SUCCEEDED(hr) && texture != 0) {
 
 		gDevice->CreateShaderResourceView(texture, nullptr, &standardResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &boneResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &terrainResource);
 
 		if (FAILED(hr)) {
 

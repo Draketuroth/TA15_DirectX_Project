@@ -22,9 +22,10 @@ struct GS_IN
 struct GS_OUT
 {
 	float4 Pos : SV_POSITION;
-	float4 WPos : WPOSITION;
+	float4 WPos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float4 Norm: NORMAL;
+	
 
 };
 
