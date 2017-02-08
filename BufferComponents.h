@@ -29,7 +29,8 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX lightViewProj;
 
 };
-
+//Declspec helps to declare the bytewidth of the constant buffer
+__declspec(align(16))
 struct MTL_STRUCT
 	{
 
