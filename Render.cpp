@@ -139,4 +139,3 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 }
 
 
-}

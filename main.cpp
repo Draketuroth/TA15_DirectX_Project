@@ -85,8 +85,8 @@ int main() {
 
 	terrain.LoadRAW(); 
 	terrain.BuildHeightmapSRV(gHandler.gDevice);
-	terrain.BuildQuadPatchIB(gHandler.gDevice);
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
+	terrain.BuildQuadPatchIB(gHandler.gDevice);
 
 	if (!tHandler.CreateTexture(gHandler.gDevice)) {
 

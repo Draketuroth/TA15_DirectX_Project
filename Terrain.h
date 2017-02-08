@@ -32,6 +32,7 @@ public:
 		UINT HMapHeight;
 
 		//the cell spacing along the x- and z- axes 
+		//med andra ord hur långt det är mellan varje vertis
 		float CellSpacing;
 	};
 
