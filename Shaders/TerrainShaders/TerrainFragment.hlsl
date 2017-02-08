@@ -1,6 +1,7 @@
 
 SamplerState texSampler: register(s0);
 Texture2D tex0 : register(t0);
+Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
@@ -19,7 +20,7 @@ struct PS_IN
 	float4 WPos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Norm: NORMAL;
-	
+	float4 lPos : TEXCOORD1;
 	
 	
 };
@@ -33,9 +34,16 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 diffuseLight;
 	float3 specularLight;
 
-	
+	input.lPos.xy /= input.lPos.w; //light pos in NDC
 
+	//getting the light pos from [-1, 1] to [0, 1]
+	float2 smTexture = float2(0.5f * input.lPos.x + 0.5f, -0.5f * input.lPos.y + 0.5f);
+
+	//pixel depth for shadows
+	float depth = input.lPos.z / input.lPos.w;
 	
+	//float shadowDepth = (shadowMap.Sample(texSampler))
+
 	float nDotL;
 	float3 texColor;
 	float4 color;
