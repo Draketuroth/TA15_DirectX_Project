@@ -7,6 +7,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixProjection;
 	matrix floorRot;
 	float3 cameraPos;
+	matrix lightViewProj;
 
 };
 
@@ -21,9 +22,10 @@ struct GS_IN
 struct GS_OUT
 {
 	float4 Pos : SV_POSITION;
-	float4 WPos : WPOSITION;
+	float4 WPos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float4 Norm: NORMAL;
+	
 
 };
 

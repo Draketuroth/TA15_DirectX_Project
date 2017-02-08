@@ -8,7 +8,7 @@
 
 cbuffer VS_SKINNED_DATA: register (b0) {
 
-	float4x4 gBoneTransforms[4];
+	float4x4 gBoneTransforms[16];
 };
 
 struct VS_IN
@@ -16,8 +16,8 @@ struct VS_IN
 	float3 Pos : POSITION;
 	float2 Tex : TEXCOORD;
 	float3 Norm : NORMAL;
-	float4 Weight : WEIGHT;
-	uint4 BoneIndices : BONEINDICES;
+	float4 Weight : BLENDWEIGHT;
+	uint4 BoneIndices : BLENDINDICES;
 };
 
 struct VS_OUT

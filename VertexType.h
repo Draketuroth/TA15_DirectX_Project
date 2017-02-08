@@ -32,6 +32,8 @@ struct OBJStruct
 	XMFLOAT3 Varr;
 	XMFLOAT2 VTarr;
 	XMFLOAT3 VNarr;
+	
+	
 };
 
 struct TerrainVertex {
