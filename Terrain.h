@@ -1,4 +1,3 @@
-//thihtihtitihithtihti
 #ifndef TERRAIN_H
 #define TERRAIN_H
 #define ReleaseCOM(x)
@@ -23,13 +22,6 @@ public:
 	struct InitInfo
 	{
 		//här måste vi först hämta hightmapen
-		wstring HMapFilename0; 
-
-		//Texture filnemes för hightmapen
-		wstring HMapFilename1;
-		wstring HMapFilename2;
-		wstring HMapFilename3; 
-		wstring HMapFilename4; 
 		wstring HMapFilename; 
 
 		//skala
@@ -46,23 +38,22 @@ public:
 	Terrain();
 	~Terrain();
 
-	void LoadHeightMap();
 	bool inBounds(int i, int j); 
 	float Average(int i, int j);
-
-	//ifall terreringen behöver smooth
+	void LoadRAW();
 	void Smooth(); 
-
-	void CalculateGridDimension();
-	float GetWidth()const;
-	float GetDepth()const;
 	void BuildHeightmapSRV(ID3D11Device* device);
-	void BuildQuadPatchVB(ID3D11Device* device);
+	float GetWidth()const; 
+	float GetDepth()const; 
+	void BuildQuadPatchVB(ID3D11Device* device); 
 	void BuildQuadPatchIB(ID3D11Device* device);
 
 	ID3D11ShaderResourceView* heightmapSRV;
 	ID3D11Buffer* mQuadPatchVB;
 	ID3D11Buffer* mQuadPatchIB;
+
+	//en objstruct = 1 vertecis
+	vector<OBJStruct> terrainV; 
 	
 private:
 
@@ -70,13 +61,30 @@ private:
 	vector<XMFLOAT2>PatchBoundsY;
 	InitInfo terrainInfo;
 
+	static const int cellperPatch = 64; 
 	int NumPatchVertRows;
 	int NumPatchVertCols;
 
 	int NumPatchVertices;
 	int NumPatchQuadFaces;
-
+	
 };
 
+//en egen namespace som håller två structer
+namespace Vertex
+{
+	struct Basic32
+	{
+		XMFLOAT3 Position; 
+		XMFLOAT3 Normal; 
+		XMFLOAT2 Texture; 
+	};
 
+	struct terrain
+	{
+		XMFLOAT3 Position;
+		XMFLOAT2 Texture;
+		XMFLOAT2 BoundsY;
+	};
+}
 #endif

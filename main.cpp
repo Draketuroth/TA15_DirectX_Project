@@ -83,6 +83,11 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
+	terrain.LoadRAW(); 
+	terrain.BuildHeightmapSRV(gHandler.gDevice);
+	terrain.BuildQuadPatchIB(gHandler.gDevice);
+	terrain.BuildQuadPatchVB(gHandler.gDevice);
+
 	if (!tHandler.CreateTexture(gHandler.gDevice)) {
 
 		MessageBox(

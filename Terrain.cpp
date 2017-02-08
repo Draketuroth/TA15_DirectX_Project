@@ -1,47 +1,52 @@
 #include "Terrain.h"
 
-Terrain::Terrain(){
+Terrain::Terrain()
+{
+	InitInfo info;
+	info.HMapFilename = L"Textures\\terrain.raw";
+	info.HMapHeight = 64; 
+	info.HMapWidth = 64;
 
+	NumPatchVertRows = ((info.HMapHeight - 1) / cellperPatch) + 1; 
+	NumPatchVertCols = ((info.HMapWidth - 1) / cellperPatch) + 1; 
+
+	NumPatchVertices = NumPatchVertRows*NumPatchVertCols; 
+	NumPatchQuadFaces = (NumPatchVertRows - 1) * (NumPatchVertCols - 1);
 }
 
-Terrain::~Terrain(){
-
-
-}
-
-void Terrain::LoadHeightMap() {
-
-	const wchar_t* fileName = L"Textures\\terrain.raw";
-	terrainInfo.HMapWidth = 64;
-	terrainInfo.HMapHeight = 64;
-
-	// A height for each vertex
-	vector<unsigned char>in(terrainInfo.HMapWidth * terrainInfo.HMapHeight);
-
-	// Open the file
+Terrain::~Terrain()
+{
 	
-	ifstream inFile;
-	inFile.open(fileName, ios_base::binary);
 
-	if (inFile) {
+}
 
-		// Read the RAW bytes
-		inFile.read((char*)&in[0], (streamsize)in.size());
+//load RAW file to heightMap
+void Terrain::LoadRAW()
+{
+	InitInfo info; 
 
-		// When we are done with the file, close the ifstream
+	//tar emot höjden för var vertex
+	vector<unsigned char> in(info.HMapWidth * info.HMapHeight); 
+	
+	//open file
+	ifstream inFile; 
+	inFile.open(info.HMapFilename.c_str(), std::ios_base::binary); 
+	if (inFile)
+	{
+		//read RAW bytes
+		inFile.read((char*)&in[0], (std::streamsize)in.size()); 
 
-		inFile.close();
+		//done
+		inFile.close(); 
 	}
 
-	// Copy array data into a float array and scale it
-
-	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
-
-	for (UINT i = 0; i < terrainInfo.HMapHeight * terrainInfo.HMapWidth; ++i) {
-
-		heightMap[i] = (in[i] / 255.0f) * terrainInfo.HeightScale;
+	
+	//copy the array data into a float array and scale it
+	heightMap.resize(info.HMapHeight * info.HMapWidth, 0); 
+	for (UINT i = 0; i < info.HMapHeight * info.HMapWidth; i++)
+	{
+		heightMap[i] = (in[i] / 255.0f)*info.HeightScale;
 	}
-
 }
 
 bool Terrain::inBounds(int i, int j)
@@ -78,6 +83,7 @@ float Terrain::Average(int i, int j)
 	return avg / num; 
 }
 
+//shaderResure view
 void Terrain::BuildHeightmapSRV(ID3D11Device* device)
 {
 	InitInfo mInfo;
@@ -96,7 +102,7 @@ void Terrain::BuildHeightmapSRV(ID3D11Device* device)
 	texDesc.MiscFlags = 0;
 
 	vector<HALF> hmap(heightMap.size()); 
-	transform<>(heightMap.begin(), heightMap.end(), hmap.begin(), hmap.end(), multiplies <int>());
+	transform<>(heightMap.begin(), heightMap.end(), hmap.begin(),XMConvertFloatToHalf);
 	D3D11_SUBRESOURCE_DATA data; 
 	data.pSysMem = &hmap; 
 	data.SysMemPitch = mInfo.HMapHeight * sizeof(HALF);
@@ -132,130 +138,91 @@ void Terrain::Smooth() {
 	heightMap = dest;
 }
 
-void Terrain::CalculateGridDimension() {
-
-	// Here we calculate the vertex grid dimensions
-
-	static const int CellsPerPatch = 64;
-
-	NumPatchVertRows = ((terrainInfo.HMapHeight - 1) / CellsPerPatch) + 1;
-	NumPatchVertCols = ((terrainInfo.HMapWidth - 1) / CellsPerPatch) + 1;
-
-	// The total number of patch vertices and quad patch primitives are calculated by:
-
-	NumPatchVertices = NumPatchVertRows * NumPatchVertCols;
-	NumPatchQuadFaces = (NumPatchVertRows - 1) * (NumPatchVertCols - 1);
+float Terrain::GetWidth()const
+{
+	InitInfo info; 
+	return (info.HMapWidth - 1)*info.CellSpacing; 
 }
 
-float Terrain::GetWidth()const {
-
-	// Return the total terrain width
-
-	return(terrainInfo.HMapWidth - 1) * terrainInfo.CellSpacing;
+float Terrain::GetDepth()const
+{
+	InitInfo info; 
+	return (info.HMapHeight - 1)*info.CellSpacing; 
 }
 
-float Terrain::GetDepth()const {
+void Terrain::BuildQuadPatchVB(ID3D11Device* device)
+{
+	vector<Vertex::terrain> patchVertices(NumPatchVertRows*NumPatchVertCols); 
 
-	// Return the total terrain depth
+	float halfWidth = 0.5f*GetWidth(); 
+	float halfDepth = 0.5f*GetDepth(); 
 
-	return(terrainInfo.HMapHeight - 1) * terrainInfo.CellSpacing;
-}
+	float patchWidth = GetWidth() / (NumPatchVertCols - 1); 
+	float patchDepth = GetDepth() / (NumPatchVertRows - 1); 
 
-void Terrain::BuildQuadPatchVB(ID3D11Device* device) {
+	float du = 1.0f / (NumPatchVertCols - 1); 
+	float dv = 1.0f / (NumPatchVertRows - 1); 
 
-	HRESULT hr;
+	for (UINT i = 0; i < NumPatchVertRows; i++)
+	{
+		float z = halfDepth - i*patchDepth; 
+		for (UINT j = 0; j < NumPatchVertCols; ++j)
+		{
+			float x = -halfWidth + j*patchWidth; 
+			patchVertices[i*NumPatchVertCols + j].Position = XMFLOAT3(x, 0.0f, z); 
 
-	vector<TerrainVertex>patchVertices(NumPatchVertRows * NumPatchVertCols);
-
-	float halfWidth = 0.5 * GetWidth();
-	float halfDepth = 0.5f * GetDepth();
-
-	float patchWidth = GetWidth() / (NumPatchVertCols - 1);
-	float patchDepth = GetDepth() / (NumPatchVertRows - 1);
-
-	float du = 1.0f / (NumPatchVertCols - 1);
-	float dv = 1.0f / (NumPatchVertRows - 1);
-
-	for (UINT i = 0; i < NumPatchVertRows; i++) {
-
-		float z = halfDepth - i * patchDepth;
-
-		for (UINT j = 0; j < NumPatchVertCols; j++) {
-
-			float x = -halfWidth + j * patchWidth;
-			patchVertices[i * NumPatchVertCols + j].Pos = XMFLOAT3(x, 0.0f, z);
-
-			// Stretch the texture over the grid
-
-			patchVertices[i * NumPatchVertCols + j].Tex.x = j * du;
-			patchVertices[i * NumPatchVertCols + j].Tex.y = i * dv;
+			//sträcka texturen över griden
+			patchVertices[i*NumPatchVertCols + j].Texture.x = j*du; 
+			patchVertices[i*NumPatchVertCols + j].Texture.y = i*dv; 
 		}
 	}
 
-	// Store axis-aligned bounding box y-bounds in the upper-left corner
+	D3D11_BUFFER_DESC vbd; 
+	vbd.Usage = D3D11_USAGE_DEFAULT; 
+	vbd.ByteWidth = sizeof(Vertex::terrain) * patchVertices.size(); 
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; 
+	vbd.CPUAccessFlags = 0; 
+	vbd.MiscFlags = 0; 
+	vbd.StructureByteStride = 0; 
 
-	/*for (UINT i = 0; i < NumPatchVertRows - 1; i++) {
-
-		for (UINT j = 0; j < NumPatchVertCols - 1; j++) {
-
-			UINT patchID = i * (NumPatchVertCols - 1) + j;
-			patchVertices[i * NumPatchVertCols + j].BoundsY = PatchBoundsY[patchID];
-		}
-	}*/
-
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexBufferDesc.ByteWidth = sizeof(TerrainVertex) * patchVertices.size();
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexInitData;
-	vertexInitData.pSysMem = &patchVertices[0];
-	hr = device->CreateBuffer(&vertexBufferDesc, &vertexInitData, &mQuadPatchVB);
+	D3D11_SUBRESOURCE_DATA vinitData; 
+	vinitData.pSysMem = &patchVertices[0]; 
+	HRESULT(device->CreateBuffer(&vbd, &vinitData, &mQuadPatchVB)); 
 
 }
 
-void Terrain::BuildQuadPatchIB(ID3D11Device* device) {
+void Terrain::BuildQuadPatchIB(ID3D11Device* device)
+{
+	//4 indices per quad face
+	vector<int> indices(NumPatchQuadFaces * 4); 
+	//iterate over eachquad and compute indices
+	int k = 0; 
+	for (UINT i = 0; i < NumPatchVertRows - 1; ++i)
+	{
+		for (UINT j = 0; j < NumPatchVertCols - 1; ++j)
+		{
+			//top row of 2x2 quad patch
+			indices[k] = i * NumPatchVertCols + j; 
+			indices[k + 1] = i * NumPatchVertCols + j + 1; 
 
-	HRESULT hr;
-
-	// There are four indices per quad face
-
-	vector<USHORT>indices(NumPatchQuadFaces * 4);
-
-	// We must now iterate over each quad and compute the indices
-
-	int k = 0;
-
-	for (UINT i = 0; i < NumPatchVertRows - 1; i++) {
-
-		for (UINT j = 0; j < NumPatchVertCols - 1; j++) {
-
-			// This will be the top row of 2x2 quad patch
-
-			indices[k] = i * NumPatchVertCols + j;
-			indices[k + 1] = i * NumPatchVertCols + j + 1;
-
-			// This will be the bottom row of 2x2 quad patch
-
-			indices[k + 2] = (i + 1) * NumPatchVertCols + j;
-			indices[k + 3] = (i + 1) * NumPatchVertCols + j + 1;
-			k += 4; // Next quad
+			//bottom row 2x2 quad patch
+			indices[k + 2] = (i + 1)*NumPatchVertCols + j; 
+			indices[k + 3] = (i + 1)*NumPatchVertCols + j + 1;
+			//next quad
+			k += 4; 
 		}
 	}
 
-	D3D11_BUFFER_DESC indexBufferDesc;
-	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	indexBufferDesc.ByteWidth = sizeof(USHORT) * indices.size();
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC ibd;
+	memset(&ibd, 0, sizeof(ibd));
+	ibd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.CPUAccessFlags = 0; 
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+	ibd.ByteWidth = terrainV.size() * sizeof(OBJStruct);
 
-	D3D11_SUBRESOURCE_DATA indexInitData;
-	indexInitData.pSysMem = &indices[0];
-	hr = (device->CreateBuffer(&indexBufferDesc, &indexInitData, &mQuadPatchIB));
-
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &indices[0];
+	HRESULT(device->CreateBuffer(&ibd, &iinitData, &mQuadPatchIB));
 }

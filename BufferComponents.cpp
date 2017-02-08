@@ -278,8 +278,6 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	
-
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
