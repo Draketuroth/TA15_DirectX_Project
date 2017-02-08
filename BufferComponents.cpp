@@ -671,6 +671,7 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
+	
 	D3D11_BUFFER_DESC MTLBufferDesc;
 	MTLBufferDesc.ByteWidth = sizeof(MTL_STRUCT);
 	MTLBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
