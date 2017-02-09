@@ -6,7 +6,7 @@ Terrain::Terrain()
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64;
 	//längden mellan varje vertis
-	terrainInfo.CellSpacing = 1; 
+	terrainInfo.quadSize = 1;
 
 	NumPatchVertRows = ((terrainInfo.HMapHeight - 1) / cellperPatch) + 1;
 	NumPatchVertCols = ((terrainInfo.HMapWidth - 1) / cellperPatch) + 1;
@@ -151,12 +151,12 @@ void Terrain::Smooth() {
 
 float Terrain::GetWidth()const
 {
-	return (terrainInfo.HMapWidth - 1)*terrainInfo.CellSpacing;
+	return (terrainInfo.HMapWidth - 1)*terrainInfo.quadSize;
 }
 
 float Terrain::GetDepth()const
 {
-	return (terrainInfo.HMapHeight - 1)*terrainInfo.CellSpacing;
+	return (terrainInfo.HMapHeight - 1)*terrainInfo.quadSize;
 }
 
 void Terrain::BuildQuadPatchVB(ID3D11Device* device)
@@ -207,24 +207,32 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	//4 indices per quad face
 	vector<USHORT> indices(NumPatchQuadFaces * 4); 
 	//iterate over eachquad and compute indices
+	USHORT a; 
+	USHORT b; 
+	USHORT c; 
+	USHORT d;
+
 	int k = 0; 
 	for (UINT i = 0; i < NumPatchVertRows - 1; ++i)
 	{
 		for (UINT j = 0; j < NumPatchVertCols - 1; ++j)
 		{
-
-
-			//indices.push_back()
+			//indices.push_back(k	* NumPatchVertCols + j); 
 
 			//top row of 2x2 quad patch
-			indices[k] = i * NumPatchVertCols + j; 
-			indices[k + 1] = i * NumPatchVertCols + j + 1; 
+			a = indices[k] = i * NumPatchVertCols + j; 
+			b = indices[k + 1] = i * NumPatchVertCols + j + 1; 
 
 			//bottom row 2x2 quad patch
-			indices[k + 2] = (i + 1)*NumPatchVertCols + j; 
-			indices[k + 3] = (i + 1)*NumPatchVertCols + j + 1;
+			c = indices[k + 2] = (i + 1)*NumPatchVertCols + j; 
+			d = indices[k + 3] = (i + 1)*NumPatchVertCols + j + 1;
 			//next quad
 			k += 4; 
+
+			indices.push_back(a); 
+			indices.push_back(b);
+			indices.push_back(c);
+			indices.push_back(d);
 		}
 	}
 
@@ -238,7 +246,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	ibd.ByteWidth = terrainV.size() * sizeof(OBJStruct);
 
 	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &indices[0];
+	iinitData.pSysMem = indices.data();
 	hr = device->CreateBuffer(&ibd, &iinitData, &mQuadPatchIB);
 
 	if (hr != S_OK)
