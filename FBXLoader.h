@@ -59,13 +59,6 @@ struct Keyframe { // Stores the attributes of a keyframe in an animation
 	XMFLOAT3 Translation;
 	XMFLOAT3 Scale;
 	XMFLOAT4 RotationQuat;
-	Keyframe* Next;
-
-	Keyframe() :
-
-		Next(nullptr)
-
-	{}
 
 };
 
@@ -78,13 +71,12 @@ struct Joint { // Stores the attributes of a joint node
 	FbxAMatrix TransformMatrix;
 	FbxAMatrix TransformLinkMatrix;
 
-	Keyframe* Animation;
+	vector<Keyframe> Animation;
 	FbxNode* Node;
 
 	Joint() :
 
-		Node(nullptr),
-		Animation(nullptr)
+		Node(nullptr)
 
 	{
 		GlobalBindposeInverse.SetIdentity();
@@ -193,8 +185,6 @@ public:
 
 	XMMATRIX invertedBindPose[16];	// Bind pose matrix
 
-	vector<Keyframe*> offset;
-	vector<Keyframe*> offsetStart;
 	vector<Vertex_Bone>vertices;	// Extra copy of vertices
 	FbxLongLong animationLength;
 

@@ -357,34 +357,33 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 			animationLength = endTime.GetFrameCount(FbxTime::eFrames24) - startTime.GetFrameCount(FbxTime::eFrames24) + 1;	// To receive the total animation length, just subtract the start time frame with end time frame
 
-			Keyframe** currentAnimation = &meshSkeleton.hierarchy[currentJointIndex].Animation;	// Get an individual bone in the hierarchy and store its animation data
-
+			meshSkeleton.hierarchy[currentJointIndex].Animation.resize(animationLength);
+			
 			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= endTime.GetFrameCount(FbxTime::eFrames24); i++) {
 
+				
 				FbxTime currentTime;
 				currentTime.SetFrame(i, FbxTime::eFrames24);
-				*currentAnimation = new Keyframe();
-				(*currentAnimation)->TimePos = currentTime.GetFrameCount(FbxTime::eFrames24);
+				meshSkeleton.hierarchy[currentJointIndex].Animation[i].TimePos = currentTime.GetFrameCount(FbxTime::eFrames24);
+
 				FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currentTime) * geometryTransform;	// Receives global transformation at time t
-				(*currentAnimation)->GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
+				meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
 
-				(*currentAnimation)->Translation = XMFLOAT3(
-					(*currentAnimation)->GlobalTransform.GetT().mData[0],
-					(*currentAnimation)->GlobalTransform.GetT().mData[1],
-					(*currentAnimation)->GlobalTransform.GetT().mData[2]);
+				meshSkeleton.hierarchy[currentJointIndex].Animation[i].Translation = XMFLOAT3(
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[2]);
 
-				(*currentAnimation)->Scale = XMFLOAT3(
-					(*currentAnimation)->GlobalTransform.GetS().mData[0],
-					(*currentAnimation)->GlobalTransform.GetS().mData[1],
-					(*currentAnimation)->GlobalTransform.GetS().mData[2]);
+				meshSkeleton.hierarchy[currentJointIndex].Animation[i].Scale = XMFLOAT3(
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[2]);
 
-				(*currentAnimation)->RotationQuat = XMFLOAT4(
-					(*currentAnimation)->GlobalTransform.GetQ().mData[0],
-					(*currentAnimation)->GlobalTransform.GetQ().mData[1],
-					(*currentAnimation)->GlobalTransform.GetQ().mData[2],
-					(*currentAnimation)->GlobalTransform.GetQ().mData[3]);
-
-				currentAnimation = &((*currentAnimation)->Next);
+				meshSkeleton.hierarchy[currentJointIndex].Animation[i].RotationQuat = XMFLOAT4(
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[2],
+					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[3]);
 
 			}
 
@@ -417,34 +416,64 @@ void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 	gDeviceContext->Unmap(gBoneBuffer, 0);
 
 }
-// habibi nooo
-
+// HABIBO
 void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext) {
 
-	if (offset[jointIndex]->Next == NULL) {
+	// Animation has just started, so return the first keyframe
 
-		for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
-
-			offset[i] = offsetStart[i];
-		}
-	}
-
-	if (animTimePos >= offset[jointIndex]->TimePos && animTimePos <= offset[jointIndex]->Next->TimePos){
+	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animation[0].TimePos) {
 
 		XMFLOAT4X4 M;
-		float kFirst = offset[jointIndex]->TimePos;
-		float kLast = offset[jointIndex]->Next->TimePos;
+
+		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Scale);
+		XMVECTOR P = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Translation);
+		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[0].RotationQuat);
+
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+
+		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
+	}
+
+	// Animation has reached its end, so return the last keyframe
+
+	else if (animTimePos >= meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].TimePos) {
+
+		XMFLOAT4X4 M;
+
+		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].Scale);
+		XMVECTOR P = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].Translation);
+		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].RotationQuat);
+
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+
+		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
+	}
+
+	// Animation time is between two frames so they should be interpolated
+
+	else{
+
+		XMFLOAT4X4 M;
+		// I am using an int here to truncate the animation timepose to know which matrices I am interested about
+		// Ex. if time is 1.2, the returning frame is 1.
+		int currentFrameIndex = animTimePos;
+		float kFirst = meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].TimePos;
+		float kLast = meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].TimePos;
 
 		float interpolationProcent = (animTimePos - kFirst) / (kLast - kFirst);
 
-		XMVECTOR kFirstScale = XMLoadFloat3(&offset[jointIndex]->Scale);
-		XMVECTOR kLastScale = XMLoadFloat3(&offset[jointIndex]->Next->Scale);
+		XMVECTOR kFirstScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Scale);
+		XMVECTOR kLastScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].Scale);
 
-		XMVECTOR kFirstTranslation = XMLoadFloat3(&offset[jointIndex]->Translation);
-		XMVECTOR kLastTranslation = XMLoadFloat3(&offset[jointIndex]->Next->Translation);
+		XMVECTOR kFirstTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Translation);
+		XMVECTOR kLastTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].Translation);
 
-		XMVECTOR kFirstQuaternion = XMLoadFloat4(&offset[jointIndex]->RotationQuat);
-		XMVECTOR kLastQuaternion = XMLoadFloat4(&offset[jointIndex]->Next->RotationQuat);
+		XMVECTOR kFirstQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].RotationQuat);
+		XMVECTOR kLastQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].RotationQuat);
 
 		XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, interpolationProcent);
 		XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, interpolationProcent);
@@ -455,8 +484,6 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
 		
 		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
-
-		offset[jointIndex] = offset[jointIndex]->Next;
 
 	}
 
@@ -470,13 +497,7 @@ void FbxImport::InitializeAnimation() {
 
 	size_t hierarchySize = meshSkeleton.hierarchy.size();
 
-	offset.resize(hierarchySize);
-	offsetStart.resize(hierarchySize);
 
-	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
-
-		offsetStart[i] = offset[i] = meshSkeleton.hierarchy[i].Animation;
-	}
 }
 
 FbxAMatrix FbxImport::GetGeometryTransformation(FbxNode* node) {
