@@ -29,7 +29,7 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	float4 lightSource = float4(0.0f, 5.0f, 3.0f, 0.0f);	// Light source in the form of a point light
+	float4 lightSource = float4(0.0f, 3.0f, 3.0f, 1.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
@@ -81,7 +81,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
 
-	texColor = tex0.Sample(texSampler, input.Tex).xyz;
+	texColor = shadowMap.Sample(texSampler, input.Tex).xyz;
 
 	color = float4(texColor, 1.0f);
 

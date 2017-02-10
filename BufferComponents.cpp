@@ -611,7 +611,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	float lFarPlane = 50.0f;
 
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
-	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, WIDTH, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
