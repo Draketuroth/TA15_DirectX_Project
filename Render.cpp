@@ -38,7 +38,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
-
+	
 	//------------------------------
 	//------------------------------
 
@@ -107,9 +107,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 		gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 		gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
-		ID3D11ShaderResourceView* nullResource[1] = {nullptr};
-		resourceArr[1] = nullptr;
-		gHandler.gDeviceContext->PSSetShaderResources(0, 0, nullResource);
+		ID3D11ShaderResourceView* nullResource[2] = {nullptr};
+		//resourceArr[1] = nullptr;
+		gHandler.gDeviceContext->PSSetShaderResources(0, 2, nullResource);
 		
 
 
