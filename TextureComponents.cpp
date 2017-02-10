@@ -13,6 +13,10 @@ TextureComponents::~TextureComponents() {
 	standardResource->Release();
 	boneResource->Release();
 	texSampler->Release();
+	pSmSRView->Release();
+	pShadowMap->Release();
+	shadowSampler->Release();
+	pSmDepthView->Release();
 }
 
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
