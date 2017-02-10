@@ -10,6 +10,7 @@
 
 cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
+	matrix lightViewProj;
 	matrix worldViewProj;
 	matrix matrixWorld;
 	matrix matrixView;

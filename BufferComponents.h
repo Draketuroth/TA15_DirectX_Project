@@ -20,13 +20,14 @@ using namespace DirectX;
 
 struct GS_CONSTANT_BUFFER {
 
+	XMMATRIX lightViewProj;
 	XMMATRIX worldViewProj;
 	XMMATRIX matrixWorld;
 	XMMATRIX matrixView;
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
 	XMFLOAT3 cameraPos;
-	XMMATRIX lightViewProj;
+	
 
 };
 //Declspec helps to declare the bytewidth of the constant buffer

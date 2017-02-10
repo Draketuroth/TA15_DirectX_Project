@@ -1,6 +1,8 @@
 
 SamplerState texSampler: register(s0);
+SamplerState shadowSampler : register(s1);
 Texture2D tex0 : register(t0);
+Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
@@ -19,7 +21,7 @@ struct PS_IN
 	float4 WPos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Norm: NORMAL;
-	
+	float4 lPos : TEXCOORD1;
 	
 	
 };
@@ -27,15 +29,22 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	float4 lightSource = float4(0.0f, 5000.0f, 500.0f, 0.0f);	// Light source in the form of a point light
+	float4 lightSource = float4(0.0f, 5.0f, 3.0f, 0.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
 	float3 specularLight;
 
-	
+	input.lPos.xy /= input.lPos.w; //light pos in NDC
 
+	//getting the light pos from [-1, 1] to [0, 1]
+	float2 smTexture = float2(0.5f * input.lPos.x + 0.5f, -0.5f * input.lPos.y + 0.5f);
+
+	//pixel depth for shadows
+	float depth = input.lPos.z / input.lPos.w;
 	
+	float shadowCheck = (shadowMap.Sample(texSampler, smTexture).r + 0.0001f < depth) ? 0.0f : 1.0f;
+
 	float nDotL;
 	float3 texColor;
 	float4 color;
@@ -76,5 +85,6 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	color = float4(texColor, 1.0f);
 
-	return float4(ads, 1.0f) * color;
+	return float4((ads, 1.0f) * color) * shadowCheck;
+	//return float4(texColor, 1);// * shadowCheck;
 };

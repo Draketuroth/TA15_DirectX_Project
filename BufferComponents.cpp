@@ -4,7 +4,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	fstream file("C://Users//Fredrik//Desktop//cube.obj", ios::in | ios::ate);
+	fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
 	string line;
 
 
@@ -83,7 +83,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 	if (ParserSwitch == 0)
 	{
-		fstream file("C://Users//Fredrik//Desktop//cube.obj", ios::in | ios::ate);
+		fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
 		if (!file.is_open())
 		{
 			fileFound = false;
@@ -249,7 +249,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 	if (ParserSwitch == 1)
 	{
-		fstream mtl_File("C://Users//Fredrik//Desktop//cube.mtl", ios::in | ios::ate);
+		fstream mtl_File("C://Users//BTH//Desktop//test//cube.mtl", ios::in | ios::ate);
 	
 		if (!mtl_File.is_open())
 		{
@@ -595,9 +595,9 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
-	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 0.5, -2));
-	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
-	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 3, 3, 1));
+	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 1));
+	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
 
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
 
@@ -608,7 +608,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lNearPlane = 0.1f;
 
-	float lFarPlane = 500.0f;
+	float lFarPlane = 50.0f;
 
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
 	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
