@@ -121,7 +121,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.terrainResource);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
@@ -129,6 +129,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	vertexSize = sizeof(OBJStruct);
 	offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &terrain.mQuadPatchVB, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetIndexBuffer(terrain.mQuadPatchIB, DXGI_FORMAT_R32_UINT, offset);
 
 	// The input assembler will now recieve the vertices and the vertex layout
 
@@ -136,7 +137,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
-	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
+	gHandler.gDeviceContext->DrawIndexed(terrain.terrainV.size(), 0, 0);
+
 }
 
 

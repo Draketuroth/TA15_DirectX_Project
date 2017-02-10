@@ -40,7 +40,7 @@ void Terrain::LoadRAW()
 		inFile.close(); 
 	}
 	else
-	{
+	{ 
 		cout << "Error RAWfile" << endl; 
 	}
 
@@ -200,20 +200,47 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 
 void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 {
+
 	HRESULT hr; 
-	for (unsigned int x = 0; x < NumPatchVertRows; x++)
+	//for (unsigned int y = 0; y < 640; y++)
+	//{
+	//	for (unsigned int x = 0; x < 640; x++)
+	//	{
+	//		//postion
+	vector<int> VertPos(NumPatchQuadFaces * 4);
+	//		VertPos.Varr.x = x * 10; 
+	//		VertPos.Varr.y = y * 10;
+	//	
+
+	//		VertPos.Varr.z = 0; 
+
+	//		// Tex sätt till 0, för den används inte
+	//		VertPos.VTarr.x = 0; 
+	//		VertPos.VTarr.y = 0;
+
+	//		//informationen för normalen sätt till 0
+	//		VertPos.VNarr.x = 0; 
+	//		VertPos.VNarr.y = 0;
+	//		VertPos.VNarr.z = 0;
+
+	//		terrainV.push_back(VertPos); 
+	//	}
+	//}
+	int k = 0; 
+
+	for (UINT i = 0; i < NumPatchVertRows - 1; ++i)
 	{
-		for (unsigned int y = 0; y < NumPatchVertCols; y++)
+		for (UINT j = 0; j < NumPatchVertCols - 1; ++j)
 		{
-			OBJStruct VertPos;
-			VertPos.Varr.x = x; 
-			VertPos.Varr.y = y; 
-			x += 10; 
-			y -= 10; 
-			terrainV.push_back(VertPos); 
+			VertPos[k] = i*NumPatchVertCols + j; 
+			VertPos[k + 1] = i*NumPatchVertCols + j + 1; 
+
+			VertPos[k + 2] = (i + 1)*NumPatchVertCols + j; 
+			VertPos[k + 3] = (i + 1)*NumPatchVertCols + j + 1; 
+			k += 4;
+			 
 		}
 	}
-
 	D3D11_BUFFER_DESC ibd;
 	memset(&ibd, 0, sizeof(ibd));
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -221,10 +248,10 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	ibd.CPUAccessFlags = 0; 
 	ibd.MiscFlags = 0;
 	ibd.StructureByteStride = 0;
-	ibd.ByteWidth = terrainV.size() * sizeof(OBJStruct);
+	ibd.ByteWidth = VertPos.size() * sizeof(int);
 
 	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = terrainV.data();
+	iinitData.pSysMem = VertPos.data();
 	hr = device->CreateBuffer(&ibd, &iinitData, &mQuadPatchIB);
 
 	if (hr != S_OK)
