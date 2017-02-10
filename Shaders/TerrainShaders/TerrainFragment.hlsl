@@ -51,6 +51,8 @@ float4 PS_main(PS_IN input) : SV_Target
 	float shinyPower = 8.0f;
 
 	float3 Ld = float3(0.4f, 0.4f, 0.4f);	// Ld represents the light source intensity
+
+
 	float3 Ka = float3(0.6f, 0.6f, 0.6f);		// Ka is the hardcoded ambient light
 	float3 Ks = float3(0.7f, 0.7f, 0.7f);	// Ks is the hardcoded specular light
 	float3 Kd = float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient

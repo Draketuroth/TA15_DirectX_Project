@@ -182,7 +182,7 @@ int RunApplication() {
 
 			showFPS(windowHandle, deltaTime);
 
-			fbxImporter.animTimePos += 1;
+			fbxImporter.animTimePos += deltaTime * 20;
 
 			if (fbxImporter.animTimePos >= fbxImporter.animationLength){
 					
