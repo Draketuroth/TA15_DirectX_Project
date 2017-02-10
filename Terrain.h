@@ -54,7 +54,7 @@ public:
 	ID3D11Buffer* mQuadPatchIB;
 
 	//en objstruct = 1 vertecis
-	vector<OBJStruct> terrainV; 
+	vector<OBJStruct> terrainV;
 	
 private:
 
@@ -63,6 +63,7 @@ private:
 	InitInfo terrainInfo;
 
 	static const int cellperPatch = 64; 
+
 	int NumPatchVertRows;
 	int NumPatchVertCols;
 
@@ -72,20 +73,20 @@ private:
 };
 
 //en egen namespace som håller två structer
-namespace Vertex
-{
-	struct Basic32
-	{
-		XMFLOAT3 Position; 
-		XMFLOAT3 Normal; 
-		XMFLOAT2 Texture; 
-	};
-
-	struct terrain
-	{
-		XMFLOAT3 Position;
-		XMFLOAT2 Texture;
-		XMFLOAT2 BoundsY;
-	};
-}
+//namespace Vertex
+//{
+//	struct Basic32
+//	{
+//		XMFLOAT3 Position; 
+//		XMFLOAT3 Normal; 
+//		XMFLOAT2 Texture; 
+//	};
+//
+//	struct terrain
+//	{
+//		XMFLOAT3 Position;
+//		XMFLOAT2 Texture;
+//		XMFLOAT2 BoundsY;
+//	};
+//}
 #endif

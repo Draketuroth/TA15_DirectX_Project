@@ -36,13 +36,6 @@ struct OBJStruct
 	
 };
 
-struct TerrainVertex {
-
-	XMFLOAT3 Pos;
-	XMFLOAT2 Tex;
-	//XMFLOAT2 BoundsY;
-};
-
 struct TriangleVertex{
 
 	float x, y, z;

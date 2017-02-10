@@ -112,6 +112,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	}
 
+	//Terrain 
 	//___________________________________________________________________________________________________
 
 
@@ -125,14 +126,14 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(terrain.terrainV);
+	vertexSize = sizeof(OBJStruct);
 	offset = 0;
-	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &terrain.mQuadPatchVB, &vertexSize, &offset);
 
 	// The input assembler will now recieve the vertices and the vertex layout
 
 	// The vertices should be interpreted as parts of a triangle in the input assembler
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
