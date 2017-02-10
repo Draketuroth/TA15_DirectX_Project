@@ -227,6 +227,7 @@ int RunApplication() {
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
+			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 
 			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;

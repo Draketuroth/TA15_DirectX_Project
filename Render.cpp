@@ -58,7 +58,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &fbxImporter.gBoneBuffer);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
 
-	//gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
 	vertexSize = sizeof(Vertex_Bone);
@@ -83,8 +83,12 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	{
 		//Array of resourceviews for shadow map and textures
 		ID3D11ShaderResourceView* resourceArr[2];
-		resourceArr[0] = tHandler.standardResource;
+		resourceArr[0] = tHandler.terrainResource;
 		resourceArr[1] = tHandler.pSmSRView;
+		//Array of samplerstates for texture and shadowmap
+		ID3D11SamplerState* samplerArr[2];
+		samplerArr[0] = tHandler.texSampler;
+		samplerArr[1] = tHandler.shadowSampler;
 
 		gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);	// Setting the Vertex Shader 
 		gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 

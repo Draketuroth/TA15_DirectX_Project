@@ -1,5 +1,6 @@
 
 SamplerState texSampler: register(s0);
+SamplerState shadowSampler : register(s1);
 Texture2D tex0 : register(t0);
 Texture2D shadowMap : register(t1);
 
@@ -28,7 +29,7 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	float4 lightSource = float4(0.0f, 50.0f, 1.0f, 0.0f);	// Light source in the form of a point light
+	float4 lightSource = float4(0.0f, 5.0f, 3.0f, 0.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
@@ -85,4 +86,5 @@ float4 PS_main(PS_IN input) : SV_Target
 	color = float4(texColor, 1.0f);
 
 	return float4((ads, 1.0f) * color) * shadowCheck;
+	//return float4(texColor, 1);// * shadowCheck;
 };
