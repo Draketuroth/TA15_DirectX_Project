@@ -234,16 +234,17 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	{
 		for (UINT j = 0; j < NumPatchVertCols - 1; ++j)
 		{
-			VertPos[k] = i*NumPatchVertCols + j; 
-			VertPos[k + 1] = i*NumPatchVertCols + j + 1; 
+			VertPos[k] = i*NumPatchVertCols + j;
+			VertPos[k + 1] = i*NumPatchVertCols + j + 1;
 
-			VertPos[k + 2] = (i + 1)*NumPatchVertCols + j; 
-			VertPos[k + 3] = (i + 1)*NumPatchVertCols + j + 1; 
+			VertPos[k + 2] = (i + 1)*NumPatchVertCols + j;
+			VertPos[k + 3] = (i + 1)*NumPatchVertCols + j + 1;
 			k += 4;
-			indexCounter += k;
-			 
+			indexCounter += 4;
+
 		}
 	}
+
 	D3D11_BUFFER_DESC ibd;
 	memset(&ibd, 0, sizeof(ibd));
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;

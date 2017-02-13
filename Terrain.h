@@ -59,7 +59,7 @@ public:
 	ID3D11Buffer* mQuadPatchIB;
 
 	//en objstruct = 1 vertecis
-	int indexCounter;
+	unsigned int indexCounter = 0;
 	
 private:
 
