@@ -13,6 +13,10 @@ TextureComponents::~TextureComponents() {
 	standardResource->Release();
 	boneResource->Release();
 	texSampler->Release();
+	pSmSRView->Release();
+	pShadowMap->Release();
+	shadowSampler->Release();
+	pSmDepthView->Release();
 }
 
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
@@ -28,7 +32,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_ANISOTROPIC;
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;//D3D11_FILTER_ANISOTROPIC;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;

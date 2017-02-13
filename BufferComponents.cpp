@@ -4,15 +4,6 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
-	string line;
-
-
-	file.seekg(0, file.end);
-	int size = file.tellg();
-	file.seekg(0, file.beg);
-
-
 	struct String3
 	{
 		string x, y, z;
@@ -83,7 +74,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 	if (ParserSwitch == 0)
 	{
-		fstream file("C://Users//BTH//Desktop//test//cube.obj", ios::in | ios::ate);
+		fstream file("OBJfiles//test//cube.obj", ios::in | ios::ate);
 		if (!file.is_open())
 		{
 			fileFound = false;
@@ -249,7 +240,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 	if (ParserSwitch == 1)
 	{
-		fstream mtl_File("C://Users//BTH//Desktop//test//cube.mtl", ios::in | ios::ate);
+		fstream mtl_File("OBJfiles//test//cube.mtl", ios::in | ios::ate);
 	
 		if (!mtl_File.is_open())
 		{
@@ -595,7 +586,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
-	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 3, 3, 1));
+	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 20, 20, 1));
 	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 1));
 	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
 
@@ -611,7 +602,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	float lFarPlane = 50.0f;
 
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
-	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
