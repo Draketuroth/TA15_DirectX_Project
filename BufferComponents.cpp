@@ -415,6 +415,7 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateConstantBuffer(gDevice, mCam);
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
+	CreateRasterizerState(gDevice);
 
 }
 
@@ -605,7 +606,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float nearPlane = 0.1f;
 
-	float farPlane = 50.f;
+	float farPlane = 500.f;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -731,4 +732,24 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 	}
 
 	return true;
+}
+
+bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerDesc, &gRasteriserState);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
 }
