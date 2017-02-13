@@ -52,7 +52,7 @@ void Terrain::LoadRAW()
 	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
 	for (UINT i = 0; i < terrainInfo.HMapHeight * terrainInfo.HMapWidth; i++)
 	{
-		heightMap[i] = (in[i] / 255.0f)*terrainInfo.HeightScale;
+		heightMap[i] = (in[i])*terrainInfo.HeightScale;
 	}
 }
 
@@ -184,7 +184,8 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 			
 
 			float x = -halfWidth + j*patchWidth; 
-			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, 0.0f, z); 
+			float y = heightMap[(i*NumPatchVertCols + j)];
+			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);
 
 			Average(x, z);
 			//sträcka texturen över griden
