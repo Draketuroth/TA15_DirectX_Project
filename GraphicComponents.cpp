@@ -22,6 +22,8 @@ GraphicComponents::GraphicComponents() {
 	gVertexBoneShader = nullptr;
 	gPixelBoneShader = nullptr;
 	gGeometryBoneShader = nullptr;
+
+	gComputeShader = nullptr;
 }
 
 GraphicComponents::~GraphicComponents() {
@@ -45,6 +47,8 @@ GraphicComponents::~GraphicComponents() {
 	gVertexBoneShader->Release();
 	gPixelBoneShader->Release();
 	gGeometryBoneShader->Release();
+
+	gComputeShader->Release();
 
 }
 
@@ -383,6 +387,8 @@ bool GraphicComponents::CreateStandardShaders() {
 	}
 
 	gsBlob->Release();
+
+	//ComputeShader();
 
 	return true;
 }
@@ -758,3 +764,48 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 		return true;
 	
 }
+
+bool GraphicComponents::ComputeShader()
+{
+
+	HRESULT hr;
+
+	ID3DBlob* CsBlob = nullptr;
+	ID3DBlob* CsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
+		nullptr,
+		nullptr,
+		"Cs_main",
+		"cs_5_0",
+		0,
+		0,
+		&CsBlob,
+		&CsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Compute Shader Error: Compute Shader could not be compiled or loaded from file" << endl;
+
+		if (CsErrorBlob) {
+
+			OutputDebugStringA((char*)CsErrorBlob->GetBufferPointer());
+			CsErrorBlob->Release();
+		}
+
+
+		hr = gDevice->CreateComputeShader(CsBlob->GetBufferPointer(), CsBlob->GetBufferSize(), NULL, &gComputeShader);
+
+		if (FAILED(hr)) {
+
+			cout << "Compute Shader Error: Compute Shader could not be created" << endl;
+			return false;
+		}
+
+		CsBlob->Release();
+	}
+}
+
+	

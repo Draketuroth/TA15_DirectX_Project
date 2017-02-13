@@ -1,6 +1,6 @@
 #include "BufferComponents.h"
 
-void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound)
+void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound, string &OBJTexturePath)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -331,6 +331,10 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Ks.y = stof(check2, &sz);
 				Ks.z = stof(check3, &sz);
 			}
+			else if (check == "map_Kd")
+			{
+				OBJTexturePath = "OBJfiles//test//" + check;
+			}
 	
 		}
 
@@ -409,8 +413,9 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
+	OBJTexturePath;
 	
-	importer(ImportStruct,MTLConstantData,0,fileFound);
+	importer(ImportStruct,MTLConstantData,0,fileFound,OBJTexturePath);
 
 	HRESULT hr;
 
@@ -686,7 +691,7 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 
 	
 
-	importer(ImportStruct,MTLConstantData,1,fileFound);
+	importer(ImportStruct,MTLConstantData,1,fileFound,OBJTexturePath);
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 

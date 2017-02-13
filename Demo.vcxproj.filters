@@ -131,6 +131,9 @@
     <FxCompile Include="Shaders\ShadowShaders\ShadowVS.hlsl">
       <Filter>Source Files\HLSL\ShadowShaders</Filter>
     </FxCompile>
+    <FxCompile Include="ComputeShader.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferComponents.h">

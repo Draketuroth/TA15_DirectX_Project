@@ -26,6 +26,7 @@ public:
 	ID3D11VertexShader* gVertexShader;	
 	ID3D11PixelShader* gPixelShader;	
 	ID3D11GeometryShader* gGeometryShader; 
+	ID3D11ComputeShader* gComputeShader;
 
 	ID3D11InputLayout* gShadowVsLayout;
 	ID3D11VertexShader* gShadowVS;
@@ -49,6 +50,8 @@ public:
 	bool CreateTerrainShaders();	// Function to create all the potential shaders to be used in the application
 	bool CreateBoneShaders();
 	bool CreateShadowMapShader();
+
+	bool ComputeShader();
 
 	bool CreateDepthStencil(BufferComponents &bHandler);
 	void SetViewport();		// Functions to define the properties of our viewport

@@ -44,6 +44,8 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream)
 {
 	GS_OUT output;
 
+	
+
 	// UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	uint i;
 	float3 offSet = float3(1.0f, 1.0f, 1.0f);

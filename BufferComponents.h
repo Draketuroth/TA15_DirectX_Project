@@ -30,6 +30,8 @@ struct GS_CONSTANT_BUFFER {
 	
 
 };
+
+
 //Declspec helps to declare the bytewidth of the constant buffer
 __declspec(align(16))
 struct MTL_STRUCT
@@ -44,6 +46,7 @@ struct MTL_STRUCT
 
 	};
 
+string OBJTexturePath;
 class BufferComponents {
 	
 public:
@@ -60,6 +63,8 @@ public:
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
+
+	
 
 	XMMATRIX tLightViewProj;
 
@@ -81,6 +86,8 @@ public:
 	bool CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &fbxImporter);
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
+
+	
 
 };
 

@@ -22,6 +22,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetShader(nullptr, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->CSGetShader(&gHandler.gComputeShader, nullptr, 0);
 	//gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.pSmSRView);
 
 	//gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
