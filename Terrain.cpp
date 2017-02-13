@@ -4,7 +4,7 @@
 
 Terrain::Terrain()
 {
-	terrainInfo.HMapFilename = L"Textures\\terrain.raw";
+	terrainInfo.HMapFilename = L"Textures\\HightMap.raw";
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64;
 

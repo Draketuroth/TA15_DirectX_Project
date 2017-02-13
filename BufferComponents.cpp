@@ -578,7 +578,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float nearPlane = 0.1f;
 
-	float farPlane = 50.f;
+	float farPlane = 100.f;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);

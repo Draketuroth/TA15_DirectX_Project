@@ -52,12 +52,15 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 1024);
 	CreateWICTextureFromFile(gDevice,NULL, L"Textures\\small.jpg", NULL,&terrainResource,256);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\grass2.jpg", NULL, &grassResource,1024); 
 
 	if (SUCCEEDED(hr) && texture != 0) {
 
 		gDevice->CreateShaderResourceView(texture, nullptr, &standardResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &boneResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &terrainResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &grassResource);
+
 
 		if (FAILED(hr)) {
 

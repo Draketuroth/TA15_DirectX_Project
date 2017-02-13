@@ -60,7 +60,7 @@ public:
 
 	//en objstruct = 1 vertecis
 	unsigned int indexCounter = 0;
-	
+
 private:
 
 	vector<float> heightMap; 
