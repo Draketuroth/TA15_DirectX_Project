@@ -78,7 +78,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
-
+	ID3D11ShaderResourceView* resourceArr[2];
+	resourceArr[0] = tHandler.terrainResource;
+	resourceArr[1] = tHandler.pSmSRView;
 	if (bHandler.fileFound == true)
 	{
 		//Array of resourceviews for shadow map and textures
@@ -111,9 +113,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 		gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 		gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
-		ID3D11ShaderResourceView* nullResource[2] = {nullptr};
-		//resourceArr[1] = nullptr;
-		gHandler.gDeviceContext->PSSetShaderResources(0, 2, nullResource);
+
 		
 
 
@@ -128,7 +128,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.terrainResource);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
@@ -146,6 +146,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->DrawIndexed(terrain.indexCounter, 0, 0);
 
+	ID3D11ShaderResourceView* nullResource[2] = { nullptr };
+	//resourceArr[1] = nullptr;
+	gHandler.gDeviceContext->PSSetShaderResources(0, 2, nullResource);
 }
 
 
