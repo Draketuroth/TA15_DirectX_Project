@@ -262,6 +262,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		XMFLOAT3 Kd;
 		XMFLOAT3 Ka;
 		XMFLOAT3 Tf;
+		XMFLOAT3 Ks;
 		float Ni;
 	
 	
@@ -320,6 +321,16 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	
 				Ni = stof(check,&sz);
 			}
+			else if (check == "Ks")
+			{
+				mtl_StringParse >> check;
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+
+				Ks.x = stof(check, &sz);
+				Ks.y = stof(check2, &sz);
+				Ks.z = stof(check3, &sz);
+			}
 	
 		}
 
@@ -335,6 +346,9 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		MTLConstandData.Tf.y = Tf.y;
 		MTLConstandData.Tf.z = Tf.z;
 		MTLConstandData.Ni = Ni;
+		MTLConstandData.Ks.x = Ks.x;
+		MTLConstandData.Ks.y = Ks.y;
+		MTLConstandData.Ks.z = Ks.z;
 		
 	//-----------------------------------------------------------------//
 		//cout << "material: " << material << endl;
@@ -343,6 +357,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
 		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
 		cout << "Ni: " << Ni << endl;
+		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;
 	}
 
 	

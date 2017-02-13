@@ -38,6 +38,7 @@ struct MTL_STRUCT
 	XMFLOAT3 Kd;
 	XMFLOAT3 Ka;
 	XMFLOAT3 Tf;
+	XMFLOAT3 Ks;
 	float Ni;
 	float Illum;
 
