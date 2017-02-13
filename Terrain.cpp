@@ -7,8 +7,10 @@ Terrain::Terrain()
 	terrainInfo.HMapFilename = L"Textures\\terrain.raw";
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64;
+
 	//längden mellan varje vertis
 	terrainInfo.quadSize = 1;
+	terrainInfo.HeightScale = 1; 
 
 	NumPatchVertRows = (terrainInfo.HMapHeight - 1);
 	NumPatchVertCols = (terrainInfo.HMapWidth - 1);
@@ -157,6 +159,7 @@ float Terrain::GetDepth()const
 
 void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 {
+	//antal vertiser
 	vector<OBJStruct> patchVertices(NumPatchVertRows*NumPatchVertCols); 
 
 	float halfWidth = 0.5f*GetWidth(); 
@@ -173,6 +176,8 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 		float z = halfDepth - i*patchDepth; 
 		for (UINT j = 0; j < NumPatchVertCols; ++j)
 		{
+			Average(i, j);
+
 			float x = -halfWidth + j*patchWidth; 
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, 0.0f, z); 
 
@@ -180,7 +185,6 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 			patchVertices[i*NumPatchVertCols + j].VTarr.x = j*du;
 			patchVertices[i*NumPatchVertCols + j].VTarr.y = i*dv;
 
-			Smooth(); 
 		}
 	}
 

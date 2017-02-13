@@ -84,6 +84,7 @@ int main() {
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
 	terrain.LoadRAW(); 
+	terrain.Smooth(); 
 	terrain.BuildHeightmapSRV(gHandler.gDevice);
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
