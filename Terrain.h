@@ -41,12 +41,17 @@ public:
 
 	bool inBounds(int i, int j); 
 	float Average(int i, int j);
-	void LoadRAW();
 	void Smooth(); 
-	void BuildHeightmapSRV(ID3D11Device* device);
+	void LoadRAW();
+
 	float GetWidth()const; 
-	float GetDepth()const; 
+	float GetDepth()const;
+
+	//shader resurce
+	void BuildHeightmapSRV(ID3D11Device* device);
+	//vertex buffer
 	void BuildQuadPatchVB(ID3D11Device* device); 
+	//indexbuffer
 	void BuildQuadPatchIB(ID3D11Device* device);
 
 	ID3D11ShaderResourceView* heightmapSRV;
@@ -54,7 +59,7 @@ public:
 	ID3D11Buffer* mQuadPatchIB;
 
 	//en objstruct = 1 vertecis
-	vector<OBJStruct> terrainV;
+	int indexCounter;
 	
 private:
 

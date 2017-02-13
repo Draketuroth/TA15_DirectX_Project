@@ -8,7 +8,7 @@ Terrain::Terrain()
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64;
 	//längden mellan varje vertis
-	terrainInfo.quadSize = 20;
+	terrainInfo.quadSize = 1;
 
 	NumPatchVertRows = (terrainInfo.HMapHeight - 1);
 	NumPatchVertCols = (terrainInfo.HMapWidth - 1);
@@ -39,10 +39,7 @@ void Terrain::LoadRAW()
 		//done
 		inFile.close(); 
 	}
-	else
-	{ 
-		cout << "Error RAWfile" << endl; 
-	}
+
 
 	//copy the array data into a float array and scale it
 	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
@@ -55,7 +52,7 @@ void Terrain::LoadRAW()
 bool Terrain::inBounds(int i, int j)
 {
 	bool valid = false; 
-	if (i >= 0 && i < (int)terrainInfo.HMapWidth && j >= 0 && j < (int)terrainInfo.HMapWidth)
+	if (i >= 0 && i < (int)terrainInfo.HMapHeight && j >= 0 && j < (int)terrainInfo.HMapWidth)
 	{
 		valid = true;
 	}
@@ -74,14 +71,16 @@ float Terrain::Average(int i, int j)
 	{
 		for (int n = j; n <= j + 1; ++n)
 		{
-			if (this->inBounds(m, n))
+			if (this->inBounds(m, n) == true)
 			{
 				avg += heightMap[m*terrainInfo.HMapWidth + n];
 				num += 1.0f; 
 			}
 		}
 	}
+
 	return avg / num; 
+	
 }
 
 //shaderResure view
@@ -130,8 +129,8 @@ void Terrain::BuildHeightmapSRV(ID3D11Device* device)
 	ReleaseCOM(hmapTex);
 }
 
-void Terrain::Smooth() {
-
+void Terrain::Smooth() 
+{
 	vector<float>dest(heightMap.size());
 
 	for (UINT i = 0; i < terrainInfo.HMapHeight; ++i) {
@@ -141,7 +140,6 @@ void Terrain::Smooth() {
 			dest[i * terrainInfo.HMapWidth + j] = Average(i, j);
 		}
 	}
-
 	// Replace the old heightmap with the filtered one
 
 	heightMap = dest;
@@ -181,6 +179,8 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 			//sträcka texturen över griden
 			patchVertices[i*NumPatchVertCols + j].VTarr.x = j*du;
 			patchVertices[i*NumPatchVertCols + j].VTarr.y = i*dv;
+
+			Smooth(); 
 		}
 	}
 
@@ -207,7 +207,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	//	for (unsigned int x = 0; x < 640; x++)
 	//	{
 	//		//postion
-	vector<int> VertPos(NumPatchQuadFaces * 4);
+	
 	//		VertPos.Varr.x = x * 10; 
 	//		VertPos.Varr.y = y * 10;
 	//	
@@ -228,6 +228,8 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	//}
 	int k = 0; 
 
+	vector<int> VertPos(NumPatchQuadFaces * 4);
+
 	for (UINT i = 0; i < NumPatchVertRows - 1; ++i)
 	{
 		for (UINT j = 0; j < NumPatchVertCols - 1; ++j)
@@ -238,6 +240,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 			VertPos[k + 2] = (i + 1)*NumPatchVertCols + j; 
 			VertPos[k + 3] = (i + 1)*NumPatchVertCols + j + 1; 
 			k += 4;
+			indexCounter += k;
 			 
 		}
 	}

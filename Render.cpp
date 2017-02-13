@@ -144,7 +144,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
-	gHandler.gDeviceContext->DrawIndexed(terrain.terrainV.size(), 0, 0);
+	gHandler.gDeviceContext->DrawIndexed(terrain.indexCounter, 0, 0);
 
 }
 
