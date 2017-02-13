@@ -49,6 +49,7 @@ public:
 
 	bool fileFound;
 	vector<OBJStruct> ImportStruct;
+
 	MTL_STRUCT MTLConstantData;
 	BufferComponents();
 	~BufferComponents();
