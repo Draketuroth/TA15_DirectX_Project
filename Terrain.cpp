@@ -33,6 +33,11 @@ void Terrain::LoadRAW()
 	//open file
 	ifstream inFile;
 	inFile.open(terrainInfo.HMapFilename.c_str(), std::ios_base::binary);
+	if (!inFile)
+	{
+		cout << "File not found" << endl; 
+	}
+
 	if (inFile)
 	{
 		//read RAW bytes
@@ -176,11 +181,12 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 		float z = halfDepth - i*patchDepth; 
 		for (UINT j = 0; j < NumPatchVertCols; ++j)
 		{
-			Average(i, j);
+			
 
 			float x = -halfWidth + j*patchWidth; 
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, 0.0f, z); 
 
+			Average(x, z);
 			//sträcka texturen över griden
 			patchVertices[i*NumPatchVertCols + j].VTarr.x = j*du;
 			patchVertices[i*NumPatchVertCols + j].VTarr.y = i*dv;
