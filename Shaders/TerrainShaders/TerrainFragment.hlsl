@@ -5,11 +5,11 @@ Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float3 Kd;
-	float3 Ka;
-	float3 tf;
-	float ni;
-	float illum;
+	float3 Kd; // Diffuse color
+	float3 Ka; // Ambient color
+	float3 tf; // Transmission filter
+	float ni; // Optical density
+	float illum; // Illumination
 };
 
 
@@ -53,9 +53,9 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 Ld = float3(0.4f, 0.4f, 0.4f);	// Ld represents the light source intensity
 
 
-	float3 Ka = float3(0.6f, 0.6f, 0.6f);		// Ka is the hardcoded ambient light
+	float3 AmbientColor = Ka;		//float3(0.6f, 0.6f, 0.6f);		// Ka is the hardcoded ambient light
 	float3 Ks = float3(0.7f, 0.7f, 0.7f);	// Ks is the hardcoded specular light
-	float3 Kd = float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
+	float3 DiffuseColor = Kd;		//float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
 	float3 ads;
 
 	float3 n = normalize(input.Norm);	// The n component is self-explanatory, but represents the normal of the surface
@@ -63,11 +63,11 @@ float4 PS_main(PS_IN input) : SV_Target
 	float4 v = normalize(input.WPos);	// The v component represents the viewer position in world coordinates
 	float3 r = reflect(s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
 
-	diffuseLight = Kd * max(dot(s, float4(n, 1.0f)), 0.0f);
+	diffuseLight = DiffuseColor * max(dot(s, float4(n, 1.0f)), 0.0f);
 
 	specularLight = Ks * pow(max(dot(float4(r, 1.0f), v), 0.0f), shinyPower);
 
-	ads = Ld * (Ka + diffuseLight + specularLight);
+	ads = Ld * (AmbientColor + diffuseLight + specularLight);
 
 	// We receive the light vector by subtracting the light source coordinates with the input position of the triangle in world coordinates
 	// If we hadn't preserved the world coordinates, we would've subtracted with the screen space coordinates which gives us the wrong diffuse data
