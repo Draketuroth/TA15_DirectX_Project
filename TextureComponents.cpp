@@ -32,7 +32,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_ANISOTROPIC;
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;//D3D11_FILTER_ANISOTROPIC;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -92,7 +92,7 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 	//Shadow map texture description
 	D3D11_TEXTURE2D_DESC texDesc = {};
 	texDesc.Width = WIDTH;
-	texDesc.Height = WIDTH;
+	texDesc.Height = HEIGHT;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
 	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
