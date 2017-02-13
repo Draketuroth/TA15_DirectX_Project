@@ -73,6 +73,8 @@ public:
 	ID3D11DepthStencilState* depthState;	// Depth-stencil state used for the output merger
 	ID3D11DepthStencilView* depthView;	// Depth-stencil view to access the depth stencil texture
 
+	ID3D11RasterizerState* gRasteriserState;
+
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice);
 
@@ -80,6 +82,7 @@ public:
 	bool CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &fbxImporter);
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
+	bool CreateRasterizerState(ID3D11Device* &gDevice);
 
 };
 
