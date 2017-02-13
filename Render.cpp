@@ -132,7 +132,6 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.terrainResource);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
