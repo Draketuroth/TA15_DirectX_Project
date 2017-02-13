@@ -88,7 +88,7 @@ int main() {
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
 
-	if (!tHandler.CreateTexture(gHandler.gDevice)) {
+	if (!tHandler.CreateTexture(gHandler.gDevice,bHandler)) {
 
 		MessageBox(
 			NULL,

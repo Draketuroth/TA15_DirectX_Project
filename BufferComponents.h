@@ -46,7 +46,7 @@ struct MTL_STRUCT
 
 	};
 
-string OBJTexturePath;
+
 class BufferComponents {
 	
 public:
@@ -63,7 +63,7 @@ public:
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
-
+	wstring OBJTexturePath;
 	
 
 	XMMATRIX tLightViewProj;

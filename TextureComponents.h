@@ -7,6 +7,7 @@
 #include <iostream>
 #include "MacroDefinitions.h"
 #include "WICTextureLoader.h"
+#include "BufferComponents.h"
 
 using namespace std;
 using namespace DirectX;
@@ -29,7 +30,7 @@ public:
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
 
-	bool CreateTexture(ID3D11Device* &gDevice);
+	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);
 };
 

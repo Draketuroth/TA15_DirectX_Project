@@ -20,7 +20,7 @@ TextureComponents::~TextureComponents() {
 	pSmDepthView->Release();
 }
 
-bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
+bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &bHandler) {
 
 	HRESULT hr;
 
@@ -49,10 +49,12 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice) {
 
 	ID3D11Texture2D* texture = nullptr;
 
+	
+
 	CoInitialize(NULL);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 1024);
-	CreateWICTextureFromFile(gDevice,NULL, L+OBJTexturePath, NULL,&terrainResource,256);
+	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 
 	if (SUCCEEDED(hr) && texture != 0) {
 

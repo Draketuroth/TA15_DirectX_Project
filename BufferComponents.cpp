@@ -1,6 +1,6 @@
 #include "BufferComponents.h"
 
-void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound, string &OBJTexturePath)
+void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound, wstring &OBJTexturePath)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -242,6 +242,10 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	{
 		fstream mtl_File("OBJfiles//test//cube.mtl", ios::in | ios::ate);
 	
+		
+		string temp = "OBJfiles//test//";
+		wstring temp2;
+		OBJTexturePath = (L"OBJfiles//test//");
 		if (!mtl_File.is_open())
 		{
 			fileFound = false;
@@ -333,7 +337,10 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			}
 			else if (check == "map_Kd")
 			{
-				OBJTexturePath = "OBJfiles//test//" + check;
+				mtl_StringParse >> check;
+				temp2.assign(check.begin(), check.end());
+				OBJTexturePath.append(temp2);
+				
 			}
 	
 		}
@@ -413,7 +420,7 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
-	OBJTexturePath;
+	
 	
 	importer(ImportStruct,MTLConstantData,0,fileFound,OBJTexturePath);
 
