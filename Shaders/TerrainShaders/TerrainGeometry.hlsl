@@ -1,13 +1,14 @@
 
 cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
+	matrix lightViewProj;
 	matrix worldViewProj;
 	matrix matrixWorld;
 	matrix matrixView;
 	matrix matrixProjection;
 	matrix floorRot;
 	float3 cameraPos;
-	matrix lightViewProj;
+	
 
 };
 
@@ -57,7 +58,7 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 
 		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
 
-		output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), lightViewProj);
+		output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), mul(matrixWorld, lightViewProj));
 
 		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
 

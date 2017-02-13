@@ -595,9 +595,9 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
-	XMVECTOR lightPos = XMLoadFloat3(&XMFLOAT3(0, 50, 1));
-	XMVECTOR lightVec = XMLoadFloat3(&XMFLOAT3(0, 0, 0));
-	XMVECTOR upVector = XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 3, 3, 1));
+	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 1));
+	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
 
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
 
@@ -608,7 +608,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lNearPlane = 0.1f;
 
-	float lFarPlane = 500.0f;
+	float lFarPlane = 50.0f;
 
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
 	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);

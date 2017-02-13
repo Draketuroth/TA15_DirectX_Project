@@ -83,6 +83,11 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
+	terrain.LoadRAW(); 
+	terrain.BuildHeightmapSRV(gHandler.gDevice);
+	terrain.BuildQuadPatchVB(gHandler.gDevice);
+	terrain.BuildQuadPatchIB(gHandler.gDevice);
+
 	if (!tHandler.CreateTexture(gHandler.gDevice)) {
 
 		MessageBox(
@@ -227,6 +232,7 @@ int RunApplication() {
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
+			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 
 			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;
