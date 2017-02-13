@@ -21,11 +21,11 @@ struct GS_IN
 
 struct GS_OUT
 {
-	float4 Pos : SV_POSITION;
-	float4 WPos : POSITION;
-	float2 Tex : TEXCOORD0;
 	float4 Norm: NORMAL;
-	
+	float2 Tex : TEXCOORD;
+	float4 Pos : SV_POSITION;
+	float3 WPos : POSITION;
+	float3 ViewPos : POSITION1;
 
 };
 
@@ -38,30 +38,39 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 	
 	GS_OUT output;
 
-	
+	float3 normal, viewVector;
 
-	// Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
+	normal = (input[0].Norm);
+	normal = normalize(mul(float4(normal, 1.0f), matrixView).xyz);
 
-	
+	viewVector = normalize(mul(float4(input[0].Pos, 1.0f), matrixView).xyz);
 
 	// UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	uint i;
 
 	for (i = 0; i < 3; i++) {
 
-		// To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
+		if (dot(normal, viewVector) < 1.0f) {
 
-		output.WPos = mul(float4(input[i].Pos.xyz, 1.0f), matrixWorld);
+			// To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
 
-		// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
+			float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+			output.WPos = worldPosition;
 
-		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+			// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
 
-		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
+			output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
 
-		output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
+			// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
 
-		output.Tex = input[i].Tex;
+			output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
+
+			output.Tex = input[i].Tex;
+
+			output.ViewPos = cameraPos - worldPosition;
+
+		}
+
 		triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	}
 

@@ -135,7 +135,8 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 	InitializeAnimation();
 
 	gFbxSdkManager->Destroy();
-	
+
+	hr = TRUE;
 	return hr;
 }
 

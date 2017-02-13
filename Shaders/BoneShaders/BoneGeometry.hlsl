@@ -16,6 +16,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixProjection;
 	matrix floorRot;
 	float3 cameraPos;
+	matrix lightViewProj;
 
 };
 
@@ -32,7 +33,8 @@ struct GS_OUT
 	float4 Norm: NORMAL;
 	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
-	float4 WPos : POSITION;
+	float3 WPos : POSITION;
+	float3 ViewPos : POSITION1;
 	
 };
 
@@ -48,9 +50,9 @@ struct GS_OUT
 	 float3 normal, viewVector;
 
 	 normal = (input[0].Norm);
-	 normal = normalize(mul(normal, matrixView));
+	 normal = normalize(mul(float4(normal, 1.0f), matrixView).xyz);
 
-	 viewVector = normalize(mul(input[0].Pos , matrixView));
+	 viewVector = normalize(mul(float4(input[0].Pos, 1.0f), matrixView).xyz);
 
 	 // UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	 uint i;
@@ -60,8 +62,8 @@ struct GS_OUT
 		if(dot(normal, viewVector) < 1.0f){
 
 			 // To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
-
-			 output.WPos = mul(float4(input[i].Pos.xyz, 1.0f), matrixWorld);
+			 float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+			 output.WPos = worldPosition;
 
 			 // To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
 
@@ -72,6 +74,8 @@ struct GS_OUT
 			 output.Norm = float4(mul(input[i].Norm, (float3x3)matrixWorld), 1.0f);
 
 			 output.Tex = input[i].Tex;
+
+			 output.ViewPos = cameraPos - worldPosition;
 
 		}
 
