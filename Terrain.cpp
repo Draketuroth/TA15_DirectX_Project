@@ -52,7 +52,7 @@ void Terrain::LoadRAW()
 	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
 	for (UINT i = 0; i < terrainInfo.HMapHeight * terrainInfo.HMapWidth; i++)
 	{
-		heightMap[i] = (in[i])*terrainInfo.HeightScale;
+		heightMap[i] = (in[i] / 20)*terrainInfo.HeightScale;
 	}
 }
 
@@ -273,4 +273,15 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	{
 		cout << "Error Index buffer" << endl; 
 	}
+}
+
+XMFLOAT3 Terrain::GetPosition()const
+{
+
+	int x = 0; 
+	int y = 0; 
+	int z = 0; 
+
+	XMFLOAT3 mapPos(x, y, z); 
+	return mapPos; 
 }

@@ -60,7 +60,8 @@ public:
 
 	//en objstruct = 1 vertecis
 	unsigned int indexCounter = 0;
-
+	//retunera en position till kamran
+	XMFLOAT3 GetPosition()const; 
 private:
 
 	vector<float> heightMap; 
