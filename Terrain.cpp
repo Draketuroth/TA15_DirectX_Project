@@ -1,14 +1,16 @@
 #include "Terrain.h"
 #include <iostream>
-
+//Test test
 
 Terrain::Terrain()
 {
-	terrainInfo.HMapFilename = L"Textures\\terrain.raw";
+	terrainInfo.HMapFilename = L"Textures\\HightMap.raw";
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64;
+
 	//längden mellan varje vertis
 	terrainInfo.quadSize = 1;
+	terrainInfo.HeightScale = 1; 
 
 	NumPatchVertRows = (terrainInfo.HMapHeight - 1);
 	NumPatchVertCols = (terrainInfo.HMapWidth - 1);
@@ -31,6 +33,11 @@ void Terrain::LoadRAW()
 	//open file
 	ifstream inFile;
 	inFile.open(terrainInfo.HMapFilename.c_str(), std::ios_base::binary);
+	if (!inFile)
+	{
+		cout << "File not found" << endl; 
+	}
+
 	if (inFile)
 	{
 		//read RAW bytes
@@ -45,7 +52,7 @@ void Terrain::LoadRAW()
 	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
 	for (UINT i = 0; i < terrainInfo.HMapHeight * terrainInfo.HMapWidth; i++)
 	{
-		heightMap[i] = (in[i] / 255.0f)*terrainInfo.HeightScale;
+		heightMap[i] = (in[i] / 20)*terrainInfo.HeightScale;
 	}
 }
 
@@ -157,6 +164,7 @@ float Terrain::GetDepth()const
 
 void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 {
+	//antal vertiser
 	vector<OBJStruct> patchVertices(NumPatchVertRows*NumPatchVertCols); 
 
 	float halfWidth = 0.5f*GetWidth(); 
@@ -173,14 +181,17 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 		float z = halfDepth - i*patchDepth; 
 		for (UINT j = 0; j < NumPatchVertCols; ++j)
 		{
-			float x = -halfWidth + j*patchWidth; 
-			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, 0.0f, z); 
+			
 
+			float x = -halfWidth + j*patchWidth; 
+			float y = heightMap[(i*NumPatchVertCols + j)];
+			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);
+
+			Average(x, z);
 			//sträcka texturen över griden
 			patchVertices[i*NumPatchVertCols + j].VTarr.x = j*du;
 			patchVertices[i*NumPatchVertCols + j].VTarr.y = i*dv;
 
-			Smooth(); 
 		}
 	}
 
@@ -262,4 +273,15 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	{
 		cout << "Error Index buffer" << endl; 
 	}
+}
+
+XMFLOAT3 Terrain::GetPosition()const
+{
+
+	int x = 0; 
+	int y = 0; 
+	int z = 0; 
+
+	XMFLOAT3 mapPos(x, y, z); 
+	return mapPos; 
 }

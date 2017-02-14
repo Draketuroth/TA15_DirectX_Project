@@ -124,7 +124,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	//Terrain 
 	//___________________________________________________________________________________________________
 
-
+	resourceArr[0] = tHandler.grassResource;
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
