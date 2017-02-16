@@ -323,7 +323,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -360,7 +360,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob
@@ -408,7 +408,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -465,7 +465,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -502,7 +502,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob
@@ -546,7 +546,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -604,7 +604,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -641,7 +641,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob

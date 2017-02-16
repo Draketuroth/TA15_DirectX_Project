@@ -15,7 +15,7 @@ Texture2D tex0 : register(t0);
 struct PS_IN
 {
 	float4 Norm: NORMAL;
-	float2 Tex: TEXCOORD;
+	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
@@ -60,5 +60,5 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	color = float4(texColor, 1.0f);
 
-	return float4(ads, 1.0f);// color;
+	return float4(ads, 1.0f) * color;
 };

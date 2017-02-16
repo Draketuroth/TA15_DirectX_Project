@@ -4,7 +4,7 @@
 void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain) {
 
 	// clear the back buffer to a deep blue
-	float clearColor[] = { 0, 0, 1, 1 };	// Back buffer clear color as an array of floats (rgba)
+	float clearColor[] = { 0, 0, 0, 1 };	// Back buffer clear color as an array of floats (rgba)
 	gHandler.gDeviceContext->ClearRenderTargetView(gHandler.gBackbufferRTV, clearColor);	// Clear the render target view using the specified color
 	gHandler.gDeviceContext->ClearDepthStencilView(bHandler.depthView, D3D11_CLEAR_DEPTH, 1.0f, 0);	// Clear the depth stencil view
 
@@ -162,20 +162,15 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	//gHandler.gDeviceContext->OMSetRenderTargets(0, 0, gHandler.gBackbufferRTV,clearColor);
-	//gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-	//gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	//gHandler.gDeviceContext->VSSetConstantBuffers(0, 0, NULL);
-	//gHandler.gDeviceContext->CSGetShader(&gHandler.gComputeShader, nullptr, 0);
+	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
+	gHandler.gDeviceContext->CSGetShader(&gHandler.gComputeShader, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1,&tHandler.boneResource);
 
-	//gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
 	vertexSize = sizeof(TriangleVertex);

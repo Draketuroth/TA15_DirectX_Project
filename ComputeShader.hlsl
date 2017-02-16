@@ -1,4 +1,4 @@
 [numthreads(1, 1, 1)]
-void main( uint3 DTid : SV_DispatchThreadID )
+void CS_Main( uint3 DTid : SV_DispatchThreadID )
 {
 }
