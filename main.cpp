@@ -228,7 +228,7 @@ int RunApplication() {
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
-			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix  * tCameraViewProj);
+			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;

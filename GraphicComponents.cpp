@@ -268,7 +268,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&vsBlob,
 		&vsErrorBlob

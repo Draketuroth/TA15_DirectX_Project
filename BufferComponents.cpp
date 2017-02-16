@@ -475,8 +475,8 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 		0.5f, 0.5f, 0.0f,	//v5 position	(RIGHT TOP)
 		1.0f, 0.0f,	//v5 uv coordinates
 
-		0.5f, -0.5f, 0.0f,  //v6 position	(RIGHT BOTTOM)
-		1.0f, 1.0f    //v6 uv coordinates
+		//0.5f, -0.5f, 0.0f,  //v6 position	(RIGHT BOTTOM)
+		//1.0f, 1.0f    //v6 uv coordinates
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;

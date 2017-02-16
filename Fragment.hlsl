@@ -17,7 +17,7 @@ struct PS_IN
 	float4 Norm: NORMAL;
 	float2 Tex: TEXCOORD;
 	float4 Pos : SV_POSITION;
-	float3 WPos : WPOSITION;
+	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
 };
 
