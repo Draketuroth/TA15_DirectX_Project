@@ -25,3 +25,11 @@ int Quadtree::calcNodeNr(int max, int min)
 	ctr++;
 	return ctr;
 }
+bool Quadtree::CreateTree(int Bounding[4], int ParentID, int NodeID)
+{
+	bool created = false;
+
+
+
+	return created;
+}
