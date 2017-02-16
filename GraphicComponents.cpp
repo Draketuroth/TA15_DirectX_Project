@@ -752,7 +752,7 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 
 			return false;
 		}
-
+		
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
 		return true;
