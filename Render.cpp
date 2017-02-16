@@ -190,7 +190,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(6, 0);
 
-	
+	//wtf
 }
 
 
