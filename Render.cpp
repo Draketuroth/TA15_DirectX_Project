@@ -36,7 +36,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// The input assembler will now recieve the vertices and the vertex layout
 
 	// The vertices should be interpreted as parts of a triangle in the input assembler
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);

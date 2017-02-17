@@ -56,9 +56,9 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
 
-	texColor = tex0.Sample(texSampler, input.Tex).xyz;
+	//texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
-	color = float4(texColor, 1.0f);
+	color = (200, 200, 200);		//float4(texColor, 1.0f);
 
 	return float4(ads, 1.0f) * color;
 };
