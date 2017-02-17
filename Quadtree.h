@@ -1,5 +1,6 @@
 #pragma once
 #include "BufferComponents.h";
+
 class Quadtree
 {
 public:
@@ -12,18 +13,17 @@ public:
 	}VERTEX;
 	typedef struct node
 	{
-		int bType;
 		VERTEX BoundingCoords[4];
-		int Branches[4];
-		int ID;
-		int ParentID;
+		VERTEX center;
+		int SubDivs;
+		int subLvl;
 	}NODE;
-	NODE* QuadTree;
-
+	NODE* Tree;
+	float GridX;
+	float GridZ;
 
 private:
-	int calcNodeNr(int max, int min);
-	bool CreateTree(int Bounding[4], int ParentID, int NodeID);
+	bool CreateTree(vertex Bounding[4], int SubDiv, int subLvl);
 
 
 };
