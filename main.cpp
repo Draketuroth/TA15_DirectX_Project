@@ -233,7 +233,7 @@ int RunApplication() {
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
-			cBufferPointer->matrixViewInverse = bHandler.
+			//cBufferPointer->matrixViewInverse = bHandler.
 
 			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;
