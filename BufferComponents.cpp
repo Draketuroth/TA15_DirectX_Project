@@ -460,7 +460,7 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 	TriangleVertex triangleVertices[1] =
 	{
 
-		-0.5f, 0.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
+		-0.5f, 3.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
 		0.0f, 1.0f,	//v1 uv coordinates
 
 		

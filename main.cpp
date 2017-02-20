@@ -211,6 +211,7 @@ int RunApplication() {
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -230,10 +231,11 @@ int RunApplication() {
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
+			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
-			//cBufferPointer->matrixViewInverse = bHandler.
+			
 
 			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;
