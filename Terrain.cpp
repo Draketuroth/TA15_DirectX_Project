@@ -4,7 +4,7 @@
 
 Terrain::Terrain()
 {
-	terrainInfo.HMapFilename = L"Textures\\64.raw";
+	terrainInfo.HMapFilename = L"Textures\\HMap.raw";
 	terrainInfo.HMapHeight = 64;
 	terrainInfo.HMapWidth = 64; 
 
@@ -12,8 +12,8 @@ Terrain::Terrain()
 	terrainInfo.quadSize = 1;
 	terrainInfo.HeightScale = 15; 
 
-	NumPatchVertRows = (terrainInfo.HMapHeight);
-	NumPatchVertCols = (terrainInfo.HMapWidth);
+	NumPatchVertRows = terrainInfo.HMapHeight;
+	NumPatchVertCols = terrainInfo.HMapWidth;
 
 	NumPatchVertices = NumPatchVertRows*NumPatchVertCols; 
 	NumPatchQuadFaces = (NumPatchVertRows - 1) * (NumPatchVertCols - 1);
