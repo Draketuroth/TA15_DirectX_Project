@@ -268,7 +268,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG, 
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -768,7 +768,7 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 bool GraphicComponents::ComputeShader()
 {
 
-	HRESULT hr;
+	/*HRESULT hr;
 
 	ID3DBlob* CsBlob = nullptr;
 	ID3DBlob* CsErrorBlob = nullptr;
@@ -777,7 +777,7 @@ bool GraphicComponents::ComputeShader()
 		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
 		nullptr,
 		nullptr,
-		"Cs_main",
+		"CS_main",
 		"cs_5_0",
 		0,
 		0,
@@ -805,7 +805,9 @@ bool GraphicComponents::ComputeShader()
 		}
 
 		CsBlob->Release();
-	}
+	}*/
+
+	return true;
 }
 
 	

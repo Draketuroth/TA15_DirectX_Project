@@ -31,13 +31,13 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	
 
 	float3 lightSource = float3(0.0f, 20.0f, 20.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
 	float3 specularLight;
+	bool Mcolor = false;
 
 	input.lPos.xy /= input.lPos.w; //light pos in NDC
 
@@ -51,7 +51,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	float nDotL;
 	float3 texColor;
-	float4 color;
+	float3 color;
 
 	float shinyPower = 20.0f;
 
@@ -66,13 +66,16 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
 	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
 
-	if (Ka.x > 0.0f || Ka.y > 0 || Ka.z > 0)
+	if ( Kd.x > 0.0f || Kd.y > 0.0f || Kd.z > 0.0f)
 	{
 		diffuseLight = Kd * max(dot(s, n), 0.0f);
 
 		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = Ld2 * (Ka + diffuseLight + specularLight);
+		color = float3(Kd.x,Kd.y,Kd.z);
+		Mcolor = true;
+
 	}
 	else
 	{
@@ -85,11 +88,16 @@ float4 PS_main(PS_IN input) : SV_Target
 	
 
 	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
+	if (Mcolor == false)
+	{
+		texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
-	texColor = tex0.Sample(texSampler, input.Tex).xyz;
+		color = float4(texColor, 1.0f);
+	}
+	
 
-	color = float4(texColor, 1.0f);
+	//return float4(color,1);// *shadowCheck;
 
-	return float4((ads, 1.0f) *color) *shadowCheck;
-	//return float4(texColor, 1);// * shadowCheck;
+	return float4((ads, 1.0f) *color,1) *shadowCheck;
+	//return float4(texColor, 1) * shadowCheck;
 };

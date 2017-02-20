@@ -45,14 +45,14 @@ struct GS_OUT
 // vertex count must be a total of 6
 
 [maxvertexcount(4)]
- void GS_main(point GS_IN input[1], inout PointStream<GS_OUT> PStream)
+ void GS_main(point GS_IN input[1], inout TriangleStream<GS_OUT> PStream)
 {	 
 	 GS_OUT output;
 
 	 
 
 	 float3 FVec = input[0].Pos - cameraPos;
-	 float3 cameraSpace = (0, 1, 0);
+	 float3 cameraSpace = { 0, 1, 0 };
 	 float3 rightVec = cross(cameraSpace, FVec);
 	 float3 upVec = cross(FVec, rightVec);
 
@@ -65,7 +65,7 @@ struct GS_OUT
 	float4 sideOne = upRight - downRight;
 	float4 sideTwo = upRight - upLeft;
 
-	float4 normal = float4(cross(sideOne, sideTwo),1.0f);
+	float4 normal = float4(cross(sideOne.xyz, sideTwo.xyz),1.0f);
 
 
 	float3 worldPosition = mul(float4(input[0].Pos, 1.0f), matrixWorld).xyz;
@@ -77,15 +77,33 @@ struct GS_OUT
 
 	 output.WPos = worldPosition;
 
+	 float4 pos1 = { 0,1,0,1};
+	 float4 pos2 = { 0,0,0,1};
+	 float4 pos3 = { 1,1,0,1};
+	 float4 pos4 = { 1,0,0,1};
 
-	 output.Pos = float4((upVec + rightVec), 1.0f);
+	 float4 position = mul(pos1, worldViewProj);
+	 float4 position2 = mul(pos2, worldViewProj);
+	 float4 position3 = mul(pos3, worldViewProj);
+	 float4 position4 = mul(pos4, worldViewProj);
+
+	 output.Pos = position;
+	 PStream.Append(output);
+	 output.Pos = position2;
+	 PStream.Append(output);
+	 output.Pos = position3;
+	 PStream.Append(output);
+	 output.Pos = position4;
+	 PStream.Append(output);
+
+	 /*output.Pos = float4((upVec + rightVec), 1.0f);
 	 PStream.Append(output);
 	 output.Pos = float4((upVec - rightVec), 1.0f);
 	 PStream.Append(output);
 	 output.Pos = float4((-upVec - rightVec), 1.0f);
 	 PStream.Append(output);
 	 output.Pos = float4((rightVec - upVec), 1.0f);
-	 PStream.Append(output);
+	 PStream.Append(output);*/
 	
 
 		 PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
