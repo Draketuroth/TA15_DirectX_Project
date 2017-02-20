@@ -67,6 +67,9 @@
     <Filter Include="Source Files\HLSL\ShadowShaders">
       <UniqueIdentifier>{45d4cfad-9abf-4088-86ae-28ba89d91683}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\QuadShaders">
+      <UniqueIdentifier>{dbe81f59-9752-43a8-82bf-4196f3a97d78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,15 +104,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Fragment.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Geometry.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Vertex.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\BoneShaders\BoneFragment.hlsl">
       <Filter>Source Files\HLSL\BoneShaders</Filter>
     </FxCompile>
@@ -131,7 +125,22 @@
     <FxCompile Include="Shaders\ShadowShaders\ShadowVS.hlsl">
       <Filter>Source Files\HLSL\ShadowShaders</Filter>
     </FxCompile>
-    <FxCompile Include="ComputeShader.hlsl">
+    <FxCompile Include="Shaders\StandardShaders\ComputeShader.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Geometry.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Vertex.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadShaders\QuadFragment.hlsl">
+      <Filter>Source Files\HLSL\QuadShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Fragment.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
     </FxCompile>
   </ItemGroup>

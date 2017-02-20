@@ -89,6 +89,16 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 		return false;
 	}
 
+	if (!CreateComputeShader()) {
+
+		return false;
+	}
+
+	if (!CreateQuadShader()) {
+
+		return false;
+	}
+
 	return true;
 }
 
@@ -113,7 +123,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 	chainDescription.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// We are using 32-bit color
 	chainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;		// Defines use of swap chain. It now uses the surface or resource as an output render target.
 	chainDescription.OutputWindow = windowHandle;						// The window to be used defined in "Global Window Variables"
-	chainDescription.SampleDesc.Count = 4;								// How many multisamples to be used and default seems to be 4
+	chainDescription.SampleDesc.Count = 1;								// How many multisamples to be used and default seems to be 4
 	chainDescription.Windowed = LaunchInWindowedMode;					// Specify whether to launch application window in windowed or fullscreen mode		
 
 																		// A trick here is that we can take advantage of a debug layer, and therefore Debug should be defined as a build option
@@ -331,7 +341,7 @@ bool GraphicComponents::CreateStandardShaders() {
 
 	if (FAILED(hr)) {
 
-		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+		cout << "Fragment Shader Error: Fragment Shader could not be compiled or loaded from file" << endl;
 
 		if (psErrorBlob) {
 
@@ -687,7 +697,7 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
 		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		descDepth.SampleDesc.Count = 4;
+		descDepth.SampleDesc.Count = 1;
 		descDepth.SampleDesc.Quality = 0;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
 		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -765,7 +775,7 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 	
 }
 
-bool GraphicComponents::ComputeShader()
+bool GraphicComponents::CreateComputeShader()
 {
 
 	HRESULT hr;
@@ -777,7 +787,7 @@ bool GraphicComponents::ComputeShader()
 		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
 		nullptr,
 		nullptr,
-		"Cs_main",
+		"CS_main",
 		"cs_5_0",
 		0,
 		0,
@@ -806,6 +816,92 @@ bool GraphicComponents::ComputeShader()
 
 		CsBlob->Release();
 	}
+
+	return true;
+}
+
+bool GraphicComponents::CreateQuadShader() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\QuadShaders\\QuadVertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Quad Vertex Shader Error: Quad Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gQuadVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\QuadShaders\\QuadFragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Quad Fragment Shader Error: Quad Fragment Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gQuadPixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
+
+	return true;
 }
 
 	

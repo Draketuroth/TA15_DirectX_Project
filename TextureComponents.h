@@ -21,7 +21,6 @@ public:
 
 	ID3D11ShaderResourceView* standardResource;	// Shader resource views are required for accessing data in a resource
 	ID3D11ShaderResourceView* boneResource;	// Shader resource views are required for accessing data in a resource
-
 	ID3D11ShaderResourceView* terrainResource;
 
 	ID3D11SamplerState* shadowSampler;
@@ -30,8 +29,18 @@ public:
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
 
+	ID3D11Texture2D* sampleTexture;
+	ID3D11Texture2D* computeTexture;
+
+	ID3D11ShaderResourceView* sampleSRV;	// Sample texture from first pass to be used as a Shader Resource View
+	ID3D11ShaderResourceView* computePixelInput;
+	ID3D11UnorderedAccessView* sampleUAV;	// Output texture from the compute shader as an UnorderedAccessView
+	ID3D11RenderTargetView* sampleRTV;
+
 	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);
+	bool CreateComputeRenderTarget(ID3D11Device* &gDevice);
+
 };
 
 #endif TEXTURECOMPONENTS_H

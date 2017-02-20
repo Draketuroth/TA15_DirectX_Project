@@ -53,7 +53,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 
 	CoInitialize(NULL);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
-	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 1024);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 512);
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 
 	if (SUCCEEDED(hr) && texture != 0) {
@@ -70,6 +70,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 
 	return true;
 }
+
 bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 {
 	HRESULT hr;
@@ -130,5 +131,108 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 		return false;
 	}
 
+	return true;
+}
+
+bool TextureComponents::CreateComputeRenderTarget(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// TEXTURE DESCRIPTIONS
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	// Regular sample texture to be rendered to in the first pass
+	D3D11_TEXTURE2D_DESC textureDesc;
+	textureDesc.Width = WIDTH;
+	textureDesc.Height = HEIGHT;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// VIEW DESCRIPTIONS
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+	uavDesc.Buffer.FirstElement = 0;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// CREATE TEXTURES (ONE TO RENDER THE ENTIRE SCENE ONTO AND ANOTHER TO RECEIVE THE FILTERED TEXTURE FROM THE COMPUTE SHADER)
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateTexture2D(&textureDesc, nullptr, &sampleTexture);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	hr = gDevice->CreateTexture2D(&textureDesc, nullptr, &computeTexture);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// CREATE RENDER TARGET VIEW TO RENDER ALL GEOMETRY TO (THIS IS THE TEXTURE OF THE ENTIRE SCENE)
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateRenderTargetView(sampleTexture, nullptr, &sampleRTV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// CREATE SHADER RESOURCE TO GIVE TO THE COMPUTE SHADER (THE TEXTURE OF THE ENTIRE SCENE AS A SHADER RESOURCE VIEW) 
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateShaderResourceView(sampleTexture, &srvDesc, &sampleSRV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------//
+	// CREATE UNOREDERED ACCESS VIEW TO RECEIVE THE FILTERED TEXTURE FROM THE COMPUTE SHADER (THE TEXTURE OF THE ENTIRE SCENE AS A SHADER RESOURCE VIEW) 
+	//-------------------------------------------------------------------------------------------------------------------------------------------------- //
+
+	hr = gDevice->CreateUnorderedAccessView(computeTexture, &uavDesc, &sampleUAV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	hr = gDevice->CreateShaderResourceView(computeTexture, &srvDesc, &computePixelInput);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+	
+	sampleTexture->Release();
+	computeTexture->Release();
+	
 	return true;
 }

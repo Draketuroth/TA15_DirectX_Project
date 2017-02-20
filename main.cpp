@@ -104,6 +104,16 @@ int main() {
 			MB_OK);
 	}
 
+	if (!tHandler.CreateComputeRenderTarget(gHandler.gDevice)) {
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Compute Shader components couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
+
+	
+
 	return RunApplication();
 }
 

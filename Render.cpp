@@ -23,10 +23,6 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
-	//gHandler.gDeviceContext->CSGetShader(&gHandler.gComputeShader, nullptr, 0);
-	//gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.pSmSRView);
-
-	//gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
 	UINT32 vertexSize = sizeof(OBJStruct);
@@ -162,14 +158,16 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
+	gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
+	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.sampleRTV, bHandler.depthView);
+
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	gHandler.gDeviceContext->CSGetShader(&gHandler.gComputeShader, nullptr, 0);
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1,&tHandler.boneResource);
-
+	
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
@@ -185,7 +183,35 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(6, 0);
 
-	//wtf
+	// Unbind sample texture render target view since this will be used as a shader resource input for Compute Shader
+
+	gHandler.gDeviceContext->OMSetRenderTargets(1, &gHandler.gBackbufferRTV, nullptr);
+
+	gHandler.gDeviceContext->CSSetShader(gHandler.gComputeShader, nullptr, 0);
+	gHandler.gDeviceContext->CSSetShaderResources(0, 1, &tHandler.sampleSRV);
+	gHandler.gDeviceContext->CSSetUnorderedAccessViews(0, 1, &tHandler.sampleUAV, nullptr);
+
+	gHandler.gDeviceContext->Dispatch(32, 32, 1);
+	
+	// New pass
+
+	gHandler.gDeviceContext->VSSetShader(gHandler.gQuadVertexShader, nullptr, 0);
+	gHandler.gDeviceContext->PSSetShader(gHandler.gQuadPixelShader, nullptr, 0);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.sampleSRV);
+	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+	
+	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+
+	gHandler.gDeviceContext->Draw(3, 0);
+
+	gHandler.gDeviceContext->CSSetShader(nullptr, nullptr, 0);
+
+	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	gHandler.gDeviceContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+
+	ID3D11ShaderResourceView* ppSRVNULL[1] = { NULL };
+	gHandler.gDeviceContext->CSSetShaderResources(0, 1, ppSRVNULL);
+	
 }
 
 
