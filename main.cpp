@@ -83,12 +83,12 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
-	//terrin /Hightmap
 	terrain.LoadRAW(); 
+	terrain.BuildHeightmapSRV(gHandler.gDevice);
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
 
-	if (!tHandler.CreateTexture(gHandler.gDevice)) {
+	if (!tHandler.CreateTexture(gHandler.gDevice,bHandler)) {
 
 		MessageBox(
 			NULL,
@@ -211,6 +211,7 @@ int RunApplication() {
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -228,11 +229,13 @@ int RunApplication() {
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
-			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix  * tCameraViewProj);
+			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
+			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
+			
 
 			cBufferPointer->cameraPos = mCam.GetPosition();
 			cBufferPointer->floorRot = bHandler.tFloorRot;

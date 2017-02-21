@@ -49,8 +49,8 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 	float4 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
 	float4 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
 
-	float3 triangleSideA = position - position2;
-	float3 triangleSideB = position - position3;
+	float3 triangleSideA = (position - position2).xyz;
+	float3 triangleSideB = (position - position3).xyz;
 
 	normal = normalize(cross(triangleSideA, triangleSideB));
 
@@ -61,7 +61,7 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 
 		float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
 
-		if (dot(normal, -position) > 0.0f) {
+		if (dot(normal.xyz, -position.xyz) > 0.0f) {
 
 			// To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
 			output.WPos = worldPosition;

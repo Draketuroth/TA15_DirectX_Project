@@ -22,6 +22,8 @@ GraphicComponents::GraphicComponents() {
 	gVertexBoneShader = nullptr;
 	gPixelBoneShader = nullptr;
 	gGeometryBoneShader = nullptr;
+
+	gComputeShader = nullptr;
 }
 
 GraphicComponents::~GraphicComponents() {
@@ -45,6 +47,8 @@ GraphicComponents::~GraphicComponents() {
 	gVertexBoneShader->Release();
 	gPixelBoneShader->Release();
 	gGeometryBoneShader->Release();
+
+	gComputeShader->Release();
 
 }
 
@@ -264,7 +268,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG, 
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -319,7 +323,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -356,7 +360,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob
@@ -384,6 +388,8 @@ bool GraphicComponents::CreateStandardShaders() {
 
 	gsBlob->Release();
 
+	//ComputeShader();
+
 	return true;
 }
 
@@ -402,7 +408,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -459,7 +465,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -496,7 +502,7 @@ bool GraphicComponents::CreateTerrainShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob
@@ -540,7 +546,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -598,7 +604,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"PS_main",
 		"ps_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&psBlob,
 		&psErrorBlob
@@ -635,7 +641,7 @@ bool GraphicComponents::CreateBoneShaders() {
 		nullptr,
 		"GS_main",
 		"gs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&gsBlob,
 		&gsErrorBlob
@@ -758,3 +764,50 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 		return true;
 	
 }
+
+bool GraphicComponents::ComputeShader()
+{
+
+	/*HRESULT hr;
+
+	ID3DBlob* CsBlob = nullptr;
+	ID3DBlob* CsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
+		nullptr,
+		nullptr,
+		"CS_main",
+		"cs_5_0",
+		0,
+		0,
+		&CsBlob,
+		&CsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Compute Shader Error: Compute Shader could not be compiled or loaded from file" << endl;
+
+		if (CsErrorBlob) {
+
+			OutputDebugStringA((char*)CsErrorBlob->GetBufferPointer());
+			CsErrorBlob->Release();
+		}
+
+
+		hr = gDevice->CreateComputeShader(CsBlob->GetBufferPointer(), CsBlob->GetBufferSize(), NULL, &gComputeShader);
+
+		if (FAILED(hr)) {
+
+			cout << "Compute Shader Error: Compute Shader could not be created" << endl;
+			return false;
+		}
+
+		CsBlob->Release();
+	}*/
+
+	return true;
+}
+
+	
