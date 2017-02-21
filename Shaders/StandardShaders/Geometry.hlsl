@@ -17,8 +17,9 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixProjection;
 	matrix floorRot;
 	float3 cameraPos;
+	matrix matrixViewInverse;
 
-
+	
 };
 
 struct GS_IN
@@ -31,8 +32,8 @@ struct GS_IN
 
 struct GS_OUT
 {
-	float4 Norm: NORMAL;
-	float2 Tex : TEXCOORD;
+	//float4 Norm: NORMAL;
+	//float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
@@ -43,51 +44,75 @@ struct GS_OUT
 // vertices to output. Therefore the program runs for every primitive. Because we are going to output two triangles, the total 
 // vertex count must be a total of 6
 
-[maxvertexcount(3)]
- void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream)
+[maxvertexcount(4)]
+ void GS_main(point GS_IN input[1], inout TriangleStream<GS_OUT> PStream)
 {	 
 	 GS_OUT output;
 
-	 float3 normal, viewVector;
+	 
+	 //Normalen för quaden.
+	 float3 FVec = input[0].Pos - cameraPos;
 
-	 // Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
-	 float4 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
-	 float4 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
-	 float4 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
+	 FVec.y = 0.0f; // y axis aligned.
+	 FVec = normalize(FVec);
+	 float3 cameraSpace = { 0, 1, 0 };
 
-	 float3 triangleSideA = position - position2;
-	 float3 triangleSideB = position - position3;
+	 // en cevtor som är orthogonal mot normalen och 
+	 float3 rightVec = cross(cameraSpace, FVec);
 
-	 normal = normalize(cross(triangleSideA, triangleSideB));
+	 //float3 upVec = cross(FVec, rightVec);
 
-	 // UINT is an unsigned INT. The range is 0 through 4294967295 decimals
-	 uint i;
+	 float3 invCamera = mul(float4(cameraSpace,1.0f), matrixViewInverse);
 
-	 for (i = 0; i < 3; i++) {
 
-		 float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+	 
+	
+	 float4 v = float4((input[0].Pos + 1 * rightVec - 1 * cameraSpace),1.0f);
+	 float4 v2 = float4((input[0].Pos + 1 * rightVec + 1 * cameraSpace),1.0f);
+	 float4 v3 = float4((input[0].Pos - 1 * rightVec - 1 * cameraSpace),1.0f);
+	 float4 v4 = float4((input[0].Pos - 1 * rightVec + 1 * cameraSpace),1.0f);
+	
 
-		 if (dot(normal, -position) > 0.0f) {
+	// up from view matrix;
 
-			 // To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
-			 output.WPos = worldPosition;
 
-			 // To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
+	float3 worldPosition = mul(float4(input[0].Pos, 1.0f), matrixWorld).xyz;
 
-			 output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+	 
 
-			 // For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
+	 output.ViewPos = cameraPos - worldPosition;
+	 //output.Norm = normal;
 
-			 output.Norm = mul(float4(normal, 1.0f), matrixWorld);
+	 output.WPos = worldPosition;
 
-			 output.Tex = input[i].Tex;
+	// float4 pos1 = { input[0].Pos.x-1,input[0].Pos.y+1,input[0].Pos.z,1};
+	// //float4 pos1 = { 0,1,0,1 };
+	// float4 pos2 = { input[0].Pos.x-1,input[0].Pos.y - 1,input[0].Pos.z,1 };
+	//// float4 pos2 = { 0,0,0,1};
+	// float4 pos3 = { input[0].Pos.x+1,input[0].Pos.y + 1,input[0].Pos.z,1 };
+	//// float4 pos3 = { 1,1,0,1};
+	// float4 pos4 = { input[0].Pos.x+1,input[0].Pos.y - 1,input[0].Pos.z,1 };
+	//// float4 pos4 = { 1,0,0,1};
 
-		 }
+	 float4 position = mul(v, worldViewProj);
+	 float4 position2 = mul(v2, worldViewProj);
+	 float4 position3 = mul(v3, worldViewProj);
+	 float4 position4 = mul(v4, worldViewProj);
 
-		 output.ViewPos = cameraPos - worldPosition;
+	 output.Pos = position;
+	 PStream.Append(output);
+	 output.Pos = position2;
+	 PStream.Append(output);
+	 output.Pos = position3;
+	 PStream.Append(output);
+	 output.Pos = position4;
+	 PStream.Append(output);
 
-		 triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
-	 }
+	
+	
+
+	 PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+	 
 
 };

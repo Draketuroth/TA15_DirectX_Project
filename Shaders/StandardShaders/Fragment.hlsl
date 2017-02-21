@@ -15,7 +15,7 @@ Texture2D tex0 : register(t0);
 struct PS_IN
 {
 	float4 Norm: NORMAL;
-	float2 Tex : TEXCOORD;
+	//float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
@@ -24,6 +24,8 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
+
+	return float4(1.0f,1.0f,1.0f,1.0f);
 
 	float3 lightSource = float3(0.0f, 0.0f, 0.0f);	// Light source in the form of a point light
 	float3 lightVector;
@@ -43,7 +45,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 Kd = float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
 	float3 ads;
 
-	float3 n = normalize(input.Norm);	// The n component is self-explanatory, but represents the normal of the surface
+	float3 n = normalize(input.Norm).xyz;	// The n component is self-explanatory, but represents the normal of the surface
 	float3 s = normalize(lightSource - input.WPos);	// The s component represents the direction from the surface to light source in world coordinates
 	float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
 	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
@@ -56,9 +58,9 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
 
-	texColor = tex0.Sample(texSampler, input.Tex).xyz;
+	//texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
-	color = float4(texColor, 1.0f);
+	color = (200, 200, 200);		//float4(texColor, 1.0f);
 
 	return (ads, 1.0f) * color;
 };

@@ -457,26 +457,13 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	TriangleVertex triangleVertices[6] =
+	TriangleVertex triangleVertices[1] =
 	{
 
-		-0.5f, 0.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
+		-0.5f, 3.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
 		0.0f, 1.0f,	//v1 uv coordinates
 
-		-0.5f, 1.0f, 0.0f,	//v2 position	(LEFT TOP)
-		0.0f, 0.0f,	//v2 uv coordinates
-
-		0.5f, 1.0f, 0.0f, //v3 position	(RIGHT TOP)
-		1.0f, 0.0f,	//v3 uv coordinates
-
-		-0.5f, -0.0f, 0.0f,	//v4 pos position	(LEFT BOTTOM)
-		0.0f, 1.0f,	//v4 uv coordinates
-
-		0.5f, 1.0f, 0.0f,	//v5 position	(RIGHT TOP)
-		1.0f, 0.0f,	//v5 uv coordinates
-
-		0.5f, 0.0f, 0.0f,  //v6 position	(RIGHT BOTTOM)
-		1.0f, 1.0f    //v6 uv coordinates
+		
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -593,6 +580,9 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
+	
+
+	XMMATRIX viewMatrixInverse = XMMatrixInverse(NULL,viewMatrix);
 	mCam.LookAt(eyePos, lookAt, up);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -633,6 +623,8 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
 
+	
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Final calculation for the transform matrix and the transpose function rearranging it to "Column Major" before being sent to the GPU
@@ -658,6 +650,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
 	GsConstData.lightViewProj = { finalLightViewProj };
+	GsConstData.matrixViewInverse = { viewMatrixInverse };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;

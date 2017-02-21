@@ -278,7 +278,7 @@ bool GraphicComponents::CreateStandardShaders() {
 		nullptr,
 		"VS_main",
 		"vs_5_0",
-		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG, 
 		0,
 		&vsBlob,
 		&vsErrorBlob
@@ -787,7 +787,7 @@ bool GraphicComponents::CreateComputeShader()
 		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
 		nullptr,
 		nullptr,
-		"CS_main",
+		"Cs_main",
 		"cs_5_0",
 		0,
 		0,
