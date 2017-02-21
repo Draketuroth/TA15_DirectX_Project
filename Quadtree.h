@@ -15,15 +15,14 @@ public:
 	{
 		VERTEX BoundingCoords[4];
 		node* child[4];
-		int SubDivs;
 		int subLvl;
 	}NODE;
 	NODE* Tree;
 	float GridX;
 	float GridZ;
-
+	int SubDiv;
 private:
 	bool CreateTree(vertex Bounding[4], int SubDiv, int subLvl);
-
+	void createRoot(vertex Bounding[4]);
 
 };

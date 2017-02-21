@@ -14,7 +14,7 @@ Texture2D tex0 : register(t0);
 
 struct PS_IN
 {
-	float4 Norm: NORMAL;
+	//float4 Norm: NORMAL;
 	//float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
@@ -45,14 +45,14 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 Kd = float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
 	float3 ads;
 
-	float3 n = normalize(input.Norm).xyz;	// The n component is self-explanatory, but represents the normal of the surface
-	float3 s = normalize(lightSource - input.WPos);	// The s component represents the direction from the surface to light source in world coordinates
-	float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
-	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
+	//float3 n = normalize(input.Norm).xyz;	// The n component is self-explanatory, but represents the normal of the surface
+	//float3 s = normalize(lightSource - input.WPos);	// The s component represents the direction from the surface to light source in world coordinates
+	//float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
+//	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
 
-	diffuseLight = Kd * max(dot(s, n), 0.0f);
+//	diffuseLight = Kd * max(dot(s, n), 0.0f);
 
-	specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
+	///specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
 
 	ads = Ld * (Ka + diffuseLight + specularLight);
 
