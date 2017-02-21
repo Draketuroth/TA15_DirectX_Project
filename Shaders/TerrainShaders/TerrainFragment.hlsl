@@ -30,8 +30,6 @@ struct PS_IN
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
-	
-
 	float3 lightSource = float3(0.0f, 20.0f, 20.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
