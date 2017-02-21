@@ -14,7 +14,7 @@ public:
 	typedef struct node
 	{
 		VERTEX BoundingCoords[4];
-		VERTEX center;
+		node* child[4];
 		int SubDivs;
 		int subLvl;
 	}NODE;

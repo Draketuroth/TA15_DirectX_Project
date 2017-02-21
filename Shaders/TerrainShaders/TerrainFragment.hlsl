@@ -76,7 +76,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
 	color = float4(texColor, 1.0f);
-
+	//return float4(input.WPos, 1.0f);
 	return float4((ads, 1.0f) * color) * shadowCheck;
 	//return float4(texColor, 1);// * shadowCheck;
 };
