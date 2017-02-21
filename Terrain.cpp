@@ -126,7 +126,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 
 	VertPos.resize(NumPatchVertices * 6); 
 
-	for (unsigned int i = -0; i < NumPatchVertRows -1; i++)
+	for (unsigned int i = 0; i < NumPatchVertRows -1; i++)
 	{
 		for (unsigned int j = 0; j < NumPatchVertCols -1; j++)
 		{

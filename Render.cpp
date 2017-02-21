@@ -82,7 +82,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	ID3D11ShaderResourceView* resourceArr[2];
-	resourceArr[0] = tHandler.terrainResource;
+	resourceArr[0] = tHandler.grassResource;
 	resourceArr[1] = tHandler.pSmSRView;
 	if (bHandler.fileFound == true)
 	{
@@ -145,7 +145,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// The input assembler will now recieve the vertices and the vertex layout
 
 	// The vertices should be interpreted as parts of a triangle in the input assembler
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->DrawIndexed(terrain.indexCounter, 0, 0);
