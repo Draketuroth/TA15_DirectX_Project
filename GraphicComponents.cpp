@@ -787,7 +787,7 @@ bool GraphicComponents::CreateComputeShader()
 		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
 		nullptr,
 		nullptr,
-		"Cs_main",
+		"CS_main",
 		"cs_5_0",
 		0,
 		0,
