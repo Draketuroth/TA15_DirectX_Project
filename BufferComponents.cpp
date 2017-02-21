@@ -234,7 +234,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 
 
-
+			
 		}
 	}
 
