@@ -1,6 +1,6 @@
 #include "BufferComponents.h"
 
-void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound)
+void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound, wstring &OBJTexturePath)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -242,6 +242,10 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	{
 		fstream mtl_File("OBJfiles//test//cube.mtl", ios::in | ios::ate);
 	
+		
+		string temp = "OBJfiles//test//";
+		wstring temp2;
+		OBJTexturePath = (L"OBJfiles//test//");
 		if (!mtl_File.is_open())
 		{
 			fileFound = false;
@@ -262,6 +266,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		XMFLOAT3 Kd;
 		XMFLOAT3 Ka;
 		XMFLOAT3 Tf;
+		XMFLOAT3 Ks;
 		float Ni;
 	
 	
@@ -320,6 +325,23 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	
 				Ni = stof(check,&sz);
 			}
+			else if (check == "Ks")
+			{
+				mtl_StringParse >> check;
+				mtl_StringParse >> check2;
+				mtl_StringParse >> check3;
+
+				Ks.x = stof(check, &sz);
+				Ks.y = stof(check2, &sz);
+				Ks.z = stof(check3, &sz);
+			}
+			else if (check == "map_Kd")
+			{
+				mtl_StringParse >> check;
+				temp2.assign(check.begin(), check.end());
+				OBJTexturePath.append(temp2);
+				
+			}
 	
 		}
 
@@ -335,6 +357,9 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		MTLConstandData.Tf.y = Tf.y;
 		MTLConstandData.Tf.z = Tf.z;
 		MTLConstandData.Ni = Ni;
+		MTLConstandData.Ks.x = Ks.x;
+		MTLConstandData.Ks.y = Ks.y;
+		MTLConstandData.Ks.z = Ks.z;
 		
 	//-----------------------------------------------------------------//
 		//cout << "material: " << material << endl;
@@ -343,6 +368,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
 		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
 		cout << "Ni: " << Ni << endl;
+		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;
 	}
 
 	
@@ -389,13 +415,15 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateConstantBuffer(gDevice, mCam);
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
+	CreateRasterizerState(gDevice);
 
 }
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
 	
-	importer(ImportStruct,MTLConstantData,0,fileFound);
+	
+	importer(ImportStruct,MTLConstantData,0,fileFound,OBJTexturePath);
 
 	HRESULT hr;
 
@@ -429,26 +457,13 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	TriangleVertex triangleVertices[6] =
+	TriangleVertex triangleVertices[1] =
 	{
 
-		-0.5f, -0.5f, 0.0f,	//v1 position	(LEFT BOTTOM)
+		-0.5f, 3.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
 		0.0f, 1.0f,	//v1 uv coordinates
 
-		-0.5f, 0.5f, 0.0f,	//v2 position	(LEFT TOP)
-		0.0f, 0.0f,	//v2 uv coordinates
-
-		0.5f, 0.5f, 0.0f, //v3 position	(RIGHT TOP)
-		1.0f, 0.0f,	//v3 uv coordinates
-
-		-0.5f, -0.5f, 0.0f,	//v4 pos position	(LEFT BOTTOM)
-		0.0f, 1.0f,	//v4 uv coordinates
-
-		0.5f, 0.5f, 0.0f,	//v5 position	(RIGHT TOP)
-		1.0f, 0.0f,	//v5 uv coordinates
-
-		0.5f, -0.5f, 0.0f,  //v6 position	(RIGHT BOTTOM)
-		1.0f, 1.0f    //v6 uv coordinates
+		
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -565,6 +580,9 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
+	
+
+	XMMATRIX viewMatrixInverse = XMMatrixInverse(NULL,viewMatrix);
 	mCam.LookAt(eyePos, lookAt, up);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -578,7 +596,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float nearPlane = 0.1f;
 
-	float farPlane = 50.f;
+	float farPlane = 20000.f;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -605,6 +623,8 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
 
+	
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	// Final calculation for the transform matrix and the transpose function rearranging it to "Column Major" before being sent to the GPU
@@ -630,6 +650,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
 	GsConstData.floorRot = { floorRot };
 	GsConstData.lightViewProj = { finalLightViewProj };
+	GsConstData.matrixViewInverse = { viewMatrixInverse };
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
 	D3D11_BUFFER_DESC constBufferDesc;
@@ -671,7 +692,7 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 
 	
 
-	importer(ImportStruct,MTLConstantData,1,fileFound);
+	importer(ImportStruct,MTLConstantData,1,fileFound,OBJTexturePath);
 
 	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
@@ -704,4 +725,24 @@ bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 	}
 
 	return true;
+}
+
+bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
+	hr = gDevice->CreateRasterizerState(&rasterizerDesc, &gRasteriserState);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
 }

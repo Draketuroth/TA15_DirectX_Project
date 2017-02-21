@@ -107,15 +107,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Fragment.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Geometry.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Vertex.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\BoneShaders\BoneFragment.hlsl">
       <Filter>Source Files\HLSL\BoneShaders</Filter>
     </FxCompile>
@@ -136,6 +127,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\ShadowShaders\ShadowVS.hlsl">
       <Filter>Source Files\HLSL\ShadowShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Fragment.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Geometry.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\Vertex.hlsl">
+      <Filter>Source Files\HLSL\StandardShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -43,38 +43,44 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 
 	float3 normal, viewVector;
 
-	normal = (input[0].Norm);
-	normal = normalize(mul(float4(normal, 1.0f), matrixView).xyz);
+	// Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
-	viewVector = normalize(mul(float4(input[0].Pos, 1.0f), matrixView).xyz);
+	float4 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
+	float4 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
+	float4 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
+
+	float3 triangleSideA = (position - position2).xyz;
+	float3 triangleSideB = (position - position3).xyz;
+
+	normal = normalize(cross(triangleSideA, triangleSideB));
 
 	// UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	uint i;
 
 	for (i = 0; i < 3; i++) {
 
-		if (dot(normal, viewVector) < 1.0f) {
+		float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+
+		if (dot(normal.xyz, -position.xyz) > 0.0f) {
 
 			// To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
-
-			float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
 			output.WPos = worldPosition;
 
 			// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
 
 			output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
 
-		output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), mul(matrixWorld, lightViewProj));
+			output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), mul(matrixWorld, lightViewProj));
 
-		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
+			// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
 
 			output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
 
 			output.Tex = input[i].Tex;
 
-			output.ViewPos = cameraPos - worldPosition;
-
 		}
+
+		output.ViewPos = cameraPos - worldPosition;
 
 		triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	}

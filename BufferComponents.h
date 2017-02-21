@@ -27,9 +27,12 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixProjection;
 	XMMATRIX floorRot;
 	XMFLOAT3 cameraPos;
+	XMMATRIX matrixViewInverse;
 	
 
 };
+
+
 //Declspec helps to declare the bytewidth of the constant buffer
 __declspec(align(16))
 struct MTL_STRUCT
@@ -38,10 +41,12 @@ struct MTL_STRUCT
 	XMFLOAT3 Kd;
 	XMFLOAT3 Ka;
 	XMFLOAT3 Tf;
+	XMFLOAT3 Ks;
 	float Ni;
 	float Illum;
 
 	};
+
 
 class BufferComponents {
 	
@@ -59,6 +64,8 @@ public:
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
+	wstring OBJTexturePath;
+	
 
 	XMMATRIX tLightViewProj;
 
@@ -73,6 +80,8 @@ public:
 	ID3D11DepthStencilState* depthState;	// Depth-stencil state used for the output merger
 	ID3D11DepthStencilView* depthView;	// Depth-stencil view to access the depth stencil texture
 
+	ID3D11RasterizerState* gRasteriserState;
+
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice);
 
@@ -80,6 +89,9 @@ public:
 	bool CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &fbxImporter);
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
+	bool CreateRasterizerState(ID3D11Device* &gDevice);
+
+	
 
 };
 
