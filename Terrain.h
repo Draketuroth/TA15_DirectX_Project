@@ -21,34 +21,26 @@ class Terrain
 public:
 	struct InitInfo
 	{
-		//här måste vi först hämta hightmapen
+		//RAW file
 		wstring HMapFilename; 
 
-		//skala
+		//scale
 		float HeightScale;
 
 		//hight and Width
 		UINT HMapWidth; 
 		UINT HMapHeight;
-
-		//the cell spacing along the x- and z- axes 
-		//med andra ord hur långt det är mellan varje vertis
 		float quadSize;
 	};
 
 	Terrain();
 	~Terrain();
 
-	bool inBounds(int i, int j); 
-	float Average(int i, int j);
-	void Smooth(); 
 	void LoadRAW();
 
 	float GetWidth()const; 
 	float GetDepth()const;
 
-	//shader resurce
-	void BuildHeightmapSRV(ID3D11Device* device);
 	//vertex buffer
 	void BuildQuadPatchVB(ID3D11Device* device); 
 	//indexbuffer
@@ -60,10 +52,13 @@ public:
 
 	//en objstruct = 1 vertecis
 	unsigned int indexCounter = 0;
-	
+
+
+	//retunera en position till kamran
 private:
 
 	vector<float> heightMap; 
+
 	vector<XMFLOAT2>PatchBoundsY;
 	InitInfo terrainInfo;
 
@@ -74,24 +69,7 @@ private:
 
 	int NumPatchVertices;
 	int NumPatchQuadFaces;
+
 	
 };
-
-//en egen namespace som håller två structer
-//namespace Vertex
-//{
-//	struct Basic32
-//	{
-//		XMFLOAT3 Position; 
-//		XMFLOAT3 Normal; 
-//		XMFLOAT2 Texture; 
-//	};
-//
-//	struct terrain
-//	{
-//		XMFLOAT3 Position;
-//		XMFLOAT2 Texture;
-//		XMFLOAT2 BoundsY;
-//	};
-//}
 #endif
