@@ -227,7 +227,7 @@ int RunApplication() {
 			// constructed to rotate the triangles around the y-axis
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
-
+			
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
@@ -236,7 +236,9 @@ int RunApplication() {
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
 
+
 			cBufferPointer->cameraPos = mCam.GetPosition();
+
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 
 			// At last we have to reenable GPU access to the vertex buffer data

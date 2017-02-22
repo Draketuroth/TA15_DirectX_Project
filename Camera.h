@@ -78,6 +78,11 @@ public:
 
 	void OnMouseMove(WPARAM btnState, int x, int y); // Update mouse movement after every frame
 
+	void SetHightPos(); 
+
+	float GetX()const; 
+	float GetZ()const; 
+
 private:
 
 	// Camera coordinate system with coordinates relative to World Space

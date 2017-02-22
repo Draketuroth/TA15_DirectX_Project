@@ -81,16 +81,15 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 	int k = 0; 
 	for (UINT i = 0; i < NumPatchVertRows; ++i)
 	{
-		float z = halfDepth - i*patchDepth;
+		float z = 0;
 		for (UINT j = 0; j < NumPatchVertCols; ++j)
 		{
-			float x = -halfWidth + j*patchWidth; 
+			float x = 0; 
+			float y = 0;
 			
-			float y = heightMap[i];
-			
-			x = i;
+			x = -halfDepth +j ;
 			y = heightMap[i*NumPatchVertCols + j];
-			z = j;
+			z = halfDepth - i;
 
 			//cout << heightMap[i] << endl;
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);

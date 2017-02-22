@@ -1,5 +1,6 @@
 
 #include "Camera.h"
+#include "Terrain.h"
 
 // Constructor and destructor
 Camera::Camera() {
@@ -8,6 +9,22 @@ Camera::Camera() {
 
 Camera::~Camera() {
 
+	
+}
+
+void Camera::SetHightPos()
+{
+	Terrain terrain; 
+	//convert from vector to float array
+	float* newHight = &terrain.heightMap[0]; 
+
+	if (GetX() >= 0 && GetX() <= 64)
+	{
+		if (GetZ() >= 0 && GetZ() <= 64)
+		{
+			// nu är vi på terrengen
+		}
+	}
 	
 }
 
@@ -22,6 +39,17 @@ XMFLOAT3 Camera::GetPosition()const {
 	return mPosition;
 }
 
+float Camera::GetX()const
+{
+	float HX = mPosition.x; 
+	return HX; 
+}
+
+float Camera::GetZ()const
+{
+	float HZ = mPosition.z;
+	return HZ;
+}
 void Camera::SetPosition(float x, float y, float z) {
 
 	mPosition = XMFLOAT3(x, y, z);

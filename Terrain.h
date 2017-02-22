@@ -53,12 +53,10 @@ public:
 	//en objstruct = 1 vertecis
 	unsigned int indexCounter = 0;
 
-
-	//retunera en position till kamran
+	vector<float> heightMap; 
 private:
 
-	vector<float> heightMap; 
-
+	
 	vector<XMFLOAT2>PatchBoundsY;
 	InitInfo terrainInfo;
 
