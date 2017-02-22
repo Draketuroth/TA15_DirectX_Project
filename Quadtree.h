@@ -13,16 +13,17 @@ public:
 	}VERTEX;
 	typedef struct node
 	{
-		VERTEX BoundingCoords[4];
+		VERTEX BoundingCoords[4]; // four corners of the parent.
+		float Width; // thecurrent boxes width
+		float Height; // the current boxes height.
 		node* child[4];
-		int subLvl;
 	}NODE;
 	NODE* Tree;
-	float GridX;
-	float GridZ;
+
 	int SubDiv;
+	int totalSubDiv;
 private:
-	bool CreateTree(vertex Bounding[4], int SubDiv, int subLvl);
-	void createRoot(vertex Bounding[4]);
+	void CreateTree(NODE* quadtree, vertex Bounding[4], int &SubDiv);
+
 
 };
