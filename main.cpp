@@ -136,7 +136,7 @@ int RunApplication() {
 	// Initialize the previous time
 	__int64 previousTime = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
-
+	long i=0;
 	while (windowMessage.message != WM_QUIT) {
 
 		if (PeekMessage(&windowMessage, NULL, NULL, NULL, PM_REMOVE)) {
@@ -236,8 +236,16 @@ int RunApplication() {
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
 
-			cBufferPointer->cameraPos = mCam.GetPosition();
+			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
+			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());
+			
+			i++;
+			if (i < 20000000000)
+			{
+				cout << mCam.GetPosition().x << " " << mCam.GetPosition().y << " " << mCam.GetPosition().z << endl;
+				i = 0;
+			}
 
 			// At last we have to reenable GPU access to the vertex buffer data
 

@@ -16,8 +16,9 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixView;
 	matrix matrixProjection;
 	matrix floorRot;
-	float3 cameraPos;
 	matrix matrixViewInverse;
+	float4 cameraPos;
+	float4 cameraUp;
 
 	
 };
@@ -51,7 +52,7 @@ struct GS_OUT
 
 	 
 	 //Normalen för quaden.
-	 float3 normal = input[0].Pos - cameraPos;
+	 float3 normal = cameraPos.xyz-input[0].Pos ;
 
 	 float3 cameraSpace = { 0, 1, 0 };
 
@@ -62,16 +63,18 @@ struct GS_OUT
 	 
 
 	 
-	 
+	 float3 normalizedCamera = normalize(cameraUp.xyz);
 
 	 //float3 upVec = cross(FVec, rightVec);
-	 float3 rightVec = cross(cameraSpace, normal);
+	 float3 rightVec = cross(normalizedCamera,normal );
 
 	 rightVec = normalize(rightVec);
 
 	 float3 upVec = cross(normal, rightVec);
 	 upVec = normalize(upVec);
 	 
+	 
+
 
 	 //float3 invCamera = mul(matrixView,float4(upVec,1.0f) );
 
@@ -79,11 +82,19 @@ struct GS_OUT
 	
 
 	
-	 float4 v = float4((input[0].Pos + 1 * rightVec - 1 * upVec),1.0f);
-	 float4 v2 = float4((input[0].Pos + 1 * rightVec + 1 * upVec),1.0f);
-	 float4 v3 = float4((input[0].Pos - 1 * rightVec - 1 * upVec),1.0f);
-	 float4 v4 = float4((input[0].Pos - 1 * rightVec + 1 * upVec),1.0f);
+	 float4 v = float4((input[0].Pos + 1 * rightVec - 1 * upVec),1.0f); // bottom right
+	 float4 v2 = float4((input[0].Pos + 1 * rightVec + 1 * upVec),1.0f); // top right
+	 float4 v3 = float4((input[0].Pos - 1 * rightVec - 1 * upVec),1.0f); // bottom left
+	 float4 v4 = float4((input[0].Pos - 1 * rightVec + 1 * upVec),1.0f); // top left
 	
+		// CK
+
+	rightVec = normalize(cross(normal, cameraSpace));
+	upVec = cross(normal, rightVec);
+	v = float4((input[0].Pos + (1 * rightVec) - (1 * upVec)),1.0f); // bottom right
+	v2 = float4((input[0].Pos + (1 * rightVec) + (1 * upVec)),1.0f); // top right
+	v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // bottom left
+	v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // top left
 
 	// up from view matrix;
 
@@ -123,7 +134,7 @@ struct GS_OUT
 	
 	
 
-	 PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+	 //PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	 
 
 };
