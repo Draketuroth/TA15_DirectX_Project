@@ -42,6 +42,10 @@ public:
 	ID3D11PixelShader* gPixelBoneShader;
 	ID3D11GeometryShader* gGeometryBoneShader;
 
+	ID3D11InputLayout* gVertexQTreeLayout;
+	ID3D11VertexShader* gVertexQTreeShader;
+	ID3D11PixelShader* gPixelQTreeShader;
+
 	bool InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler);	// Function called to initalize the necessary components, as listen below
 	bool CreateRenderTargetView(BufferComponents &bHandler);	// We require a render target view for rendering and we create this by taking the back buffer from the swap chain
 	bool CreateSwapChainAndDevice(HWND &windowHandle);	// Function to create the graphic device responsible for interactions with the graphic card and the swap chain to switch between back & front buffer
@@ -50,6 +54,7 @@ public:
 	bool CreateTerrainShaders();	// Function to create all the potential shaders to be used in the application
 	bool CreateBoneShaders();
 	bool CreateShadowMapShader();
+	bool CreateQTreeShaders();
 
 	bool ComputeShader();
 
