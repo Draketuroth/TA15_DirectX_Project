@@ -3,10 +3,11 @@
 Quadtree::Quadtree()
 {
 	this->Tree = nullptr;
-	this->SubDiv = 3;
+	this->SubDiv = 0;
 	this->totalSubDiv = 4;
 	this->Tree->Height = -64;
 	this->Tree->Width = 64;
+	this->CreateTree(this->Tree, this->Bounding, this->SubDiv);
 }
 Quadtree::~Quadtree()
 {

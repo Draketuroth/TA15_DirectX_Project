@@ -18,6 +18,7 @@
 #include "GraphicComponents.h"
 #include "BufferComponents.h"
 #include "TextureComponents.h"
+#include "Quadtree.h"
 
 #include "Terrain.h"
 
@@ -41,7 +42,7 @@ Camera mCam;
 GraphicComponents gHandler;
 BufferComponents bHandler;
 TextureComponents tHandler;
-
+Quadtree QTree;
 //----------------------------------------------------------------------------------------------------------------------------------//
 // FORWARD DECLARATIONS
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -102,6 +103,7 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
+	
 
 	return RunApplication();
 }

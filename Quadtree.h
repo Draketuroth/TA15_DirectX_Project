@@ -20,10 +20,13 @@ public:
 	}NODE;
 	NODE* Tree;
 
+	VERTEX Bounding[4];
 	int SubDiv;
 	int totalSubDiv;
-private:
+
 	void CreateTree(NODE* quadtree, vertex Bounding[4], int &SubDiv);
+private:
+
 
 
 };
