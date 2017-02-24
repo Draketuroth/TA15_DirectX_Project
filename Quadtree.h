@@ -24,7 +24,7 @@ public:
 	int SubDiv;
 	int totalSubDiv;
 
-	void CreateTree(NODE* quadtree, vertex Bounding[4], int &SubDiv);
+	void CreateTree(NODE* quadtree, vertex Bounding[4], int SubDiv);
 private:
 
 
