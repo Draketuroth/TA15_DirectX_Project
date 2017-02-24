@@ -23,6 +23,11 @@ void Quadtree::CreateTree(NODE* quadtree, vertex Bounding[4], int &SubDiv)
 		Bounding[1] = { quadtree->Width, 0, 0 };//Top Right
 		Bounding[2] = { 0, 0, quadtree->Height};//Bot left
 		Bounding[3] = { quadtree->Width, 0, quadtree->Height};//Bot Right
+
+		for (int i = 0; i < 4; i++)
+		{
+			quadtree->BoundingCoords[i] = Bounding[i];
+		}
 	}
 	else
 	{

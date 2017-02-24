@@ -126,7 +126,6 @@
     <ClCompile Include="BufferComponents.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FBXLoader.cpp" />
-    <ClCompile Include="FrustumCulling.cpp" />
     <ClCompile Include="GraphicComponents.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Quadtree.cpp" />
@@ -259,7 +258,6 @@
     <ClInclude Include="BufferComponents.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FBXLoader.h" />
-    <ClInclude Include="FrustumCulling.h" />
     <ClInclude Include="GraphicComponents.h" />
     <ClInclude Include="MacroDefinitions.h" />
     <ClInclude Include="Quadtree.h" />

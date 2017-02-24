@@ -99,9 +99,6 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files\Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="FrustumCulling.cpp">
-      <Filter>Source Files\Pipeline Components</Filter>
-    </ClCompile>
     <ClCompile Include="Quadtree.cpp">
       <Filter>Source Files\Pipeline Components</Filter>
     </ClCompile>
@@ -171,9 +168,6 @@
     </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Header Files\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="FrustumCulling.h">
-      <Filter>Header Files\Pipeline Components</Filter>
     </ClInclude>
     <ClInclude Include="Quadtree.h">
       <Filter>Header Files\Pipeline Components</Filter>

@@ -15,7 +15,12 @@
 
 using namespace DirectX;
 using namespace std;
+struct Plane 
+{
+	XMFLOAT3 Normal;
+	float Distance;
 
+};
 class Camera {
 
 public:
@@ -24,6 +29,7 @@ public:
 	Camera();
 	~Camera();
 
+	Plane Frustum[6];
 	POINT mLastMousePos;
 
 	// Get/Set Camera Properties
@@ -77,6 +83,10 @@ public:
 	void UpdateViewMatrix();
 
 	void OnMouseMove(WPARAM btnState, int x, int y); // Update mouse movement after every frame
+
+	//Functions for View frustum culling
+	void CreateFrustum();
+
 
 private:
 
