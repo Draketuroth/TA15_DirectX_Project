@@ -26,7 +26,9 @@ public:
 	ID3D11VertexShader* gVertexShader;	
 	ID3D11PixelShader* gPixelShader;	
 	ID3D11GeometryShader* gGeometryShader; 
-	ID3D11ComputeShader* gComputeShader;
+	
+	ID3D11ComputeShader* gComputeShaderHB;
+	ID3D11ComputeShader* gComputeShaderHV;
 
 	ID3D11InputLayout* gShadowVsLayout;
 	ID3D11VertexShader* gShadowVS;
@@ -54,7 +56,7 @@ public:
 	bool CreateBoneShaders();
 	bool CreateShadowMapShader();
 
-	bool CreateComputeShader();
+	bool CreateComputeShaders();
 	bool CreateQuadShader();
 
 	bool CreateDepthStencil(BufferComponents &bHandler);

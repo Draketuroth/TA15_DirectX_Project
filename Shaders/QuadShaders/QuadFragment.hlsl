@@ -1,6 +1,7 @@
 
 SamplerState texSampler: register(s0);
 Texture2D tex0 : register(t0);
+Texture2D tex1 : register(t1);
 
 struct PS_IN
 {
@@ -10,6 +11,14 @@ struct PS_IN
 
 float4 PS_main(PS_IN input) : SV_Target{
 
-	return tex0.Sample(texSampler, input.texcoord);
+	float4 texColor, blurColor, color;
+
+	texColor = tex0.Sample(texSampler, input.texcoord);
+
+	blurColor = tex0.Sample(texSampler, input.texcoord);
+	texColor = tex1.Sample(texSampler, input.texcoord);
+
+	return blurColor;
+	//return texColor;
 
 }

@@ -399,12 +399,18 @@ BufferComponents::BufferComponents() {
 }
 
 BufferComponents::~BufferComponents() {
+	
+	
+	SAFE_RELEASE(gVertexBuffer);
+	SAFE_RELEASE(gTerrainBuffer);
+	SAFE_RELEASE(gConstantBuffer);
+	SAFE_RELEASE(gMTLBuffer);
 
-	gVertexBuffer->Release();
-	gConstantBuffer->Release();
-	depthStencil->Release();
-	depthState->Release();
-	depthView->Release();
+	SAFE_RELEASE(depthStencil);
+	SAFE_RELEASE(depthState);
+	SAFE_RELEASE(depthView);
+
+	SAFE_RELEASE(gRasteriserState);
 
 }
 

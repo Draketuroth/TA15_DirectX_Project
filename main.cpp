@@ -103,15 +103,13 @@ int main() {
 			MB_OK);
 	}
 
-	if (!tHandler.CreateComputeRenderTarget(gHandler.gDevice)) {
+	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
 		MessageBox(
 			NULL,
-			L"CRITICAL ERROR: Compute Shader components couldn't be initialized\nClosing application...",
+			L"CRITICAL ERROR: Compute Shader Resources couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
-
-	
 
 	return RunApplication();
 }
@@ -220,7 +218,7 @@ int RunApplication() {
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 
-
+			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -274,11 +272,11 @@ int RunApplication() {
 		}
 
 	}
-
+	
+	//fbxImporter.~FbxImport();
 	bHandler.~BufferComponents();
 	gHandler.~GraphicComponents();
 	tHandler.~TextureComponents();
-	fbxImporter.~FbxImport();
 
 	DestroyWindow(windowHandle);
 
