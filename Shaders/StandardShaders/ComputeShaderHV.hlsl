@@ -22,7 +22,7 @@ cbuffer cbImmutable
 Texture2D InputTex : register (t0);
 RWTexture2D<float4> OutputTex : register (u0);
 
-#define NUMBER_OF_THREADS_Y 24
+#define NUMBER_OF_THREADS_Y 256
 #define CACHE_SIZE_Y (NUMBER_OF_THREADS_Y + 2 * gBlurRadius)
 groupshared float4 gCacheY[CACHE_SIZE_Y];
 
