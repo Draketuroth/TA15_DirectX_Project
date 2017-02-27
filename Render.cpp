@@ -71,12 +71,16 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(fbxImporter.vertices.size(), 0);
 
+
+
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	ID3D11ShaderResourceView* resourceArr[2];
 	resourceArr[0] = tHandler.grassResource;
 	resourceArr[1] = tHandler.pSmSRView;
+
 	if (bHandler.fileFound == true)
 	{
 		//Array of resourceviews for shadow map and textures
@@ -151,13 +155,16 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	//// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
+	//d3dContext->OMSetBlendState(d3dBlendState, 0, 0xffffffff);
+	gHandler.gDeviceContext->OMSetBlendState(tHandler.blendState,0, 0xffffffff);
+
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 	
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.fireflyResource);
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
@@ -173,10 +180,15 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(1, 0);
 
+
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// COMPUTE SHADER HORIZONTAL BLUR (SECOND PASS)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
+	ID3D11BlendState* nullBlend = nullptr;
+	gHandler.gDeviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+
 	ID3D11Buffer* nullVBuffer[] = { NULL };
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 0, nullVBuffer, NULL, NULL);
 	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

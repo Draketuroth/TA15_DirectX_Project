@@ -25,7 +25,7 @@ float4 PS_main(PS_IN input) : SV_Target{
 
 	// Use these to turn off/on the gaussian blur in the scene
 
-	return blurColor;
-	//return texColor;
+	//return blurColor;
+	return texColor;
 
 }
