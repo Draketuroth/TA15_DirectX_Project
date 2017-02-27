@@ -174,22 +174,22 @@ int RunApplication() {
 
 			if (GetAsyncKeyState('W') & 0x8000) {
 
-				mCam.Walk(-speed * deltaTime);
+				mCam.Walk(speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('S') & 0x8000) {
 
-				mCam.Walk(speed * deltaTime);
+				mCam.Walk(-speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('A') & 0x8000) {
 
-				mCam.Strafe(speed * deltaTime);
+				mCam.Strafe(-speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('D') & 0x8000) {
 
-				mCam.Strafe(-speed * deltaTime);
+				mCam.Strafe(speed * deltaTime);
 			}
 
 			showFPS(windowHandle, deltaTime);

@@ -151,31 +151,36 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	//// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
-	//gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
-	//gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
-	//gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
-	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-	//gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	//
-	//gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
-	//gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
+	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
+	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
+	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
+	
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
+	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
-	//// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	//vertexSize = sizeof(TriangleVertex);
-	//offset = 0;
-	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gVertexBuffer, &vertexSize, &offset);
+	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+	vertexSize = sizeof(TriangleVertex);
+	offset = 0;
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gVertexBuffer, &vertexSize, &offset);
 
-	//// The input assembler will now recieve the vertices and the vertex layout
+	// The input assembler will now recieve the vertices and the vertex layout
 
-	//// The vertices should be interpreted as parts of a triangle in the input assembler
-	//gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	//gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexLayout);
+	// The vertices should be interpreted as parts of a triangle in the input assembler
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexLayout);
 
-	//gHandler.gDeviceContext->Draw(1, 0);
+	gHandler.gDeviceContext->Draw(1, 0);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// COMPUTE SHADER HORIZONTAL BLUR (SECOND PASS)
 	//----------------------------------------------------------------------------------------------------------------------------------//
+	
+	ID3D11Buffer* nullVBuffer[] = { NULL };
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 0, nullVBuffer, NULL, NULL);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetInputLayout(NULL);
 
 	gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(1, &gHandler.gBackbufferRTV, bHandler.depthView);
