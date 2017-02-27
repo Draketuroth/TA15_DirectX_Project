@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
-// Bone Geometry Shader DirectX11
+// Geometry Shader DirectX11
 //
-// BTH - Fredrik Linde TA15 2016
+// Jonathan Sundberg TA15
 //----------------------------------------------------------------------------------------------------------------------------------//
 
 // The registers are underlying hardware registers on the GPU where all data is stored during execution of the shaders

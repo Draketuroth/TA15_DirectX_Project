@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
 // Bone Vertex Shader DirectX11
 //
-// BTH - Fredrik Linde TA15 2016
+// Fredrik Linde TA15
 //----------------------------------------------------------------------------------------------------------------------------------//
 
 // The vertex shader is now only responsible for passing data and doesn't manipulate it any further

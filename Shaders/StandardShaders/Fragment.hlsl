@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
 // Fragment Shader DirectX11
 //
-// Philip Velandria, Jonathan Sundberg, Linnea Vajda, Fredrik Linde
+// Jonathan Sundberg TA15
 //----------------------------------------------------------------------------------------------------------------------------------//
 
 // The registers are underlying hardware registers on the GPU where all data is stored during execution of the shaders

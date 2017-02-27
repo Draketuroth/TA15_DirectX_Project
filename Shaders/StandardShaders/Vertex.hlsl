@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
 // Vertex Shader DirectX11
 //
-// Philip Velandria, Jonathan Sundberg, Linnea Vajda, Fredrik Linde
+// Jonathan Sundberg TA15
 //----------------------------------------------------------------------------------------------------------------------------------//
 
 // The vertex shader is now only responsible for passing data and doesn't manipulate it any further

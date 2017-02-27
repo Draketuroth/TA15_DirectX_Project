@@ -1,4 +1,10 @@
-cbuffer cbSettings
+//----------------------------------------------------------------------------------------------------------------------------------//
+// Compute Shader Horizontal + Vertical Blur (SECOND PASS) DirectX11
+//
+// Fredrik Linde TA15
+//----------------------------------------------------------------------------------------------------------------------------------//
+
+cbuffer cbGaussian
 {
 	static const float gWeights[11] = 
 	{
@@ -13,8 +19,8 @@ cbuffer cbImmutable
 
 };
 
-Texture2D gInput : register (t0);
-RWTexture2D<float4> gOutput : register (u0);
+Texture2D InputTex : register (t0);
+RWTexture2D<float4> OutputTex : register (u0);
 
 #define NUMBER_OF_THREADS_Y 24
 #define CACHE_SIZE_Y (NUMBER_OF_THREADS_Y + 2 * gBlurRadius)
@@ -23,11 +29,6 @@ groupshared float4 gCacheY[CACHE_SIZE_Y];
 [numthreads(1, NUMBER_OF_THREADS_Y, 1)]
 void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_DispatchThreadID)
 {
-	//
-	// Fill local thread storage to reduce bandwidth.  To blur 
-	// NUMBER_OF_THREADS pixels, we will need to 
-    // load NUMBER_OF_THREADS + 2 * BlurRadius pixels due to the blur radius.
-	//
 	
 	// This thread group runs NUMBER_OF_THREADS threads.  To get the extra 2 * BlurRadius pixels, 
 	// have 2 * BlurRadius threads sample an extra pixel.
@@ -35,26 +36,24 @@ void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_D
 	{
 		// Clamp out of bound samples that occur at image borders.
 		int y = max(dispatchThreadID.y - gBlurRadius, 0);
-		gCacheY[groupThreadID.y] = gInput[int2(dispatchThreadID.x, y)];
+		gCacheY[groupThreadID.y] = InputTex[int2(dispatchThreadID.x, y)];
 	}
 
 	if(groupThreadID.y >= NUMBER_OF_THREADS_Y - gBlurRadius)
 	{
 		// Clamp out of bound samples that occur at image borders.
-		int y = min(dispatchThreadID.y + gBlurRadius, gInput.Length.y - 1);
-		gCacheY[groupThreadID.y + 2 * gBlurRadius] = gInput[int2(dispatchThreadID.x, y)];
+		int y = min(dispatchThreadID.y + gBlurRadius, InputTex.Length.y - 1);
+		gCacheY[groupThreadID.y + 2 * gBlurRadius] = InputTex[int2(dispatchThreadID.x, y)];
 	}
 	
 	// Clamp out of bound samples that occur at image borders.
-	gCacheY[groupThreadID.y + gBlurRadius] = gInput[min(dispatchThreadID.xy, gInput.Length.xy - 1)];
+	gCacheY[groupThreadID.y + gBlurRadius] = InputTex[min(dispatchThreadID.xy, InputTex.Length.xy - 1)];
 
 
 	// Wait for all threads to finish.
 	GroupMemoryBarrierWithGroupSync();
 	
-	//
-	// Now blur each pixel.
-	//
+	// Now each pixel can be blurred
 
 	float4 blurColor = float4(0, 0, 0, 0);
 	
@@ -66,6 +65,6 @@ void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_D
 		blurColor += gWeights[i + gBlurRadius] * gCacheY[k];
 	}
 	
-	gOutput[dispatchThreadID.xy] = blurColor;
+	OutputTex[dispatchThreadID.xy] = blurColor;
 	
 	}

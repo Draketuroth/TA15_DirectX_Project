@@ -1,3 +1,8 @@
+//----------------------------------------------------------------------------------------------------------------------------------//
+// Quad Fragment Shader DirectX11
+//
+// Fredrik Linde TA15
+//----------------------------------------------------------------------------------------------------------------------------------//
 
 SamplerState texSampler: register(s0);
 Texture2D tex0 : register(t0);
@@ -17,6 +22,8 @@ float4 PS_main(PS_IN input) : SV_Target{
 
 	blurColor = tex0.Sample(texSampler, input.texcoord);
 	texColor = tex1.Sample(texSampler, input.texcoord);
+
+	// Use these to turn off/on the gaussian blur in the scene
 
 	return blurColor;
 	//return texColor;
