@@ -42,6 +42,10 @@ public:
 	ID3D11PixelShader* gPixelBoneShader;
 	ID3D11GeometryShader* gGeometryBoneShader;
 
+
+
+
+
 	ID3D11InputLayout* gVertexQTreeLayout;
 	ID3D11VertexShader* gVertexQTreeShader;
 	ID3D11PixelShader* gPixelQTreeShader;
