@@ -67,6 +67,9 @@
     <Filter Include="Source Files\HLSL\ShadowShaders">
       <UniqueIdentifier>{45d4cfad-9abf-4088-86ae-28ba89d91683}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\QuadtreeShaders">
+      <UniqueIdentifier>{b93b6588-92bf-42dc-a3fb-008010a08214}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -133,6 +136,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\StandardShaders\Vertex.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="QuadVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="QuadFragment.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

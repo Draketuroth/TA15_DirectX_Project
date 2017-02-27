@@ -811,8 +811,81 @@ bool GraphicComponents::ComputeShader()
 }
 bool GraphicComponents::CreateQTreeShaders()
 {
+	ID3DBlob* VsBlob;
+	ID3DBlob* VsErrorBlob;
+	//Quadtree vertex shader
+	HRESULT hr = D3DCompileFromFile(
+		L"Shaders\\QuadtreeShaders\\QuadVertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&VsBlob,
+		&VsErrorBlob
+	);
+	if (FAILED(hr))
+	{
+		cout << "Vertex Shader Error: Quadtree Vertex shader could not be compiled or loaded from file" << endl;
+	}
+	if (VsErrorBlob) {
+
+		OutputDebugStringA((char*)VsErrorBlob->GetBufferPointer());
+		VsErrorBlob->Release();
+	}
+	hr = gDevice->CreateVertexShader(VsBlob->GetBufferPointer(), VsBlob->GetBufferSize(), NULL, &gVertexQTreeShader);
+	if (FAILED(hr))
+	{
+		cout << "Vertex Shader Error: Vertex Quadtree Shader could not be created" << endl;
+		return false;
+	}
+	VsBlob->Release();
 
 
+	//input layout
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }	
+	};
+
+
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, VsBlob->GetBufferPointer(), VsBlob->GetBufferSize(), &gVertexQTreeLayout);
+
+
+
+	//Quadtree pixel shader
+	ID3DBlob* PsBlob;
+	ID3DBlob* PsErrorBlob;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\QuadtreeShaders\\QuadFragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		0,
+		0,
+		&PsBlob,
+		&PsErrorBlob
+	);
+	if (FAILED(hr))
+	{
+		cout << "Pixel Shader Error: Quadtree Vertex shader could not be compiled or loaded from file" << endl;
+	}
+	if (PsErrorBlob) {
+
+		OutputDebugStringA((char*)PsErrorBlob->GetBufferPointer());
+		PsErrorBlob->Release();
+	}
+	hr = gDevice->CreatePixelShader(PsBlob->GetBufferPointer(), PsBlob->GetBufferSize(), NULL, &gPixelQTreeShader);
+	if (FAILED(hr))
+	{
+		cout << "Pixel Shader Error: Pixel Quadtree Shader could not be created" << endl;
+		return false;
+	}
+	PsBlob->Release();
 
 	return true;
 }
