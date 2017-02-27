@@ -4,51 +4,68 @@
 GraphicComponents::GraphicComponents() {
 
 	gSwapChain = nullptr;
-	gDevice = nullptr;	
-	gDeviceContext = nullptr;	
-	gBackbufferRTV = nullptr;	
-
-	gVertexTerrainLayout = nullptr;
-	gVertexTerrainShader = nullptr;
-	gPixelTerrainShader = nullptr;
-	gGeometryTerrainShader = nullptr;
+	gDevice = nullptr;
+	gDeviceContext = nullptr;
+	gBackbufferRTV = nullptr;
 
 	gVertexLayout = nullptr;
 	gVertexShader = nullptr;
 	gPixelShader = nullptr;
 	gGeometryShader = nullptr;
 
+	gComputeShaderHB = nullptr;
+	gComputeShaderHV = nullptr;
+
+	gShadowVsLayout = nullptr;
+	gShadowVS = nullptr;
+	gShadowPS = nullptr;
+
+	gVertexTerrainLayout = nullptr;
+	gVertexTerrainShader = nullptr;
+	gPixelTerrainShader = nullptr;
+	gGeometryTerrainShader = nullptr;
+
 	gVertexBoneLayout = nullptr;
 	gVertexBoneShader = nullptr;
 	gPixelBoneShader = nullptr;
 	gGeometryBoneShader = nullptr;
 
-	gComputeShader = nullptr;
+	gQuadVertexShader = nullptr;
+	gQuadPixelShader = nullptr;
+
 }
 
 GraphicComponents::~GraphicComponents() {
+	
+	SAFE_RELEASE(gSwapChain);
+	SAFE_RELEASE(gDevice);
+	SAFE_RELEASE(gDeviceContext);
+	SAFE_RELEASE(gBackbufferRTV);
 
-	gBackbufferRTV->Release();
-	gSwapChain->Release();
-	gDevice->Release();
-	gDeviceContext->Release();
+	SAFE_RELEASE(gVertexLayout);
+	SAFE_RELEASE(gVertexShader);
+	SAFE_RELEASE(gPixelShader);
+	SAFE_RELEASE(gGeometryShader);
 
-	gVertexTerrainLayout->Release();
-	gVertexTerrainShader->Release();
-	gPixelTerrainShader->Release();
-	gGeometryTerrainShader->Release();
+	SAFE_RELEASE(gComputeShaderHB);
+	SAFE_RELEASE(gComputeShaderHV);
 
-	gVertexLayout->Release();
-	gVertexShader->Release();
-	gPixelShader->Release();
-	gGeometryShader->Release();
+	SAFE_RELEASE(gShadowVsLayout);
+	SAFE_RELEASE(gShadowVS);
+	SAFE_RELEASE(gShadowPS);
 
-	gVertexBoneLayout->Release();
-	gVertexBoneShader->Release();
-	gPixelBoneShader->Release();
-	gGeometryBoneShader->Release();
+	SAFE_RELEASE(gVertexTerrainLayout);
+	SAFE_RELEASE(gVertexTerrainShader);
+	SAFE_RELEASE(gPixelTerrainShader);
+	SAFE_RELEASE(gGeometryTerrainShader);
 
-	gComputeShader->Release();
+	SAFE_RELEASE(gVertexBoneLayout);
+	SAFE_RELEASE(gVertexBoneShader);
+	SAFE_RELEASE(gPixelBoneShader);
+	SAFE_RELEASE(gGeometryBoneShader);
+
+	SAFE_RELEASE(gQuadVertexShader);
+	SAFE_RELEASE(gQuadPixelShader);
 
 }
 
@@ -89,6 +106,16 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 		return false;
 	}
 
+	if (!CreateComputeShaders()) {
+
+		return false;
+	}
+
+	if (!CreateQuadShader()) {
+
+		return false;
+	}
+
 	return true;
 }
 
@@ -113,7 +140,7 @@ bool GraphicComponents::CreateSwapChainAndDevice(HWND &windowHandle) {
 	chainDescription.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// We are using 32-bit color
 	chainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;		// Defines use of swap chain. It now uses the surface or resource as an output render target.
 	chainDescription.OutputWindow = windowHandle;						// The window to be used defined in "Global Window Variables"
-	chainDescription.SampleDesc.Count = 4;								// How many multisamples to be used and default seems to be 4
+	chainDescription.SampleDesc.Count = 1;								// How many multisamples to be used and default seems to be 4
 	chainDescription.Windowed = LaunchInWindowedMode;					// Specify whether to launch application window in windowed or fullscreen mode		
 
 																		// A trick here is that we can take advantage of a debug layer, and therefore Debug should be defined as a build option
@@ -331,7 +358,7 @@ bool GraphicComponents::CreateStandardShaders() {
 
 	if (FAILED(hr)) {
 
-		cout << "Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+		cout << "Fragment Shader Error: Fragment Shader could not be compiled or loaded from file" << endl;
 
 		if (psErrorBlob) {
 
@@ -687,7 +714,7 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
 		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		descDepth.SampleDesc.Count = 4;
+		descDepth.SampleDesc.Count = 1;
 		descDepth.SampleDesc.Quality = 0;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
 		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -765,21 +792,25 @@ bool GraphicComponents::CreateDepthStencil(BufferComponents &bHandler)
 	
 }
 
-bool GraphicComponents::ComputeShader()
+bool GraphicComponents::CreateComputeShaders()
 {
 
-	/*HRESULT hr;
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// HORIZONTAL BLUR COMPUTE SHADER
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	HRESULT hr;
 
 	ID3DBlob* CsBlob = nullptr;
 	ID3DBlob* CsErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
-		L"Shaders\\StandardShaders\\ComputeShader.hlsl",
+		L"Shaders\\StandardShaders\\ComputeShaderHB.hlsl",
 		nullptr,
 		nullptr,
 		"CS_main",
 		"cs_5_0",
-		0,
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
 		&CsBlob,
 		&CsErrorBlob
@@ -787,7 +818,7 @@ bool GraphicComponents::ComputeShader()
 
 	if (FAILED(hr)) {
 
-		cout << "Compute Shader Error: Compute Shader could not be compiled or loaded from file" << endl;
+		cout << "Compute Shader Error: Horisontal Blur Compute Shader could not be compiled or loaded from file" << endl;
 
 		if (CsErrorBlob) {
 
@@ -795,17 +826,142 @@ bool GraphicComponents::ComputeShader()
 			CsErrorBlob->Release();
 		}
 
+	}
 
-		hr = gDevice->CreateComputeShader(CsBlob->GetBufferPointer(), CsBlob->GetBufferSize(), NULL, &gComputeShader);
+	hr = gDevice->CreateComputeShader(CsBlob->GetBufferPointer(), CsBlob->GetBufferSize(), NULL, &gComputeShaderHB);
 
-		if (FAILED(hr)) {
+	if (FAILED(hr)) {
 
-			cout << "Compute Shader Error: Compute Shader could not be created" << endl;
+			cout << "Compute Shader Error: Horisontal Blur Compute Shader could not be created" << endl;
 			return false;
+	}
+
+	CsBlob->Release();
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// VERTICAL BLUR COMPUTE SHADER
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	CsBlob = nullptr;
+	CsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\StandardShaders\\ComputeShaderHV.hlsl",
+		nullptr,
+		nullptr,
+		"CS_main",
+		"cs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&CsBlob,
+		&CsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Compute Shader Error: Verticlal Blur Compute Shader could not be compiled or loaded from file" << endl;
+
+		if (CsErrorBlob) {
+
+			OutputDebugStringA((char*)CsErrorBlob->GetBufferPointer());
+			CsErrorBlob->Release();
 		}
 
-		CsBlob->Release();
-	}*/
+	}
+
+	hr = gDevice->CreateComputeShader(CsBlob->GetBufferPointer(), CsBlob->GetBufferSize(), NULL, &gComputeShaderHV);
+
+	if (FAILED(hr)) {
+
+		cout << "Compute Shader Error: Vertical Blur Compute Shader could not be created" << endl;
+		return false;
+	}
+
+	CsBlob->Release();
+
+	return true;
+}
+
+bool GraphicComponents::CreateQuadShader() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\QuadShaders\\QuadVertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Quad Vertex Shader Error: Quad Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gQuadVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\QuadShaders\\QuadFragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Quad Fragment Shader Error: Quad Fragment Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gQuadPixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
 
 	return true;
 }
