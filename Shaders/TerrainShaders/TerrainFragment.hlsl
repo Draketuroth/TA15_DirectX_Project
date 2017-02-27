@@ -98,6 +98,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	//return float4(color,1);// *shadowCheck;
 
-	return float4((ads, 1.0f) *color,1) *shadowCheck;
+	//return float4((ads, 1.0f) *color,1) *shadowCheck;
 	//return float4(texColor, 1) * shadowCheck;
+	return float4(normalize(input.WPos),1.0f);
 };

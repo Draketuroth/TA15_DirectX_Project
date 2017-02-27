@@ -53,48 +53,41 @@ struct GS_OUT
 	 
 	 //Normalen för quaden.
 	 float3 normal = cameraPos.xyz-input[0].Pos ;
+	 normal = normalize(normal);
 
 	 float3 cameraSpace = { 0, 1, 0 };
+	  
 
 	 
-
-	 //normal.y = 0.0f; // y axis aligned.
-	 normal = normalize(normal);
+	
 	 
 
 	 
 	 float3 normalizedCamera = normalize(cameraUp.xyz);
 
-	 //float3 upVec = cross(FVec, rightVec);
-	 float3 rightVec = cross(normalizedCamera,normal );
 
+	 float3 rightVec = cross(cameraSpace,normal);
 	 rightVec = normalize(rightVec);
 
 	 float3 upVec = cross(normal, rightVec);
 	 upVec = normalize(upVec);
+
+	 rightVec = cross(upVec,normal);
+	 rightVec = normalize(rightVec);
 	 
+
+
+
+
+
+	
+
+	
 	 
-
-
-	 //float3 invCamera = mul(matrixView,float4(upVec,1.0f) );
-
-
-	
-
-	
-	 float4 v = float4((input[0].Pos + 1 * rightVec - 1 * upVec),1.0f); // bottom right
-	 float4 v2 = float4((input[0].Pos + 1 * rightVec + 1 * upVec),1.0f); // top right
-	 float4 v3 = float4((input[0].Pos - 1 * rightVec - 1 * upVec),1.0f); // bottom left
-	 float4 v4 = float4((input[0].Pos - 1 * rightVec + 1 * upVec),1.0f); // top left
-	
-		// CK
-
-	rightVec = normalize(cross(normal, cameraSpace));
-	upVec = cross(normal, rightVec);
-	v = float4((input[0].Pos + (1 * rightVec) - (1 * upVec)),1.0f); // bottom right
-	v2 = float4((input[0].Pos + (1 * rightVec) + (1 * upVec)),1.0f); // top right
-	v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // bottom left
-	v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // top left
+	float4 v = float4((input[0].Pos + (1 * rightVec) - (1 * upVec)),1.0f); // top left
+	float4 v2 = float4((input[0].Pos + (1 * rightVec) + (1 * upVec)),1.0f); // bottom left
+	float4 v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // top right
+	float4 v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // bottom right
 
 	// up from view matrix;
 
