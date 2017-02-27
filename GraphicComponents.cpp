@@ -4,26 +4,35 @@
 GraphicComponents::GraphicComponents() {
 
 	gSwapChain = nullptr;
-	gDevice = nullptr;	
-	gDeviceContext = nullptr;	
-	gBackbufferRTV = nullptr;	
-
-	gVertexTerrainLayout = nullptr;
-	gVertexTerrainShader = nullptr;
-	gPixelTerrainShader = nullptr;
-	gGeometryTerrainShader = nullptr;
+	gDevice = nullptr;
+	gDeviceContext = nullptr;
+	gBackbufferRTV = nullptr;
 
 	gVertexLayout = nullptr;
 	gVertexShader = nullptr;
 	gPixelShader = nullptr;
 	gGeometryShader = nullptr;
 
+	gComputeShaderHB = nullptr;
+	gComputeShaderHV = nullptr;
+
+	gShadowVsLayout = nullptr;
+	gShadowVS = nullptr;
+	gShadowPS = nullptr;
+
+	gVertexTerrainLayout = nullptr;
+	gVertexTerrainShader = nullptr;
+	gPixelTerrainShader = nullptr;
+	gGeometryTerrainShader = nullptr;
+
 	gVertexBoneLayout = nullptr;
 	gVertexBoneShader = nullptr;
 	gPixelBoneShader = nullptr;
 	gGeometryBoneShader = nullptr;
 
-	gComputeShaderHB = nullptr;
+	gQuadVertexShader = nullptr;
+	gQuadPixelShader = nullptr;
+
 }
 
 GraphicComponents::~GraphicComponents() {

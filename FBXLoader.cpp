@@ -18,8 +18,8 @@ FbxImport::FbxImport() {
 
 FbxImport::~FbxImport() {
 
-	//SAFE_RELEASE(gBoneBuffer);
-	//SAFE_RELEASE(gBoneVertexBuffer);
+	SAFE_RELEASE(gBoneBuffer);
+	SAFE_RELEASE(gBoneVertexBuffer);
 
 }
 

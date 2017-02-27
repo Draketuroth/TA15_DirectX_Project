@@ -391,11 +391,15 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 BufferComponents::BufferComponents() {
 
 	gVertexBuffer = nullptr;	
+	gTerrainBuffer = nullptr;
 	gConstantBuffer = nullptr;	
+	gMTLBuffer = nullptr;
 
 	depthStencil = nullptr;
 	depthState = nullptr;	
 	depthView = nullptr;
+
+	gRasteriserState = nullptr;
 }
 
 BufferComponents::~BufferComponents() {

@@ -21,6 +21,10 @@ Terrain::Terrain()
 
 Terrain::~Terrain()
 {
+	
+	SAFE_RELEASE(heightmapSRV);
+	SAFE_RELEASE(mQuadPatchVB);
+	SAFE_RELEASE(mQuadPatchIB);
 }
 
 //load RAW file to heightMap

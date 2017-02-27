@@ -4,9 +4,28 @@
 
 TextureComponents::TextureComponents() {
 
-	ID3D11ShaderResourceView* standardResource = nullptr;
-	ID3D11ShaderResourceView* boneResource = nullptr;
-	ID3D11SamplerState* texSampler = nullptr;
+	standardResource = nullptr;
+	boneResource = nullptr;
+	terrainResource = nullptr;
+	grassResource = nullptr;
+
+	geometryTexture = nullptr;
+	geometryTextureRTV = nullptr;
+	geometryTextureSRV = nullptr;
+
+	textureBlur_HB = nullptr;
+	blurredResultUAV_HB = nullptr;
+	blurredResultSRV_HB = nullptr;
+
+	textureBlur_HV = nullptr;
+	blurredResultUAV_HV = nullptr;
+	blurredResultSRV_HV = nullptr;
+
+	shadowSampler = nullptr;
+	texSampler = nullptr;
+	pShadowMap = nullptr;
+	pSmDepthView = nullptr;
+	pSmSRView = nullptr;
 }
 
 TextureComponents::~TextureComponents() {

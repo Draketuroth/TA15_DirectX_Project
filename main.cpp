@@ -272,11 +272,6 @@ int RunApplication() {
 		}
 
 	}
-	
-	//fbxImporter.~FbxImport();
-	bHandler.~BufferComponents();
-	gHandler.~GraphicComponents();
-	tHandler.~TextureComponents();
 
 	DestroyWindow(windowHandle);
 
