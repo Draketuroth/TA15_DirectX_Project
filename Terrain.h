@@ -40,6 +40,7 @@ public:
 
 	float GetWidth()const; 
 	float GetDepth()const;
+	vector<int> GetHight()const;
 
 	//vertex buffer
 	void BuildQuadPatchVB(ID3D11Device* device); 
@@ -54,6 +55,11 @@ public:
 	unsigned int indexCounter = 0;
 
 	vector<float> heightMap; 
+	
+	vector<int> VertPos;
+
+
+
 private:
 
 	
@@ -61,12 +67,13 @@ private:
 	InitInfo terrainInfo;
 
 	static const int cellperPatch = 64; 
-
+	int NumPatchVertices;
 	int NumPatchVertRows;
 	int NumPatchVertCols;
-
-	int NumPatchVertices;
 	int NumPatchQuadFaces;
+
+	
+	
 
 	
 };

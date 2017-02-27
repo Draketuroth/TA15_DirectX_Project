@@ -12,20 +12,23 @@ Camera::~Camera() {
 	
 }
 
-void Camera::SetHightPos()
+bool Camera::Collotion()
 {
-	Terrain terrain; 
-	//convert from vector to float array
-	float* newHight = &terrain.heightMap[0]; 
+	bool collition = false; 
+	float CAMx; 
+	float CAMz;
 
-	if (GetX() >= 0 && GetX() <= 64)
+	CAMx = GetX(); 
+	CAMz = GetZ(); 
+
+	if (CAMx >= 0 && CAMx <= 63)
 	{
-		if (GetZ() >= 0 && GetZ() <= 64)
+		if (CAMz >= 0 && CAMz <= 63)
 		{
-			// nu är vi på terrengen
+			collition = true; 
 		}
 	}
-	
+	return collition; 
 }
 
 // Get/Set Camera Properties

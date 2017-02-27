@@ -121,8 +121,6 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	HRESULT hr;
 	int k = 0; 
 
-	vector<int> VertPos;
-
 	VertPos.resize(NumPatchVertices * 6); 
 
 	for (unsigned int i = 0; i < NumPatchVertRows -1; i++)
@@ -140,7 +138,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 			//next quad
 			k += 6; 
 			indexCounter += 6; 
-			//VertPos.resize(k); 
+
 		}
 	}
 
@@ -163,3 +161,13 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	}
 }
 
+vector<int> Terrain::GetHight()const
+{
+	float x, y, z; 
+
+	vector<int> pos = VertPos;
+
+	int nrOf = VertPos.size();
+
+	return pos; 
+}

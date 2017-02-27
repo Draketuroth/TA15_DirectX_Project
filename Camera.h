@@ -78,7 +78,10 @@ public:
 
 	void OnMouseMove(WPARAM btnState, int x, int y); // Update mouse movement after every frame
 
-	void SetHightPos(); 
+
+	//hightMap
+	bool Collotion();
+	
 
 	float GetX()const; 
 	float GetZ()const; 

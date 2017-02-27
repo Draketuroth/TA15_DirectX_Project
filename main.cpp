@@ -83,6 +83,7 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
+	//hightMap
 	terrain.LoadRAW(); 
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
