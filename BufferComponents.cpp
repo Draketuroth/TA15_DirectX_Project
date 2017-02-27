@@ -234,7 +234,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 
 
-
+			
 		}
 	}
 
@@ -470,7 +470,7 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 	TriangleVertex triangleVertices[1] =
 	{
 
-		-0.5f, 3.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
+		20.0f, 19.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
 		0.0f, 1.0f,	//v1 uv coordinates
 
 		
@@ -657,7 +657,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.matrixView = { XMMatrixTranspose(viewMatrix) };
 	GsConstData.matrixProjection = { XMMatrixTranspose(projectionMatrix) };
 	GsConstData.worldViewProj = { tWorldViewProj };
-	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
+	GsConstData.cameraPos = XMFLOAT4(0.0f, 0.0f, 2.0f,1.0f);
 	GsConstData.floorRot = { floorRot };
 	GsConstData.lightViewProj = { finalLightViewProj };
 	GsConstData.matrixViewInverse = { viewMatrixInverse };

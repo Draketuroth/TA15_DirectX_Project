@@ -62,5 +62,5 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	//color = (200, 200, 200);		//float4(texColor, 1.0f);
 
-	//return (ads, 1.0f) * color;
+	/*return float4(ads, 1.0f) * color;*/
 };
