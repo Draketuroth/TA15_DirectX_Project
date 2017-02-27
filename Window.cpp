@@ -95,9 +95,20 @@ LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam,
 	case WM_DESTROY:	// This case only happens when the user presses the window's close button
 
 		PostQuitMessage(0);	// We post a WM_QUIT message with the exit code 0
-		return 0;	// After the message has been handled, 0 should be returned
-	}
+		break;
 
-	// If a message has not been handled, meaning the window is still open, we sent it to our default window procedure for handling
-	return DefWindowProc(windowHandle, message, wParam, lParam);
+	case WM_KEYDOWN:
+
+		if (wParam == VK_ESCAPE) {
+
+			PostQuitMessage(0);
+			break;	
+		}
+
+	default:
+
+		// If a message has not been handled, meaning the window is still open, we sent it to our default window procedure for handling
+		return DefWindowProc(windowHandle, message, wParam, lParam);
+	}
+	return 0;
 }

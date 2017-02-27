@@ -84,7 +84,7 @@ public:
 	ID3D11RasterizerState* gRasteriserState;
 
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
-	bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice);
+	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
 	bool CreateVertexBuffer(ID3D11Device* &gDevice);
 	bool CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &fbxImporter);

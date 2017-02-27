@@ -391,20 +391,30 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 BufferComponents::BufferComponents() {
 
 	gVertexBuffer = nullptr;	
+	gTerrainBuffer = nullptr;
 	gConstantBuffer = nullptr;	
+	gMTLBuffer = nullptr;
 
 	depthStencil = nullptr;
 	depthState = nullptr;	
 	depthView = nullptr;
+
+	gRasteriserState = nullptr;
 }
 
 BufferComponents::~BufferComponents() {
+	
+	
+	SAFE_RELEASE(gVertexBuffer);
+	SAFE_RELEASE(gTerrainBuffer);
+	SAFE_RELEASE(gConstantBuffer);
+	SAFE_RELEASE(gMTLBuffer);
 
-	gVertexBuffer->Release();
-	gConstantBuffer->Release();
-	depthStencil->Release();
-	depthState->Release();
-	depthView->Release();
+	SAFE_RELEASE(depthStencil);
+	SAFE_RELEASE(depthState);
+	SAFE_RELEASE(depthView);
+
+	SAFE_RELEASE(gRasteriserState);
 
 }
 

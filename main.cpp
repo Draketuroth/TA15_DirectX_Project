@@ -57,7 +57,7 @@ int main() {
 
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
 
-																	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
+	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
 
 	if (!WindowInitialize(windowHandle)) {
 
@@ -99,6 +99,14 @@ int main() {
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Shadow map couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
+
+	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Compute Shader Resources couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
@@ -211,6 +219,8 @@ int RunApplication() {
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 			
 			
+
+			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -272,11 +282,6 @@ int RunApplication() {
 		}
 
 	}
-
-	bHandler.~BufferComponents();
-	gHandler.~GraphicComponents();
-	tHandler.~TextureComponents();
-	fbxImporter.~FbxImport();
 
 	DestroyWindow(windowHandle);
 
