@@ -1,3 +1,9 @@
+//----------------------------------------------------------------------------------------------------------------------------------//
+// Shadow Map Vertex Shader DirectX11
+//
+// Philip Velandria TA15
+//----------------------------------------------------------------------------------------------------------------------------------//
+
 struct VS_IN{
 	float3 Pos : POSITION;
 };
@@ -11,7 +17,9 @@ cbuffer GS_CONSTANT_BUFFER : register(b0){
 	matrix matrixView;
 	matrix matrixProjection;
 	matrix floorRot;
-	float3 cameraPos;
+	matrix matrixViewInverse;
+	float4 cameraPos;
+	float4 cameraUp;
 
 };
 

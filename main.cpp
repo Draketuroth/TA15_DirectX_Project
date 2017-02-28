@@ -57,7 +57,7 @@ int main() {
 
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
 
-																	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
+	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
 
 	if (!WindowInitialize(windowHandle)) {
 
@@ -104,6 +104,14 @@ int main() {
 			MB_OK);
 	}
 
+	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Compute Shader Resources couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
+
 	return RunApplication();
 }
 
@@ -137,7 +145,7 @@ int RunApplication() {
 	// Initialize the previous time
 	__int64 previousTime = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
-
+	long i=0;
 	while (windowMessage.message != WM_QUIT) {
 
 		if (PeekMessage(&windowMessage, NULL, NULL, NULL, PM_REMOVE)) {
@@ -167,22 +175,22 @@ int RunApplication() {
 
 			if (GetAsyncKeyState('W') & 0x8000) {
 
-				mCam.Walk(-speed * deltaTime);
+				mCam.Walk(speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('S') & 0x8000) {
 
-				mCam.Walk(speed * deltaTime);
+				mCam.Walk(-speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('A') & 0x8000) {
 
-				mCam.Strafe(speed * deltaTime);
+				mCam.Strafe(-speed * deltaTime);
 			}
 
 			if (GetAsyncKeyState('D') & 0x8000) {
 
-				mCam.Strafe(-speed * deltaTime);
+				mCam.Strafe(speed * deltaTime);
 			}
 
 			showFPS(windowHandle, deltaTime);
@@ -210,8 +218,10 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
+			
+			
 
-
+			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -237,10 +247,16 @@ int RunApplication() {
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
 
-
-			cBufferPointer->cameraPos = mCam.GetPosition();
-
+			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
+			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());
+			
+			i++;
+			if (i < 20000000000)
+			{
+				cout << mCam.GetPosition().x << " " << mCam.GetPosition().y << " " << mCam.GetPosition().z << endl;
+				i = 0;
+			}
 
 			// At last we have to reenable GPU access to the vertex buffer data
 
@@ -267,11 +283,6 @@ int RunApplication() {
 		}
 
 	}
-
-	bHandler.~BufferComponents();
-	gHandler.~GraphicComponents();
-	tHandler.~TextureComponents();
-	fbxImporter.~FbxImport();
 
 	DestroyWindow(windowHandle);
 

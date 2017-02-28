@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------//
-// Bone Geometry Shader DirectX11
+// Geometry Shader DirectX11
 //
-// BTH - Fredrik Linde TA15 2016
+// Jonathan Sundberg TA15
 //----------------------------------------------------------------------------------------------------------------------------------//
 
 // The registers are underlying hardware registers on the GPU where all data is stored during execution of the shaders
@@ -16,8 +16,9 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixView;
 	matrix matrixProjection;
 	matrix floorRot;
-	float3 cameraPos;
 	matrix matrixViewInverse;
+	float4 cameraPos;
+	float4 cameraUp;
 
 	
 };
@@ -51,28 +52,42 @@ struct GS_OUT
 
 	 
 	 //Normalen för quaden.
-	 float3 FVec = input[0].Pos - cameraPos;
+	 float3 normal = cameraPos.xyz-input[0].Pos ;
+	 normal = normalize(normal);
 
-
-	 FVec.y = 0.0f; // y axis aligned.
-	 FVec = normalize(FVec);
 	 float3 cameraSpace = { 0, 1, 0 };
-
-	 // en cevtor som är orthogonal mot normalen och 
-	 float3 rightVec = cross(cameraSpace, FVec);
-
-	 //float3 upVec = cross(FVec, rightVec);
-
-	 float3 invCamera = mul(float4(cameraSpace,1.0f), matrixViewInverse);
-
+	  
 
 	 
 	
-	 float4 v = float4((input[0].Pos + 1 * rightVec - 1 * cameraSpace),1.0f);
-	 float4 v2 = float4((input[0].Pos + 1 * rightVec + 1 * cameraSpace),1.0f);
-	 float4 v3 = float4((input[0].Pos - 1 * rightVec - 1 * cameraSpace),1.0f);
-	 float4 v4 = float4((input[0].Pos - 1 * rightVec + 1 * cameraSpace),1.0f);
+	 
+
+	 
+	 float3 normalizedCamera = normalize(cameraUp.xyz);
+
+
+	 float3 rightVec = cross(cameraSpace,normal);
+	 rightVec = normalize(rightVec);
+
+	 float3 upVec = cross(normal, rightVec);
+	 upVec = normalize(upVec);
+
+	 rightVec = cross(upVec,normal);
+	 rightVec = normalize(rightVec);
+	 
+
+
+
+
+
 	
+
+	
+	 
+	float4 v = float4((input[0].Pos + (1 * rightVec) - (1 * upVec)),1.0f); // top left
+	float4 v2 = float4((input[0].Pos + (1 * rightVec) + (1 * upVec)),1.0f); // bottom left
+	float4 v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // top right
+	float4 v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // bottom right
 
 	// up from view matrix;
 
@@ -112,7 +127,7 @@ struct GS_OUT
 	
 	
 
-	 PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+	 //PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	 
 
 };

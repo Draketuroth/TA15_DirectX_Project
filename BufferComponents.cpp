@@ -234,7 +234,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 
 
-
+			
 		}
 	}
 
@@ -391,20 +391,30 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 BufferComponents::BufferComponents() {
 
 	gVertexBuffer = nullptr;	
+	gTerrainBuffer = nullptr;
 	gConstantBuffer = nullptr;	
+	gMTLBuffer = nullptr;
 
 	depthStencil = nullptr;
 	depthState = nullptr;	
 	depthView = nullptr;
+
+	gRasteriserState = nullptr;
 }
 
 BufferComponents::~BufferComponents() {
+	
+	
+	SAFE_RELEASE(gVertexBuffer);
+	SAFE_RELEASE(gTerrainBuffer);
+	SAFE_RELEASE(gConstantBuffer);
+	SAFE_RELEASE(gMTLBuffer);
 
-	gVertexBuffer->Release();
-	gConstantBuffer->Release();
-	depthStencil->Release();
-	depthState->Release();
-	depthView->Release();
+	SAFE_RELEASE(depthStencil);
+	SAFE_RELEASE(depthState);
+	SAFE_RELEASE(depthView);
+
+	SAFE_RELEASE(gRasteriserState);
 
 }
 
@@ -460,7 +470,7 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 	TriangleVertex triangleVertices[1] =
 	{
 
-		-0.5f, 3.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
+		20.0f, 19.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
 		0.0f, 1.0f,	//v1 uv coordinates
 
 		
@@ -647,7 +657,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	GsConstData.matrixView = { XMMatrixTranspose(viewMatrix) };
 	GsConstData.matrixProjection = { XMMatrixTranspose(projectionMatrix) };
 	GsConstData.worldViewProj = { tWorldViewProj };
-	GsConstData.cameraPos = XMFLOAT3(0.0f, 0.0f, 2.0f);
+	GsConstData.cameraPos = XMFLOAT4(0.0f, 0.0f, 2.0f,1.0f);
 	GsConstData.floorRot = { floorRot };
 	GsConstData.lightViewProj = { finalLightViewProj };
 	GsConstData.matrixViewInverse = { viewMatrixInverse };

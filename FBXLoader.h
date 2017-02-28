@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "VertexType.h"
+#include "MacroDefinitions.h"
 
 // Necessary lib files kan be linked here, but also be added by going to:
 // Properties->Linker->Input->Additional Dependencies

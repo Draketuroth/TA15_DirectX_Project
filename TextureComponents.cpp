@@ -4,20 +4,54 @@
 
 TextureComponents::TextureComponents() {
 
-	ID3D11ShaderResourceView* standardResource = nullptr;
-	ID3D11ShaderResourceView* boneResource = nullptr;
-	ID3D11SamplerState* texSampler = nullptr;
+	standardResource = nullptr;
+	boneResource = nullptr;
+	terrainResource = nullptr;
+	grassResource = nullptr;
+
+	geometryTexture = nullptr;
+	geometryTextureRTV = nullptr;
+	geometryTextureSRV = nullptr;
+
+	textureBlur_HB = nullptr;
+	blurredResultUAV_HB = nullptr;
+	blurredResultSRV_HB = nullptr;
+
+	textureBlur_HV = nullptr;
+	blurredResultUAV_HV = nullptr;
+	blurredResultSRV_HV = nullptr;
+
+	shadowSampler = nullptr;
+	texSampler = nullptr;
+	pShadowMap = nullptr;
+	pSmDepthView = nullptr;
+	pSmSRView = nullptr;
 }
 
 TextureComponents::~TextureComponents() {
+	
+	SAFE_RELEASE(standardResource);
+	SAFE_RELEASE(boneResource);
+	SAFE_RELEASE(terrainResource);
+	SAFE_RELEASE(grassResource);
 
-	standardResource->Release();
-	boneResource->Release();
-	texSampler->Release();
-	pSmSRView->Release();
-	pShadowMap->Release();
-	shadowSampler->Release();
-	pSmDepthView->Release();
+	SAFE_RELEASE(geometryTexture);
+	SAFE_RELEASE(geometryTextureRTV);
+	SAFE_RELEASE(geometryTextureSRV);
+
+	SAFE_RELEASE(textureBlur_HB);
+	SAFE_RELEASE(blurredResultUAV_HB);
+	SAFE_RELEASE(blurredResultSRV_HB);
+
+	SAFE_RELEASE(textureBlur_HV);
+	SAFE_RELEASE(blurredResultUAV_HV);
+	SAFE_RELEASE(blurredResultSRV_HV);
+
+	SAFE_RELEASE(shadowSampler);
+	SAFE_RELEASE(texSampler);
+	SAFE_RELEASE(pShadowMap);
+	SAFE_RELEASE(pSmDepthView);
+	SAFE_RELEASE(pSmSRView);
 }
 
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &bHandler) {
@@ -53,7 +87,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 
 	CoInitialize(NULL);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
-	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 1024);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 512);
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\terrain.png", NULL, &grassResource);
 
@@ -72,6 +106,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 
 	return true;
 }
+
 bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 {
 	HRESULT hr;
@@ -134,3 +169,215 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 
 	return true;
 }
+
+bool TextureComponents::InitializeComputeShaderResources(ID3D11Device* &gDevice) {
+
+	if (!CreateRenderTargetViewTexture(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateUAVTextureHB(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateUAVTextureHV(gDevice)) {
+
+		return false;
+	}
+
+	return true;
+	
+}
+
+bool TextureComponents::CreateRenderTargetViewTexture(ID3D11Device* &gDevice) {
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// First, we must create a new Render Target View and make sure a Shader Resource View holds the texture as well
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	HRESULT hr;
+
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	textureDesc.Width = WIDTH;
+	textureDesc.Height = HEIGHT;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// Create the empty texture resource
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateTexture2D(&textureDesc, NULL, &geometryTexture);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// Bind the geometry texture resource to Render Target View
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateRenderTargetView(geometryTexture, NULL, &geometryTextureRTV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceDesc;
+	shaderResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	shaderResourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceDesc.Texture2D.MipLevels = 1;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// Bind the geometry texture resource to a Shader Resource View
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	hr = gDevice->CreateShaderResourceView(geometryTexture, &shaderResourceDesc, &geometryTextureSRV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool TextureComponents::CreateUAVTextureHB(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	D3D11_TEXTURE2D_DESC uavTexDesc;
+
+	uavTexDesc.Width = WIDTH;
+	uavTexDesc.Height = HEIGHT;
+	uavTexDesc.MipLevels = 1;
+	uavTexDesc.ArraySize = 1;
+	uavTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavTexDesc.SampleDesc.Count = 1;
+	uavTexDesc.SampleDesc.Quality = 0;
+	uavTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	uavTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	uavTexDesc.CPUAccessFlags = 0;
+	uavTexDesc.MiscFlags = 0;
+
+	hr = gDevice->CreateTexture2D(&uavTexDesc, NULL, &textureBlur_HB);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// Make sure we have a second texture for passing result from Compute Shader. It wil be bound as:
+	// Unordenend Access View (Results written from Compute Shader)
+	// Shader Resource View (Results written from Compute Shader to be used as a Shader Resource for a Pixel Shader)
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+
+	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+
+	hr = gDevice->CreateUnorderedAccessView(textureBlur_HB, &uavDesc, &blurredResultUAV_HB);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	hr = gDevice->CreateShaderResourceView(textureBlur_HB, &srvDesc, &blurredResultSRV_HB);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool TextureComponents::CreateUAVTextureHV(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	D3D11_TEXTURE2D_DESC uavTexDesc;
+
+	uavTexDesc.Width = WIDTH;
+	uavTexDesc.Height = HEIGHT;
+	uavTexDesc.MipLevels = 1;
+	uavTexDesc.ArraySize = 1;
+	uavTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavTexDesc.SampleDesc.Count = 1;
+	uavTexDesc.SampleDesc.Quality = 0;
+	uavTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	uavTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	uavTexDesc.CPUAccessFlags = 0;
+	uavTexDesc.MiscFlags = 0;
+
+	hr = gDevice->CreateTexture2D(&uavTexDesc, NULL, &textureBlur_HV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// Make sure we have a second texture for passing result from Compute Shader. It wil be bound as:
+	// Unordenend Access View (Results written from Compute Shader)
+	// Shader Resource View (Results written from Compute Shader to be used as a Shader Resource for a Pixel Shader)
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+
+	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+
+	hr = gDevice->CreateUnorderedAccessView(textureBlur_HV, &uavDesc, &blurredResultUAV_HV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	hr = gDevice->CreateShaderResourceView(textureBlur_HV, &srvDesc, &blurredResultSRV_HV);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+

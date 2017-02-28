@@ -12,6 +12,7 @@
 #include "VertexType.h"
 #include <fstream>
 #include <algorithm>
+#include "MacroDefinitions.h"
 
 using namespace std; 
 using namespace DirectX;
