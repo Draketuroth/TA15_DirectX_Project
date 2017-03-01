@@ -143,6 +143,10 @@
     <FxCompile Include="QuadFragment.hlsl">
       <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\QuadShaders\QuadFragment.hlsl" />
+    <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl" />
+    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHB.hlsl" />
+    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHV.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferComponents.h">

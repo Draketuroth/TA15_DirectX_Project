@@ -103,7 +103,7 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-	QTree.CreateTree(QTree.Tree, QTree.Bounding, QTree.SubDiv);
+//	QTree.CreateTree(QTree.Tree, QTree.Bounding, QTree.SubDiv);
 
 	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
 		MessageBox(

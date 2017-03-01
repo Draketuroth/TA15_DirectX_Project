@@ -128,7 +128,9 @@
     <ClCompile Include="FBXLoader.cpp" />
     <ClCompile Include="GraphicComponents.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Quadtree.cpp" />
+    <ClCompile Include="Quadtree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Render.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureComponents.cpp" />
@@ -314,7 +316,9 @@
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="GraphicComponents.h" />
     <ClInclude Include="MacroDefinitions.h" />
-    <ClInclude Include="Quadtree.h" />
+    <ClInclude Include="Quadtree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Render.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureComponents.h" />
