@@ -19,6 +19,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixViewInverse;
 	float4 cameraPos;
 	float4 cameraUp;
+	float3 particleMovement;
 
 	
 };
@@ -26,7 +27,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 struct GS_IN
 {
 	float3 Pos : POSITION;
-	float2 Tex : TEXCOORD;
+	
 	
 
 };
@@ -50,7 +51,7 @@ struct GS_OUT
 {	 
 	 GS_OUT output;
 
-	 
+	 input[0].Pos += particleMovement;
 	 //Normalen för quaden.
 	 float3 normal = cameraPos.xyz-input[0].Pos ;
 	 normal = normalize(normal);

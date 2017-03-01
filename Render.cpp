@@ -162,6 +162,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexConstantBuffer);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 	
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.fireflyResource);
@@ -178,7 +179,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexLayout);
 
-	gHandler.gDeviceContext->Draw(1, 0);
+	gHandler.gDeviceContext->Draw(1000, 0);
 
 
 

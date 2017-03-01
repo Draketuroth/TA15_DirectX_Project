@@ -30,6 +30,13 @@ struct GS_CONSTANT_BUFFER {
 	XMFLOAT4 cameraPos;
 	XMFLOAT4 cameraUp;
 	
+	
+
+};
+
+struct VS_CONSTANT_BUFFER {
+
+	XMFLOAT3 particleMovement;
 
 };
 
@@ -57,6 +64,7 @@ public:
 	vector<OBJStruct> ImportStruct;
 
 	MTL_STRUCT MTLConstantData;
+	VS_CONSTANT_BUFFER VtxConstantData;
 	BufferComponents();
 	~BufferComponents();
 
@@ -76,6 +84,7 @@ public:
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
 	ID3D11Buffer* gConstantBuffer;	// Constant buffer to provide the vertex shader with updated transformation data per frame
 	ID3D11Buffer* gMTLBuffer;
+	ID3D11Buffer* gVertexConstantBuffer;
 
 	ID3D11Texture2D* depthStencil;	// Depth-stencil texture
 	ID3D11DepthStencilState* depthState;	// Depth-stencil state used for the output merger
@@ -91,6 +100,7 @@ public:
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
+	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
 
 	
 
