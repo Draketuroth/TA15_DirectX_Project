@@ -106,7 +106,6 @@ float4 PS_main(PS_IN input) : SV_Target
 		color = float4(texColor, 1.0f);
 	}
 	
-
 	//return float4(color,1);// *shadowCheck;
 
 	return float4((ads, 1.0f) *color,1) *shadowCheck;

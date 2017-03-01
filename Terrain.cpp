@@ -22,6 +22,11 @@ Terrain::Terrain()
 Terrain::~Terrain()
 {
 	
+
+}
+
+void Terrain::ReleaseAll() {
+
 	SAFE_RELEASE(heightmapSRV);
 	SAFE_RELEASE(mQuadPatchVB);
 	SAFE_RELEASE(mQuadPatchIB);

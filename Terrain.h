@@ -36,6 +36,7 @@ public:
 
 	Terrain();
 	~Terrain();
+	void ReleaseAll();
 
 	void LoadRAW();
 
