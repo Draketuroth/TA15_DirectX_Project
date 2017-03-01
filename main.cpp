@@ -83,6 +83,7 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
+	//hightMap
 	terrain.LoadRAW(); 
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
@@ -237,7 +238,7 @@ int RunApplication() {
 			// constructed to rotate the triangles around the y-axis
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
-
+			
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
@@ -245,7 +246,14 @@ int RunApplication() {
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
-
+			//to folow the hightmap
+			if (mCam.Collotion() == true)
+			{
+				XMFLOAT3 camPos = mCam.GetPosition(); 
+				float y = terrain.GetHeight(camPos.x, camPos.z); 
+				mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+			}
+			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());

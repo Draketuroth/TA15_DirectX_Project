@@ -19,6 +19,7 @@ struct VS_IN {
 	float3 Pos	: POSITION;
 	float2 Tex : TEXCOORD;
 	float3 Norm : NORMAL;
+	//float3 TangentL : TANGENT;
 	//float2 BoundsY : TEXCOORD1;
 };
 

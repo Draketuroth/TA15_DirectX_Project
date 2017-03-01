@@ -30,6 +30,7 @@ void Terrain::ReleaseAll() {
 	SAFE_RELEASE(heightmapSRV);
 	SAFE_RELEASE(mQuadPatchVB);
 	SAFE_RELEASE(mQuadPatchIB);
+	
 }
 
 //load RAW file to heightMap
@@ -90,16 +91,15 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 	int k = 0; 
 	for (UINT i = 0; i < NumPatchVertRows; ++i)
 	{
-		float z = halfDepth - i*patchDepth;
+		float z = 0;
 		for (UINT j = 0; j < NumPatchVertCols; ++j)
 		{
-			float x = -halfWidth + j*patchWidth; 
+			float x = 0; 
+			float y = 0;
 			
-			float y = heightMap[i];
-			
-			x = i;
+			x = -halfDepth +j ;
 			y = heightMap[i*NumPatchVertCols + j];
-			z = j;
+			z = halfDepth - i;
 
 			//cout << heightMap[i] << endl;
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);
@@ -131,8 +131,6 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	HRESULT hr;
 	int k = 0; 
 
-	vector<int> VertPos;
-
 	VertPos.resize(NumPatchVertices * 6); 
 
 	for (unsigned int i = 0; i < NumPatchVertRows -1; i++)
@@ -150,7 +148,7 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 			//next quad
 			k += 6; 
 			indexCounter += 6; 
-			//VertPos.resize(k); 
+
 		}
 	}
 
@@ -173,3 +171,32 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	}
 }
 
+float Terrain::GetHeight(float x, float z)const
+{
+	float c = (x + 0.5f*GetWidth()) / terrainInfo.quadSize;
+	float d = (z - 0.5f*GetDepth()) / -terrainInfo.quadSize;
+
+	int row = (int)floorf(d); 
+	int col = (int)floorf(c); 
+
+	float A = heightMap[(row*terrainInfo.HMapWidth) + col]; 
+	float B = heightMap[row*terrainInfo.HMapWidth + col + 1]; 
+	float C = heightMap[(row + 1)*terrainInfo.HMapWidth + col]; 
+	float D = heightMap[(row + 1)* terrainInfo.HMapWidth + col + 1]; 
+
+	float s = c - (float)col; 
+	float t = d - (float)row; 
+
+	if (s + t <= 1.0f)
+	{
+		float uy = B - A; 
+		float vy = C - A; 
+		return A + s*uy + t*vy; 
+	}
+	else
+	{
+		float uy = C - D; 
+		float vy = B - D; 
+		return D + (1.0f - s)*uy + (1.0f - t)*vy; 
+	}
+}

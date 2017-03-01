@@ -42,6 +42,9 @@ public:
 
 	float GetWidth()const; 
 	float GetDepth()const;
+	//vector<int> GetHight()const;
+
+	float GetHeight(float x, float z)const; 
 
 	//vertex buffer
 	void BuildQuadPatchVB(ID3D11Device* device); 
@@ -55,23 +58,23 @@ public:
 	//en objstruct = 1 vertecis
 	unsigned int indexCounter = 0;
 
+	vector<float> heightMap; 
+	
+	vector<int> VertPos;
 
-	//retunera en position till kamran
 private:
 
-	vector<float> heightMap; 
-
+	
 	vector<XMFLOAT2>PatchBoundsY;
 	InitInfo terrainInfo;
 
 	static const int cellperPatch = 64; 
-
+	int NumPatchVertices;
 	int NumPatchVertRows;
 	int NumPatchVertCols;
-
-	int NumPatchVertices;
 	int NumPatchQuadFaces;
 
+	
 	
 };
 #endif
