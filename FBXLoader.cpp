@@ -18,9 +18,13 @@ FbxImport::FbxImport() {
 
 FbxImport::~FbxImport() {
 
+
+}
+
+void FbxImport::ReleaseAll() {
+
 	SAFE_RELEASE(gBoneBuffer);
 	SAFE_RELEASE(gBoneVertexBuffer);
-
 }
 
 HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {

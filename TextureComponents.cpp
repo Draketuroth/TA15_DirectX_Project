@@ -30,6 +30,11 @@ TextureComponents::TextureComponents() {
 
 TextureComponents::~TextureComponents() {
 	
+
+}
+
+void TextureComponents::ReleaseAll() {
+
 	SAFE_RELEASE(standardResource);
 	SAFE_RELEASE(boneResource);
 	SAFE_RELEASE(terrainResource);

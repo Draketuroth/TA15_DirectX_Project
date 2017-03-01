@@ -283,6 +283,12 @@ int RunApplication() {
 
 	}
 
+	terrain.ReleaseAll();
+	fbxImporter.ReleaseAll();
+	tHandler.ReleaseAll();
+	bHandler.ReleaseAll();
+	gHandler.ReleaseAll();
+
 	DestroyWindow(windowHandle);
 
 	return static_cast<int>(windowMessage.wParam);
