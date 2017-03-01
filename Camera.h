@@ -27,7 +27,7 @@ public:
 
 	// Constructor and destructor
 	Camera();
-	~Camera();
+	virtual ~Camera();
 
 	Plane Frustum[6];
 	POINT mLastMousePos;

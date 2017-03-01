@@ -15,7 +15,7 @@ class GraphicComponents {
 public:
 
 	GraphicComponents();
-	~GraphicComponents();
+	virtual ~GraphicComponents();
 
 	IDXGISwapChain* gSwapChain;	// Swap Chain responsible for switching between a collection of buffers and show images to the user
 	ID3D11Device* gDevice;	// Graphic Device

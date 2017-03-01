@@ -17,7 +17,7 @@ class TextureComponents {
 public:
 
 	TextureComponents();
-	~TextureComponents();
+	virtual ~TextureComponents();
 
 	ID3D11ShaderResourceView* standardResource;	// Shader resource views are required for accessing data in a resource
 	ID3D11ShaderResourceView* boneResource;	// Shader resource views are required for accessing data in a resource

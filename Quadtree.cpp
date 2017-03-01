@@ -19,19 +19,30 @@ Quadtree::Quadtree()
 			this->Tree->child[i] = nullptr;
 		}
 	}
+
+	
 //	this->CreateTree(this->Tree, this->Bounding, this->SubDiv);
 }
 Quadtree::~Quadtree()
 {
-	for (int i = 0; i < 4; i++)
+	DeleteFunction(this->Tree);
+}
+void Quadtree::DeleteFunction(NODE* Tree)
+{
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (this->Tree->child[i] != nullptr)
+
+		if (Tree->child[i] != nullptr)
 		{
-			delete this->Tree->child[i];
+			DeleteFunction(Tree->child[i]);
+		}
+		else
+		{
+			delete Tree;
 		}
 	}
+	delete Tree;
 }
-
 void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 {
 	//Skapa "big box", och fyra childs, varje child kommer vara en ny "big box" i nästa funktion
@@ -59,93 +70,149 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 
 		//	quadtree->child[i]->BBox.Extents.x /= 2;
 		//	quadtree->child[i]->BBox.Extents.z /= 2;
-		//	quadtree->child[i]->extentX /= 2;
-		//	quadtree->child[i]->extentZ /= 2;
-		float extentX2 = quadtree->extentX;
-		float extenxZ2 = quadtree->extentZ;
+		quadtree->child[i]->extentX /= 2;
+		quadtree->child[i]->extentZ /= 2;
+
 		if (i == 0)
 		{
+			//Create indexbuffer for each child
+
+
 			quadtree->child[i]->BBox.Center.y = 0;
 			quadtree->child[i]->BBox.Center.x = quadtree->BBox.Center.x - (quadtree->extentX / 2);
 			quadtree->child[i]->BBox.Center.z = quadtree->BBox.Center.z + (quadtree->extentZ / 2);
+			XMVECTOR tempExtent = XMLoadFloat3(&quadtree->BBox.Extents) / 2;
+			XMStoreFloat3(&quadtree->child[i]->BBox.Extents ,tempExtent);
+			
+			Bounding[0] = quadtree->child[i]->BBox.Center;//Top left child 0
+			Bounding[0].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[0].z += quadtree->child[i]->BBox.Extents.z;
 
-			//		Bounding[0] = { 0 , 0, quadtree->extentZ };//Top left child 0
-			//		Bounding[1] = { 0, 0, quadtree->extentZ };//Top Right child 0
-			//		Bounding[2] = { 0, 0, quadtree->extentZ};//Bot left child 0
-			//		Bounding[3] = { quadtree->extentX, 0, quadtree->extentZ};//Bot Right child 0
-			//		for (size_t j = 0; j < 4; j++)
-			//		{
-			//			quadtree->child[0]->BoundingCoords[j] = Bounding[j];
-			//		}
+			Bounding[1] = quadtree->child[i]->BBox.Center;//Top right child 0
+			Bounding[1].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[1].z += quadtree->child[i]->BBox.Extents.z;
+	
+			Bounding[2] = quadtree->child[i]->BBox.Center;//Bot left child 0
+			Bounding[2].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[2].z -= quadtree->child[i]->BBox.Extents.z;
 
-			//		if (SubDiv != totalSubDiv)
-			//		{
-			//			
-			//			CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv+1);
-			//		}
+			Bounding[3] = quadtree->child[i]->BBox.Center;//Bot right child 0
+			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
+			for (size_t j = 0; j < 4; j++)
+				{
+					quadtree->child[0]->BoundingCoords[j] = Bounding[j];
+				}
+			if (SubDiv != totalSubDiv)
+				{		
+					CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv+1);
+				}
 		}
-			//	if (i == 1)
-			//	{
-			//		Bounding[0] = { quadtree->Width, 0, 0 };//Top left for child 1
-			//		Bounding[1] = { quadtree->Width * 2, 0, 0 };//Top right for child 1
-			//		Bounding[2] = { quadtree->Width, 0, quadtree->Height };//Bot left for child 1
-			//		Bounding[3] = { quadtree->Width * 2, 0, quadtree->Height * 2 };//Bot right for child 1
-			//		for (size_t k = 0; k < 4; k++)
-			//		{
-			//			quadtree->child[1]->BoundingCoords[k] = Bounding[k];
-			//		}
+		if (i == 1)
+		{
+			quadtree->child[i]->BBox.Center.y = 0;
+			quadtree->child[i]->BBox.Center.x = quadtree->BBox.Center.x + (quadtree->extentX / 2);
+			quadtree->child[i]->BBox.Center.z = quadtree->BBox.Center.z + (quadtree->extentZ / 2);
+			XMVECTOR tempExtent = XMLoadFloat3(&quadtree->BBox.Extents) / 2;
+			XMStoreFloat3(&quadtree->child[i]->BBox.Extents, tempExtent);
 
-			//		quadtree->BBox.Center = XMFLOAT3{ 64 - (quadtree->Width / 2), 0, quadtree->Height / 2 };
-			//		quadtree->BBox.Extents = XMFLOAT3{ quadtree->Width / 2, 0, quadtree->Height / 2 };
+			Bounding[0] = quadtree->child[i]->BBox.Center;//Top left child 1
+			Bounding[0].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[0].z += quadtree->child[i]->BBox.Extents.z;
 
-			//		if (SubDiv != totalSubDiv)
-			//		{
-			//				
-			//			CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv);
-			//		}
-			//	}
-			//	if (i == 2)
-			//	{
-			//		Bounding[0] = { 0, 0, quadtree->Height };//Top left for child 2
-			//		Bounding[1] = { quadtree->Width * 2, 0, quadtree->Height * 2 };//Top right for child 2
-			//		Bounding[2] = { 0, 0, quadtree->Height };//Bot left for child 2
-			//		Bounding[3] = { quadtree->Width * 2, 0, quadtree->Height * 2 };//Bot right for child 2
-			//		for (size_t l = 0; l < 4; l++)
-			//		{
-			//			quadtree->child[2]->BoundingCoords[l] = Bounding[l];
-			//		}
+			Bounding[1] = quadtree->child[i]->BBox.Center;//Top right child 1
+			Bounding[1].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[1].z += quadtree->child[i]->BBox.Extents.z;
 
-			//		quadtree->BBox.Center = XMFLOAT3{ quadtree->Width / 2, 0, -64 + (quadtree->Height / 2) };
-			//		quadtree->BBox.Extents = XMFLOAT3{ quadtree->Width / 2, 0, quadtree->Height / 2 };
+			Bounding[2] = quadtree->child[i]->BBox.Center;//Bot left child 1
+			Bounding[2].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[2].z -= quadtree->child[i]->BBox.Extents.z;
 
-			//		if (SubDiv != totalSubDiv)
-			//		{
-			//			CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv+1);
-			//		}
-			//	}
-			//	if (i == 3)
-			//	{
-			//		Bounding[0] = { quadtree->Width, 0, quadtree->Height };//Top left for child 3
-			//		Bounding[1] = { quadtree->Width * 2, 0, quadtree->Height * 2 };//Top right for child 3
-			//		Bounding[2] = { quadtree->Width, 0, quadtree->Height };//Bot left for child 3
-			//		Bounding[3] = { quadtree->Width * 2, 0, quadtree->Height * 2 };//Bot right for child 3
-			//		for (size_t m = 0; m < 4; m++)
-			//		{
-			//			quadtree->child[2]->BoundingCoords[m] = Bounding[m];
-			//		}
+			Bounding[3] = quadtree->child[i]->BBox.Center;//Bot right child 1
+			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
-			//		quadtree->BBox.Center = XMFLOAT3{ 64 - quadtree->Width / 2, 0, -64 + (quadtree->Height / 2) };
-			//		quadtree->BBox.Extents = XMFLOAT3{ quadtree->Width / 2, 0, quadtree->Height / 2 };
+			for (size_t j = 0; j < 4; j++)
+			{
+				quadtree->child[1]->BoundingCoords[j] = Bounding[j];
+			}
+			if (SubDiv != totalSubDiv)
+			{
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+			}
+		}
+		if (i == 2)
+		{
+			quadtree->child[i]->BBox.Center.y = 0;
+			quadtree->child[i]->BBox.Center.x = quadtree->BBox.Center.x - (quadtree->extentX / 2);
+			quadtree->child[i]->BBox.Center.z = quadtree->BBox.Center.z - (quadtree->extentZ / 2);
+			XMVECTOR tempExtent = XMLoadFloat3(&quadtree->BBox.Extents) / 2;
+			XMStoreFloat3(&quadtree->child[i]->BBox.Extents, tempExtent);
 
-			//		if (SubDiv != totalSubDiv)
-			//		{
-			//			CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv+1);
-			//		}
-			//	}
-		//}
-		
+			Bounding[0] = quadtree->child[i]->BBox.Center;//Top left child 2
+			Bounding[0].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[0].z += quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[1] = quadtree->child[i]->BBox.Center;//Top right child 2
+			Bounding[1].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[1].z += quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[2] = quadtree->child[i]->BBox.Center;//Bot left child 2
+			Bounding[2].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[2].z -= quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[3] = quadtree->child[i]->BBox.Center;//Bot right child 2
+			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
+
+			for (size_t j = 0; j < 4; j++)
+			{
+				quadtree->child[2]->BoundingCoords[j] = Bounding[j];
+			}
+			if (SubDiv != totalSubDiv)
+			{
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+			}
+		}
+		if (i == 3)
+		{
+			quadtree->child[i]->BBox.Center.y = 0;
+			quadtree->child[i]->BBox.Center.x = quadtree->BBox.Center.x + (quadtree->extentX / 2);
+			quadtree->child[i]->BBox.Center.z = quadtree->BBox.Center.z - (quadtree->extentZ / 2);
+			XMVECTOR tempExtent = XMLoadFloat3(&quadtree->BBox.Extents) / 2;
+			XMStoreFloat3(&quadtree->child[i]->BBox.Extents, tempExtent);
+
+			Bounding[0] = quadtree->child[i]->BBox.Center;//Top left child 3
+			Bounding[0].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[0].z += quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[1] = quadtree->child[i]->BBox.Center;//Top right child 3
+			Bounding[1].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[1].z += quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[2] = quadtree->child[i]->BBox.Center;//Bot left child 3
+			Bounding[2].x -= quadtree->child[i]->BBox.Extents.x;
+			Bounding[2].z -= quadtree->child[i]->BBox.Extents.z;
+
+			Bounding[3] = quadtree->child[i]->BBox.Center;//Bot right child 3
+			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
+			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
+
+			for (size_t j = 0; j < 4; j++)
+			{
+				quadtree->child[3]->BoundingCoords[j] = Bounding[j];
+			}
+			if (SubDiv != totalSubDiv)
+			{
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+			}
+		}
 	}
 }
-
+void Quadtree::initializeIndex(int &indexBuffer)
+{
+	int tempArray[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
+	this->vtxIndicies = tempArray;
+}
 

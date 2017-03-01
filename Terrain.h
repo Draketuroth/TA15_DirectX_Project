@@ -35,7 +35,7 @@ public:
 	};
 
 	Terrain();
-	~Terrain();
+	virtual ~Terrain();
 
 	void LoadRAW();
 

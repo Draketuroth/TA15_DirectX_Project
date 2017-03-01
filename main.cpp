@@ -42,7 +42,7 @@ Camera mCam;
 GraphicComponents gHandler;
 BufferComponents bHandler;
 TextureComponents tHandler;
-Quadtree QTree;
+//Quadtree QTree;
 //----------------------------------------------------------------------------------------------------------------------------------//
 // FORWARD DECLARATIONS
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -56,8 +56,8 @@ Terrain terrain;
 
 int main() {
 
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
-
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
+	//_CrtSetBreakAlloc(207);
 	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
 
 	if (!WindowInitialize(windowHandle)) {
@@ -121,8 +121,6 @@ int RunApplication() {
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PREDEFINED VARIABLES
 	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
 
 	MSG windowMessage = { 0 };
 

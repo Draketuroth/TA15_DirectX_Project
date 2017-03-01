@@ -58,7 +58,7 @@ public:
 
 	MTL_STRUCT MTLConstantData;
 	BufferComponents();
-	~BufferComponents();
+	virtual ~BufferComponents();
 
 // Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
 
@@ -91,7 +91,6 @@ public:
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
-
 	
 
 };
