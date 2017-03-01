@@ -81,7 +81,7 @@ public:
 
 	//hightMap
 	bool Collotion();
-	
+	XMFLOAT3 GetHeightPosition()const;
 
 	float GetX()const; 
 	float GetZ()const; 

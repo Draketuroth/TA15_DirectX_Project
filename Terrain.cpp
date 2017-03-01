@@ -25,6 +25,7 @@ Terrain::~Terrain()
 	SAFE_RELEASE(heightmapSRV);
 	SAFE_RELEASE(mQuadPatchVB);
 	SAFE_RELEASE(mQuadPatchIB);
+	
 }
 
 //load RAW file to heightMap
@@ -165,13 +166,32 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	}
 }
 
-vector<int> Terrain::GetHight()const
-{
-	float x, y, z; 
-
-	vector<int> pos = VertPos;
-
-	int nrOf = VertPos.size();
-
-	return pos; 
-}
+//float Terrain::GetHeight(float x, float z)const
+//{
+//	float c = (x + 0.5f*GetWidth()) / terrainInfo.quadSize;
+//	float d = (z - 0.5f*GetDepth()) / -terrainInfo.quadSize;
+//
+//	int row = (int)floorf(d); 
+//	int col = (int)floorf(c); 
+//
+//	float A = heightMap[(row*terrainInfo.HMapWidth) + col]; 
+//	float B = heightMap[row*terrainInfo.HMapWidth + col + 1]; 
+//	float C = heightMap[(row + 1)*terrainInfo.HMapWidth + col]; 
+//	float D = heightMap[(row + 1)* terrainInfo.HMapWidth + col + 1]; 
+//
+//	float s = c - (float)col; 
+//	float t = d - (float)row; 
+//
+//	if (s + t <= 1.0f)
+//	{
+//		float uy = B - A; 
+//		float vy = C - A; 
+//		return A + s*uy + t*vy; 
+//	}
+//	else
+//	{
+//		float uy = C - D; 
+//		float vy = B - D; 
+//		return D + (1.0f - s)*uy + (1.0f - t)*vy; 
+//	}
+//}

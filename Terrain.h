@@ -41,7 +41,9 @@ public:
 
 	float GetWidth()const; 
 	float GetDepth()const;
-	vector<int> GetHight()const;
+	//vector<int> GetHight()const;
+
+	float GetHeight(float x, float z)const; 
 
 	//vertex buffer
 	void BuildQuadPatchVB(ID3D11Device* device); 
@@ -74,8 +76,6 @@ private:
 	int NumPatchQuadFaces;
 
 	
-	
-
 	
 };
 #endif

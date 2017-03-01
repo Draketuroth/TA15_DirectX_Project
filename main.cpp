@@ -246,7 +246,14 @@ int RunApplication() {
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
-
+			//to folow the hightmap
+			//if (mCam.Collotion() == true)
+			//{
+			//	XMFLOAT3 camPos = mCam.GetPosition(); 
+			//	float y = terrain.GetHeight(camPos.x, camPos.z); 
+			//	mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+			//}
+			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());

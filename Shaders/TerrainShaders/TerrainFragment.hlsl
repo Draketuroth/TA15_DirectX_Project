@@ -32,7 +32,7 @@ struct PS_IN
 };
 
 
-float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW); 
+//float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW); 
 
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
@@ -46,8 +46,8 @@ float4 PS_main(PS_IN input) : SV_Target
 	bool Mcolor = false;
 
 	//normalMap
-	float3 normalMapSampel = gNormalMap.Sampel(samLinear, pin.Tex).rgb; 
-	float3 bumpedNormalW = NormalToWorldSpace(normalMapSample, pin.NormalW, pin.TangentW); 
+	//float3 normalMapSampel = gNormalMap.Sampel(samLinear, pin.Tex).rgb; 
+	//float3 bumpedNormalW = NormalToWorldSpace(normalMapSample, pin.NormalW, pin.TangentW); 
 
 
 	input.lPos.xy /= input.lPos.w; //light pos in NDC
@@ -113,20 +113,20 @@ float4 PS_main(PS_IN input) : SV_Target
 	//return float4(texColor, 1) * shadowCheck;
 };
 
-float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW)
-{
-	//Uncompress each component from [0,1] to [-1,1]
-	float3 normalT = 2.0f*normalMapSample - 1.0f; 
-
-	//build orthonomal basis
-	float3 N = uintNormalW; 
-	float3 T = normalize(tangentW - dot(tangentW, N)*N); 
-	float3 B = cross(N, T); 
-
-	float3x3 TBN = float3x3(T, B, N); 
-	
-	//transform from target space to world space
-	float3 bumpedNormalW = mul(normalT, TBN); 
-
-	return bumpedNormalW; 
-}
+//float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW)
+//{
+//	//Uncompress each component from [0,1] to [-1,1]
+//	float3 normalT = 2.0f*normalMapSample - 1.0f; 
+//
+//	//build orthonomal basis
+//	float3 N = uintNormalW; 
+//	float3 T = normalize(tangentW - dot(tangentW, N)*N); 
+//	float3 B = cross(N, T); 
+//
+//	float3x3 TBN = float3x3(T, B, N); 
+//	
+//	//transform from target space to world space
+//	float3 bumpedNormalW = mul(normalT, TBN); 
+//
+//	return bumpedNormalW; 
+//}
