@@ -19,7 +19,7 @@ using namespace DirectX;
 // We require a combined transformation matrix from all the previously created matrices and a matrix to preserve the world positions throughout the pipeline
 
 struct GS_CONSTANT_BUFFER {
-
+	
 	XMMATRIX lightViewProj;
 	XMMATRIX worldViewProj;
 	XMMATRIX matrixWorld;

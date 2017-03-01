@@ -41,7 +41,9 @@ struct TriangleVertex{
 	float x, y, z;
 	float u, v;
 };
-
+struct QuadtreeVertex {
+	float x, y, z;
+};
 
 
 #endif
