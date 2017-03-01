@@ -129,7 +129,9 @@
     <ClCompile Include="GraphicComponents.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Render.cpp" />
-    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Terrain.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="TextureComponents.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -294,7 +296,9 @@
     <ClInclude Include="GraphicComponents.h" />
     <ClInclude Include="MacroDefinitions.h" />
     <ClInclude Include="Render.h" />
-    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Terrain.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="TextureComponents.h" />
     <ClInclude Include="VertexType.h" />
     <ClInclude Include="WICTextureLoader.h" />

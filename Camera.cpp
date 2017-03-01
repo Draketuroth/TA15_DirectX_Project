@@ -12,25 +12,25 @@ Camera::~Camera() {
 	
 }
 
-//bool Camera::Collotion()
-//{
-//	bool collition = false; 
-//	float CAMx; 
-//	float CAMz;
-//
-//	CAMx = GetX(); 
-//	CAMz = GetZ(); 
-//
-//	if (CAMx >= -31.5 && CAMx <= 31.5)
-//	{
-//		if (CAMz >= -31.5&& CAMz <= 31.5)
-//		{
-//			collition = true; 
-//		}
-//	}
-//	
-//	return collition; 
-//}
+bool Camera::Collotion()
+{
+	bool collition = false; 
+	float CAMx; 
+	float CAMz;
+
+	CAMx = GetX(); 
+	CAMz = GetZ(); 
+
+	if (CAMx >= -31.5 && CAMx <= 31.5)
+	{
+		if (CAMz >= -31.5&& CAMz <= 31.5)
+		{
+			collition = true; 
+		}
+	}
+	
+	return collition; 
+}
 
 // Get/Set Camera Properties
 XMVECTOR Camera::GetPositionXM()const {

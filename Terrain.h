@@ -61,8 +61,6 @@ public:
 	
 	vector<int> VertPos;
 
-
-
 private:
 
 	
