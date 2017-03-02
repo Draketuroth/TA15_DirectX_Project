@@ -43,7 +43,7 @@ void Quadtree::DeleteFunction(NODE* Tree)
 	}
 	delete Tree;
 }
-void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
+void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D11Device* &gDevice)
 {
 	//Skapa "big box", och fyra childs, varje child kommer vara en ny "big box" i nästa funktion
 	if (SubDiv == 0)
@@ -57,6 +57,29 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 
 		quadtree->BBox.Center = XMFLOAT3{ 0, 0, 0 };
 		quadtree->BBox.Extents = XMFLOAT3{ quadtree->extentX , 0, quadtree->extentZ };
+
+
+		Vertices cubePoints[] = {
+			XMFLOAT4(float(Bounding[0].x), 0.0f, float(Bounding[0].z), 0.0f),//Top left
+			XMFLOAT4(float(Bounding[2].x), 0.0f, float(Bounding[2].z), 0.0f),//Bot left
+			XMFLOAT4(float(Bounding[3].x), 0.0f, float(Bounding[3].z), 0.0f),//Bot right
+			XMFLOAT4(float(Bounding[1].x), 0.0f, float(Bounding[1].z), 0.0f),//Top right
+			XMFLOAT4(float(Bounding[0].x), 10.0f, float(Bounding[0].z), 0.0f),//Top left offset
+			XMFLOAT4(float(Bounding[2].x), 10.0f, float(Bounding[2].z), 0.0f),//Bot left offset
+			XMFLOAT4(float(Bounding[3].x), 10.0f, float(Bounding[3].z), 0.0f),//Bot right offset
+			XMFLOAT4(float(Bounding[1].x), 10.0f, float(Bounding[1].z), 0.0f)//Top right offset
+		};
+		//Create vertex buffer data for each child
+		D3D11_BUFFER_DESC vtxDesc = {};
+		vtxDesc.Usage = D3D11_USAGE_DEFAULT;
+		vtxDesc.ByteWidth = sizeof(Vertices);
+		vtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = {};
+		data.pSysMem = cubePoints;
+
+		HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &quadtree->vtxBuffer);
+
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -75,9 +98,6 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 
 		if (i == 0)
 		{
-			//Create indexbuffer for each child
-
-
 			quadtree->child[i]->BBox.Center.y = 0;
 			quadtree->child[i]->BBox.Center.x = quadtree->BBox.Center.x - (quadtree->extentX / 2);
 			quadtree->child[i]->BBox.Center.z = quadtree->BBox.Center.z + (quadtree->extentZ / 2);
@@ -100,13 +120,35 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
 			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
+			Vertices cubePoints[] = {
+				XMFLOAT4(float(Bounding[0].x), 0.0f, float(Bounding[0].z), 0.0f),//Top left
+				XMFLOAT4(float(Bounding[2].x), 0.0f, float(Bounding[2].z), 0.0f),//Bot left
+				XMFLOAT4(float(Bounding[3].x), 0.0f, float(Bounding[3].z), 0.0f),//Bot right
+				XMFLOAT4(float(Bounding[1].x), 0.0f, float(Bounding[1].z), 0.0f),//Top right
+				XMFLOAT4(float(Bounding[0].x), 10.0f, float(Bounding[0].z), 0.0f),//Top left offset
+				XMFLOAT4(float(Bounding[2].x), 10.0f, float(Bounding[2].z), 0.0f),//Bot left offset
+				XMFLOAT4(float(Bounding[3].x), 10.0f, float(Bounding[3].z), 0.0f),//Bot right offset
+				XMFLOAT4(float(Bounding[1].x), 10.0f, float(Bounding[1].z), 0.0f)//Top right offset
+			};
+			//Create vertex buffer data for each child
+			D3D11_BUFFER_DESC vtxDesc = {};
+			vtxDesc.Usage = D3D11_USAGE_DEFAULT;
+			vtxDesc.ByteWidth = sizeof(Vertices);
+			vtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+			D3D11_SUBRESOURCE_DATA data = {};
+			data.pSysMem = cubePoints;
+
+			HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &quadtree->child[i]->vtxBuffer);
+
+
 			for (size_t j = 0; j < 4; j++)
 				{
 					quadtree->child[0]->BoundingCoords[j] = Bounding[j];
 				}
 			if (SubDiv != totalSubDiv)
 				{		
-					CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv+1);
+					CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 				}
 		}
 		if (i == 1)
@@ -133,13 +175,35 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
 			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
+			Vertices cubePoints[] = {
+				XMFLOAT4(float(Bounding[0].x), 0.0f, float(Bounding[0].z), 0.0f),//Top left
+				XMFLOAT4(float(Bounding[2].x), 0.0f, float(Bounding[2].z), 0.0f),//Bot left
+				XMFLOAT4(float(Bounding[3].x), 0.0f, float(Bounding[3].z), 0.0f),//Bot right
+				XMFLOAT4(float(Bounding[1].x), 0.0f, float(Bounding[1].z), 0.0f),//Top right
+				XMFLOAT4(float(Bounding[0].x), 10.0f, float(Bounding[0].z), 0.0f),//Top left offset
+				XMFLOAT4(float(Bounding[2].x), 10.0f, float(Bounding[2].z), 0.0f),//Bot left offset
+				XMFLOAT4(float(Bounding[3].x), 10.0f, float(Bounding[3].z), 0.0f),//Bot right offset
+				XMFLOAT4(float(Bounding[1].x), 10.0f, float(Bounding[1].z), 0.0f)//Top right offset
+			};
+			//Create vertex buffer data for each child
+			D3D11_BUFFER_DESC vtxDesc = {};
+			vtxDesc.Usage = D3D11_USAGE_DEFAULT;
+			vtxDesc.ByteWidth = sizeof(Vertices);
+			vtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+			D3D11_SUBRESOURCE_DATA data = {};
+			data.pSysMem = cubePoints;
+
+			HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &quadtree->child[i]->vtxBuffer);
+
+
 			for (size_t j = 0; j < 4; j++)
 			{
 				quadtree->child[1]->BoundingCoords[j] = Bounding[j];
 			}
 			if (SubDiv != totalSubDiv)
 			{
-				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
 		}
 		if (i == 2)
@@ -166,13 +230,34 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
 			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
+			Vertices cubePoints[] = {
+				XMFLOAT4(float(Bounding[0].x), 0.0f, float(Bounding[0].z), 0.0f),//Top left
+				XMFLOAT4(float(Bounding[2].x), 0.0f, float(Bounding[2].z), 0.0f),//Bot left
+				XMFLOAT4(float(Bounding[3].x), 0.0f, float(Bounding[3].z), 0.0f),//Bot right
+				XMFLOAT4(float(Bounding[1].x), 0.0f, float(Bounding[1].z), 0.0f),//Top right
+				XMFLOAT4(float(Bounding[0].x), 10.0f, float(Bounding[0].z), 0.0f),//Top left offset
+				XMFLOAT4(float(Bounding[2].x), 10.0f, float(Bounding[2].z), 0.0f),//Bot left offset
+				XMFLOAT4(float(Bounding[3].x), 10.0f, float(Bounding[3].z), 0.0f),//Bot right offset
+				XMFLOAT4(float(Bounding[1].x), 10.0f, float(Bounding[1].z), 0.0f)//Top right offset
+			};
+	//Create vertex buffer data for each child
+			D3D11_BUFFER_DESC vtxDesc = {};
+			vtxDesc.Usage = D3D11_USAGE_DEFAULT;
+			vtxDesc.ByteWidth = sizeof(Vertices);
+			vtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+			D3D11_SUBRESOURCE_DATA data = {};
+			data.pSysMem = cubePoints;
+
+			HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &quadtree->child[i]->vtxBuffer);
+
 			for (size_t j = 0; j < 4; j++)
 			{
 				quadtree->child[2]->BoundingCoords[j] = Bounding[j];
 			}
 			if (SubDiv != totalSubDiv)
 			{
-				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
 		}
 		if (i == 3)
@@ -199,20 +284,35 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv)
 			Bounding[3].x += quadtree->child[i]->BBox.Extents.x;
 			Bounding[3].z -= quadtree->child[i]->BBox.Extents.z;
 
+			Vertices cubePoints[] = {
+				XMFLOAT4(float(Bounding[0].x), 0.0f, float(Bounding[0].z), 0.0f),//Top left
+				XMFLOAT4(float(Bounding[2].x), 0.0f, float(Bounding[2].z), 0.0f),//Bot left
+				XMFLOAT4(float(Bounding[3].x), 0.0f, float(Bounding[3].z), 0.0f),//Bot right
+				XMFLOAT4(float(Bounding[1].x), 0.0f, float(Bounding[1].z), 0.0f),//Top right
+				XMFLOAT4(float(Bounding[0].x), 10.0f, float(Bounding[0].z), 0.0f),//Top left offset
+				XMFLOAT4(float(Bounding[2].x), 10.0f, float(Bounding[2].z), 0.0f),//Bot left offset
+				XMFLOAT4(float(Bounding[3].x), 10.0f, float(Bounding[3].z), 0.0f),//Bot right offset
+				XMFLOAT4(float(Bounding[1].x), 10.0f, float(Bounding[1].z), 0.0f)//Top right offset
+			};
+			//Create vertex buffer data for each child
+			D3D11_BUFFER_DESC vtxDesc = {};
+			vtxDesc.Usage = D3D11_USAGE_DEFAULT;
+			vtxDesc.ByteWidth = sizeof(Vertices);
+			vtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+			D3D11_SUBRESOURCE_DATA data = {};
+			data.pSysMem = cubePoints;
+
+			HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &quadtree->child[i]->vtxBuffer);
+
 			for (size_t j = 0; j < 4; j++)
 			{
 				quadtree->child[3]->BoundingCoords[j] = Bounding[j];
 			}
 			if (SubDiv != totalSubDiv)
 			{
-				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1);
+				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
 		}
 	}
 }
-void Quadtree::initializeIndex(int &indexBuffer)
-{
-	int tempArray[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
-	this->vtxIndicies = tempArray;
-}
-

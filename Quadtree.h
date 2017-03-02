@@ -1,8 +1,9 @@
 #pragma once
 #include "BufferComponents.h";
+#include "GraphicComponents.h";
 #include <DirectXCollision.h>;
 using namespace DirectX;
-int vtxIndicies[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
+
 class Quadtree
 {
 public:
@@ -28,12 +29,15 @@ public:
 	int SubDiv;
 	int totalSubDiv;
 	static const int vtxIndicies[24];
+	
 
-	void initializeIndex(int &indexBuffer);
-	void CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv);
+	void CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D11Device* &gDevice);
 	void DeleteFunction(NODE* Tree);
 private:
 
 
 
+};
+struct Vertices {
+	XMFLOAT4 VtxArr;
 };
