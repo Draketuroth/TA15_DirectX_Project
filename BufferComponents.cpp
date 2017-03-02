@@ -484,7 +484,10 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
 	for (int i = 0; i < 1000; i++)
 	{
-		triangleVertices[i].posX = { 0,0,0 };
+		triangleVertices[i].posX.x = 0;
+		triangleVertices[i].posX.y = 0;
+		triangleVertices[i].posX.z = 0;
+		
 		XMFLOAT3 random = { 0,0,0 };
 		float randomNum = rand() % 200 + (-99);
 		float randomNum2 = rand() % 100 +5;
@@ -494,7 +497,10 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 		random.y = randomNum2;
 		random.z = randomNum3;
 		cout << random.x << " " << random.y << " " << random.z << endl;
-		triangleVertices[i].posX = random;
+		triangleVertices[i].posX.x = random.x;
+		triangleVertices[i].posX.y = random.y;
+		triangleVertices[i].posX.z = random.z;
+		
 	}
 	
 

@@ -10,7 +10,7 @@
 
 cbuffer VS_CONSTANT_BUFFER : register(b0) {
 
-	float3 particleMovement;
+	float4 particleMovement;
 
 	
 };
@@ -33,6 +33,8 @@ VS_OUT VS_main(VS_IN input, uint id : SV_VertexID)
 {
 	VS_OUT output = (VS_OUT)0;
 
+
+	input.Pos += particleMovement[id];
 	output.Pos = input.Pos;
 
 	

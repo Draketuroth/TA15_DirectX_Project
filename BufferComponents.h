@@ -36,7 +36,7 @@ struct GS_CONSTANT_BUFFER {
 
 struct VS_CONSTANT_BUFFER {
 
-	XMFLOAT3 particleMovement;
+	XMFLOAT4 particleMovement[1000];
 
 };
 

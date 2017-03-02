@@ -146,8 +146,8 @@ int RunApplication() {
 	__int64 previousTime = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
-	XMFLOAT3 PMRand[1000] = {XMFLOAT3(0,0,0)};
-	
+	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,0)};
+	XMFLOAT4 dummy;
 
 	while (windowMessage.message != WM_QUIT) {
 
@@ -223,7 +223,7 @@ int RunApplication() {
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 			
 			
-			
+			HRESULT hr;
 			
 			
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -232,33 +232,20 @@ int RunApplication() {
 
 			// Here we disable GPU access to the vertex buffer data so I can change it on the CPU side and update it by sending it back when finished
 
-			gHandler.gDeviceContext->Map(bHandler.gConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			gHandler.gDeviceContext->Map(bHandler.gVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VertexBufferResource);
+			hr = gHandler.gDeviceContext->Map(bHandler.gConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			
+			
 			// We create a pointer to the constant buffer containing the world matrix that requires to be multiplied with the rotation matrix
 
 			GS_CONSTANT_BUFFER* cBufferPointer = (GS_CONSTANT_BUFFER*)mappedResource.pData;
-			VS_CONSTANT_BUFFER* vBufferPointer = (VS_CONSTANT_BUFFER*)VertexBufferResource.pData;
+			
 
 			// Here We access the world matrix and update it. The angle of the rotation matrix is updated for every frame with a rotation matrix 
 			// constructed to rotate the triangles around the y-axis
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
-			time += deltaTime * 2000;
-
-			if (time > 150)
-			{
-				time = 0;
-				for (size_t i = 0; i < 1000; i++)
-				{
-					PMRand[i].x = ((float)rand()) / (float)RAND_MAX / 12;
-					PMRand[i].y = ((float)rand()) / (float)RAND_MAX / 12;
-					PMRand[i].z = ((float)rand()) / (float)RAND_MAX / 12;
-					vBufferPointer->particleMovement = PMRand[i];
-				}
-
-
-			}
+			
 
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
@@ -269,7 +256,7 @@ int RunApplication() {
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
 			
-			gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer,0);
+			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());
@@ -284,7 +271,38 @@ int RunApplication() {
 
 			// At last we have to reenable GPU access to the vertex buffer data
 
-			gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// PARTICLE MOVEMENT
+			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			
+
+
+			time += deltaTime * 2000;
+
+			if (time > 150)
+			{
+				hr = gHandler.gDeviceContext->Map(bHandler.gVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VertexBufferResource);
+
+				VS_CONSTANT_BUFFER* vBufferPointer = (VS_CONSTANT_BUFFER*)VertexBufferResource.pData;
+				time = 0;
+				for (size_t i = 0; i < 1000; i++)
+				{
+					PMRand[i].x = ((float)rand()) / (float)RAND_MAX / 12;
+					PMRand[i].y = ((float)rand()) / (float)RAND_MAX / 12;
+					PMRand[i].z = ((float)rand()) / (float)RAND_MAX / 12;
+					vBufferPointer->particleMovement[i] = PMRand[i];
+
+
+				}
+
+				gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer, 0);
+			}
+
+
+			
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
