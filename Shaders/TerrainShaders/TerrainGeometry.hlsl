@@ -23,6 +23,7 @@ struct GS_IN
 	float3 Pos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Norm : NORMAL;
+	float3x3 Tangent : TANGENT;
 
 };
 
@@ -33,8 +34,8 @@ struct GS_OUT
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
-
 	float4 lPos : TEXCOORD1;
+	float3x3 Tangent : TANGENT;
 
 };
 
@@ -83,6 +84,8 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 			output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
 
 			output.Tex = input[i].Tex;
+
+			output.Tangent = input[i].Tangent;
 
 		}
 

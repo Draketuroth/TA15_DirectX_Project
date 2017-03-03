@@ -24,6 +24,7 @@ public:
 	ID3D11ShaderResourceView* boneResource;	// Shader resource views are required for accessing data in a resource
 	ID3D11ShaderResourceView* terrainResource;
 	ID3D11ShaderResourceView* grassResource;
+	ID3D11ShaderResourceView* NormalMapResource;
 
 	ID3D11Texture2D* geometryTexture;
 	ID3D11RenderTargetView* geometryTextureRTV;

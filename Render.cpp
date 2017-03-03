@@ -126,8 +126,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
+		
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+	gHandler.gDeviceContext->PSSetShaderResources(2, 1, &tHandler.NormalMapResource);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);

@@ -8,6 +8,7 @@ TextureComponents::TextureComponents() {
 	boneResource = nullptr;
 	terrainResource = nullptr;
 	grassResource = nullptr;
+	NormalMapResource = nullptr; 
 
 	geometryTexture = nullptr;
 	geometryTextureRTV = nullptr;
@@ -39,6 +40,7 @@ void TextureComponents::ReleaseAll() {
 	SAFE_RELEASE(boneResource);
 	SAFE_RELEASE(terrainResource);
 	SAFE_RELEASE(grassResource);
+	SAFE_RELEASE(NormalMapResource); 
 
 	SAFE_RELEASE(geometryTexture);
 	SAFE_RELEASE(geometryTextureRTV);
@@ -95,6 +97,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 512);
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\terrain.png", NULL, &grassResource);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickNormal.png", NULL, &NormalMapResource);
 	
 	if (SUCCEEDED(hr) && texture != 0) {
 
@@ -102,6 +105,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 		gDevice->CreateShaderResourceView(texture, nullptr, &boneResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &terrainResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &grassResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &NormalMapResource);
 
 		if (FAILED(hr)) {
 

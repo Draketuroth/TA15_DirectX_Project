@@ -8,6 +8,7 @@ SamplerState texSampler: register(s0);
 SamplerState shadowSampler : register(s1);
 Texture2D tex0 : register(t0);
 Texture2D shadowMap : register(t1);
+Texture2D gNormalMap : register(t2);
 
 cbuffer MTL_STRUCT : register (b0)
 {
@@ -29,10 +30,9 @@ struct PS_IN
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
 	float4 lPos : TEXCOORD1;
+	float3x3 Tangent : TANGENT;
 };
 
-
-//float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW); 
 
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
@@ -105,27 +105,21 @@ float4 PS_main(PS_IN input) : SV_Target
 
 		color = float4(texColor, 1.0f);
 	}
-	
-	//return float4(color,1);// *shadowCheck;
 
+	//NORMALMAP
+
+	//normal map sampel
+	float3 normalMapSample = gNormalMap.Sample(texSampler, input.Tex).rgb; 
+
+	//Uncompress each component from [0,1] to [-1,1]
+	float3 normalT = 2.0f*normalMapSample - 1.0f;
+
+	//to wordSpace
+	float3 bumpedNormalW = mul(normalT, input.Tangent); 
+
+
+	//return float4(color,1);// *shadowCheck;
 	return float4((ads, 1.0f) *color,1) *shadowCheck;
 	//return float4(texColor, 1) * shadowCheck;
 };
 
-//float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW)
-//{
-//	//Uncompress each component from [0,1] to [-1,1]
-//	float3 normalT = 2.0f*normalMapSample - 1.0f; 
-//
-//	//build orthonomal basis
-//	float3 N = uintNormalW; 
-//	float3 T = normalize(tangentW - dot(tangentW, N)*N); 
-//	float3 B = cross(N, T); 
-//
-//	float3x3 TBN = float3x3(T, B, N); 
-//	
-//	//transform from target space to world space
-//	float3 bumpedNormalW = mul(normalT, TBN); 
-//
-//	return bumpedNormalW; 
-//}
