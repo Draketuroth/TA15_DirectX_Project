@@ -46,13 +46,13 @@ __declspec(align(16))
 struct MTL_STRUCT
 	{
 
-	XMFLOAT3 Kd;
-	XMFLOAT3 Ka;
-	XMFLOAT3 Tf;
-	XMFLOAT3 Ks;
+	XMFLOAT4 Kd;
+	XMFLOAT4 Ka;
+	XMFLOAT4 Tf;
+	XMFLOAT4 Ks;
 	float Ni;
 	float Illum;
-
+	XMFLOAT2 padding;
 	};
 
 
