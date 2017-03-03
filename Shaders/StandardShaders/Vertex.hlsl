@@ -10,7 +10,7 @@
 
 cbuffer VS_CONSTANT_BUFFER : register(b0) {
 
-	float4 particleMovement;
+	float4 particleMovement[1000];
 
 	
 };

@@ -146,7 +146,7 @@ int RunApplication() {
 	__int64 previousTime = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
-	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,0)};
+	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
 	XMFLOAT4 dummy;
 
 	while (windowMessage.message != WM_QUIT) {
@@ -285,7 +285,7 @@ int RunApplication() {
 			if (time > 150)
 			{
 				hr = gHandler.gDeviceContext->Map(bHandler.gVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VertexBufferResource);
-
+			
 				VS_CONSTANT_BUFFER* vBufferPointer = (VS_CONSTANT_BUFFER*)VertexBufferResource.pData;
 				time = 0;
 				for (size_t i = 0; i < 1000; i++)
@@ -294,10 +294,10 @@ int RunApplication() {
 					PMRand[i].y = ((float)rand()) / (float)RAND_MAX / 12;
 					PMRand[i].z = ((float)rand()) / (float)RAND_MAX / 12;
 					vBufferPointer->particleMovement[i] = PMRand[i];
-
-
+			
+			
 				}
-
+			
 				gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer, 0);
 			}
 
