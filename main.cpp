@@ -18,7 +18,7 @@
 #include "GraphicComponents.h"
 #include "BufferComponents.h"
 #include "TextureComponents.h"
-#include "Quadtree.h"
+//#include "Quadtree.h"
 
 #include "Terrain.h"
 
@@ -42,7 +42,7 @@ Camera mCam;
 GraphicComponents gHandler;
 BufferComponents bHandler;
 TextureComponents tHandler;
-//Quadtree QTree;
+Quadtree QTree;
 //----------------------------------------------------------------------------------------------------------------------------------//
 // FORWARD DECLARATIONS
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -103,7 +103,7 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-//	QTree.CreateTree(QTree.Tree, QTree.Bounding, QTree.SubDiv);
+
 
 	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
 		MessageBox(
@@ -112,6 +112,10 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
+	//Quadtree creation
+	QTree.CreateTree(QTree.Tree, QTree.Bounding, QTree.Tree->SubDiv, gHandler.gDevice);
+	QTree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
+
 
 	return RunApplication();
 }
@@ -267,7 +271,7 @@ int RunApplication() {
 
 			// Now we can render using the new updated buffers on the GPU
 
-			Render(gHandler, bHandler, tHandler, fbxImporter, terrain);
+			Render(gHandler, bHandler, tHandler, fbxImporter, terrain, QTree);
 
 			// When everythig has been drawn out, finish by presenting the final result on the screen by swapping between the back and front buffers
 

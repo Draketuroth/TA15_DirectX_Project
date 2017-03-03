@@ -971,7 +971,7 @@ bool GraphicComponents::CreateQTreeShaders()
 	ID3DBlob* VsErrorBlob;
 	//Quadtree vertex shader
 	HRESULT hr = D3DCompileFromFile(
-		L"Shaders\\QuadtreeShaders\\QuadVertex.hlsl",
+		L"Shaders\\QuadtreeShaders\\QuadTreeVertex.hlsl",
 		nullptr,
 		nullptr,
 		"VS_main",
@@ -1016,7 +1016,7 @@ bool GraphicComponents::CreateQTreeShaders()
 	ID3DBlob* PsErrorBlob;
 
 	hr = D3DCompileFromFile(
-		L"Shaders\\QuadtreeShaders\\QuadFragment.hlsl",
+		L"Shaders\\QuadtreeShaders\\QuadTreeFragment.hlsl",
 		nullptr,
 		nullptr,
 		"PS_main",

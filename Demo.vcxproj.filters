@@ -137,16 +137,16 @@
     <FxCompile Include="Shaders\StandardShaders\Vertex.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
     </FxCompile>
-    <FxCompile Include="QuadVertex.hlsl">
-      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="QuadFragment.hlsl">
-      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\QuadShaders\QuadFragment.hlsl" />
     <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl" />
     <FxCompile Include="Shaders\StandardShaders\ComputeShaderHB.hlsl" />
     <FxCompile Include="Shaders\StandardShaders\ComputeShaderHV.hlsl" />
+    <FxCompile Include="QuadTreeFragment.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="QuadTreeVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferComponents.h">

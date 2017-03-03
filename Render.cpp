@@ -1,7 +1,7 @@
 
 #include "Render.h"
 
-void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain) {
+void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain, Quadtree &tree) {
 
 	static bool blurFilter = false;
 	UINT message;
@@ -255,25 +255,31 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 
 
-	//gHandler.gDeviceContext->VSSetShader(gHandler.gVertexQTreeShader, nullptr, 0);	// Setting the Vertex Shader 
-	//gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0); // Setting the Geometry Shader 
-	//gHandler.gDeviceContext->PSSetShader(gHandler.gPixelQTreeShader, nullptr, 0); // Setting the Pixel Shader 
-	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-	//gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
-	//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexQTreeShader, nullptr, 0);	// Setting the Vertex Shader 
+	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0); // Setting the Geometry Shader 
+	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelQTreeShader, nullptr, 0); // Setting the Pixel Shader 
+	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
+	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 
-	//// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	//vertexSize = sizeof(QuadtreeVertex);
-	//offset = 0;
-	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
+	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+	vertexSize = sizeof(QuadtreeVertex);
+	offset = 0;
+//	tree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	gHandler.gDeviceContext->IASetIndexBuffer(tree.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexQTreeLayout);
+	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &tree.Tree->vtxBuffer, &vertexSize, &offset);
+	tree.renderTree(tree.Tree, gHandler.gDeviceContext);
 
-	//// The input assembler will now recieve the vertices and the vertex layout
 
-	//// The vertices should be interpreted as parts of a triangle in the input assembler
-	//gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	//gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
+	
 
-	//gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
+	// The input assembler will now recieve the vertices and the vertex layout
+
+	// The vertices should be interpreted as parts of a triangle in the input assembler
+
+
 	
 
 

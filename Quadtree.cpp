@@ -4,21 +4,8 @@ Quadtree::Quadtree()
 {
 	this->Tree = new NODE;
 
-	this->SubDiv = 0;
-	this->totalSubDiv = 4;
-	this->Tree->extentX = 32;
-	this->Tree->extentZ = 32;
-	for (int i = 0; i < 4; i++)
-	{
-		if (SubDiv != totalSubDiv)
-		{
-			this->Tree->child[i] = new NODE;
-		}
-		else
-		{
-			this->Tree->child[i] = nullptr;
-		}
-	}
+
+
 
 	
 //	this->CreateTree(this->Tree, this->Bounding, this->SubDiv);
@@ -89,12 +76,16 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D
 
 	for (int i = 0; i < 4; i++)
 	{
-
+		quadtree->child[i] = new NODE;
 
 		//	quadtree->child[i]->BBox.Extents.x /= 2;
 		//	quadtree->child[i]->BBox.Extents.z /= 2;
-		quadtree->child[i]->extentX /= 2;
-		quadtree->child[i]->extentZ /= 2;
+		if (quadtree->child[i] != nullptr)
+		{
+			quadtree->child[i]->extentX = quadtree->extentX / 2;
+			quadtree->child[i]->extentZ = quadtree->extentZ / 2;
+		}
+
 
 		if (i == 0)
 		{
@@ -146,7 +137,7 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D
 				{
 					quadtree->child[0]->BoundingCoords[j] = Bounding[j];
 				}
-			if (SubDiv != totalSubDiv)
+			if (SubDiv != quadtree->child[i]->totalSubDiv)
 				{		
 					CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 				}
@@ -201,7 +192,7 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D
 			{
 				quadtree->child[1]->BoundingCoords[j] = Bounding[j];
 			}
-			if (SubDiv != totalSubDiv)
+			if (SubDiv != quadtree->child[i]->totalSubDiv)
 			{
 				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
@@ -255,7 +246,7 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D
 			{
 				quadtree->child[2]->BoundingCoords[j] = Bounding[j];
 			}
-			if (SubDiv != totalSubDiv)
+			if (SubDiv != quadtree->child[i]->totalSubDiv)
 			{
 				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
@@ -309,10 +300,45 @@ void Quadtree::CreateTree(NODE* quadtree, XMFLOAT3 Bounding[4], int SubDiv, ID3D
 			{
 				quadtree->child[3]->BoundingCoords[j] = Bounding[j];
 			}
-			if (SubDiv != totalSubDiv)
+			if (SubDiv != quadtree->child[i]->totalSubDiv)
 			{
 				CreateTree(quadtree->child[i], quadtree->child[i]->BoundingCoords, SubDiv + 1, gDevice);
 			}
+		}
+	}
+}
+void Quadtree::createIndexBuffer(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext)
+{
+	D3D11_BUFFER_DESC indexDesc = {};
+	indexDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexDesc.ByteWidth = sizeof(unsigned int) * 24;
+	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = vtxIndex;
+	HRESULT hr = gDevice->CreateBuffer(&indexDesc, &initData, &indexBuffer);
+	if (FAILED(hr))
+	{
+		cout << "Couldnt create index buffer for quadtree" << endl;
+	}
+	
+
+	//gDeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+}
+void Quadtree::renderTree(NODE* quadtree, ID3D11DeviceContext* &gDeviceContext)
+{
+	UINT vertexSize = sizeof(QuadtreeVertex);
+	UINT offset = 0;
+	gDeviceContext->IASetVertexBuffers(0, 1, &Tree->vtxBuffer, &vertexSize, &offset);
+
+	gDeviceContext->Draw(24, 0);
+	for (int i = 0; i < 4; i++)
+	{
+		if (Tree->child[i] != nullptr)
+		{
+			renderTree(Tree->child[i], gDeviceContext);
 		}
 	}
 }
