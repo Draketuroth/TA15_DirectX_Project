@@ -3,6 +3,9 @@
 
 void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain) {
 
+	static bool blurFilter = false;
+	UINT message;
+
 	// clear the back buffer to a deep blue
 	float clearColor[] = { 0, 0, 0, 1 };	// Back buffer clear color as an array of floats (rgba)
 	gHandler.gDeviceContext->ClearRenderTargetView(gHandler.gBackbufferRTV, clearColor);	// Clear the render target view using the specified color
@@ -202,7 +205,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->CSSetUnorderedAccessViews(0, 1, &tHandler.blurredResultUAV_HB, nullptr);
 	gHandler.gDeviceContext->CSSetShaderResources(0, 1, &tHandler.geometryTextureSRV); // <----- Texture we just rendered to in the first pass
 
-	gHandler.gDeviceContext->Dispatch(32, 786, 1);
+	UINT numGroupsX = (UINT)ceilf(WIDTH / 256.0f);
+	gHandler.gDeviceContext->Dispatch(numGroupsX, HEIGHT, 1);
 
 	// Unbind output from compute shader
 	ID3D11UnorderedAccessView* nullUAV[] = { NULL };
@@ -220,7 +224,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->CSSetUnorderedAccessViews(0, 1, &tHandler.blurredResultUAV_HV, nullptr);
 	gHandler.gDeviceContext->CSSetShaderResources(0, 1, &tHandler.blurredResultSRV_HB); // <----- Texture we just rendered to in the first pass
 
-	gHandler.gDeviceContext->Dispatch(1024, 32, 1);
+	UINT numGroupsY = (UINT)ceilf(HEIGHT / 256.0f);
+	gHandler.gDeviceContext->Dispatch(WIDTH, numGroupsY, 1);
 
 	gHandler.gDeviceContext->CSSetUnorderedAccessViews(0, 1, nullUAV, 0);
 	gHandler.gDeviceContext->CSSetShaderResources(0, 1, nullSRV);
@@ -229,8 +234,24 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->VSSetShader(gHandler.gQuadVertexShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gQuadPixelShader, nullptr, 0);
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.blurredResultSRV_HV);
-	gHandler.gDeviceContext->PSSetShaderResources(1, 1, &tHandler.geometryTextureSRV);
+
+	if (GetAsyncKeyState('B') & 0x8000) {
+
+		blurFilter = !blurFilter;
+		Sleep(200);
+	}
+	
+	if (blurFilter == true){
+
+		gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.blurredResultSRV_HV);
+
+	}
+
+	else if (blurFilter == false) {
+
+		gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.geometryTextureSRV);
+	}
+	
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	gHandler.gDeviceContext->Draw(3, 0);

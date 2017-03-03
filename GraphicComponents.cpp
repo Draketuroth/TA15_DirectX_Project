@@ -37,6 +37,12 @@ GraphicComponents::GraphicComponents() {
 
 GraphicComponents::~GraphicComponents() {
 	
+	
+
+}
+
+void GraphicComponents::ReleaseAll() {
+
 	SAFE_RELEASE(gSwapChain);
 	SAFE_RELEASE(gDevice);
 	SAFE_RELEASE(gDeviceContext);
@@ -66,7 +72,6 @@ GraphicComponents::~GraphicComponents() {
 
 	SAFE_RELEASE(gQuadVertexShader);
 	SAFE_RELEASE(gQuadPixelShader);
-
 }
 
 bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler) {

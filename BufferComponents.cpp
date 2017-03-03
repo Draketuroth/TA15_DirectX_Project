@@ -405,7 +405,11 @@ BufferComponents::BufferComponents() {
 
 BufferComponents::~BufferComponents() {
 	
-	
+
+}
+
+void BufferComponents::ReleaseAll() {
+
 	SAFE_RELEASE(gVertexBuffer);
 	SAFE_RELEASE(gTerrainBuffer);
 	SAFE_RELEASE(gConstantBuffer);
@@ -417,7 +421,6 @@ BufferComponents::~BufferComponents() {
 	SAFE_RELEASE(depthView);
 
 	SAFE_RELEASE(gRasteriserState);
-
 }
 
 void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {

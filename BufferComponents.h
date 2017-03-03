@@ -67,6 +67,7 @@ public:
 	VS_CONSTANT_BUFFER VtxConstantData;
 	BufferComponents();
 	~BufferComponents();
+	void ReleaseAll();
 
 // Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
 
@@ -101,8 +102,6 @@ public:
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
 	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
-
-	
 
 };
 

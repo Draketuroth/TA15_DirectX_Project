@@ -83,6 +83,7 @@ int main() {
 
 	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
 
+	//hightMap
 	terrain.LoadRAW(); 
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
@@ -147,7 +148,7 @@ int RunApplication() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
-	XMFLOAT4 dummy;
+	
 
 	while (windowMessage.message != WM_QUIT) {
 
@@ -238,15 +239,11 @@ int RunApplication() {
 			// We create a pointer to the constant buffer containing the world matrix that requires to be multiplied with the rotation matrix
 
 			GS_CONSTANT_BUFFER* cBufferPointer = (GS_CONSTANT_BUFFER*)mappedResource.pData;
-			
 
 			// Here We access the world matrix and update it. The angle of the rotation matrix is updated for every frame with a rotation matrix 
 			// constructed to rotate the triangles around the y-axis
 
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
-
-			
-
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
@@ -255,13 +252,18 @@ int RunApplication() {
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 			
-			
+			//to folow the hightmap
+			if (mCam.Collotion() == true)
+			{
+				XMFLOAT3 camPos = mCam.GetPosition(); 
+				float y = terrain.GetHeight(camPos.x, camPos.z); 
+				mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+			}
 			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());
 			
-
 			/*i++;
 			if (i < 20000000000)
 			{
@@ -325,6 +327,12 @@ int RunApplication() {
 		}
 
 	}
+
+	terrain.ReleaseAll();
+	fbxImporter.ReleaseAll();
+	tHandler.ReleaseAll();
+	bHandler.ReleaseAll();
+	gHandler.ReleaseAll();
 
 	DestroyWindow(windowHandle);
 
