@@ -12,12 +12,13 @@ Texture2D gNormalMap : register(t2);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float3 Kd;
-	float3 Ka;
-	float3 tf;
-	float3 Ks;
+	float4 Kd;
+	float4 Ka;
+	float4 tf;
+	float4 Ks;
 	float ni;
 	float illum;
+	float2 padding;
 };
 
 

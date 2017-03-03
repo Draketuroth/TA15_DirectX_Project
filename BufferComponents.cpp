@@ -394,6 +394,7 @@ BufferComponents::BufferComponents() {
 	gTerrainBuffer = nullptr;
 	gConstantBuffer = nullptr;	
 	gMTLBuffer = nullptr;
+	gVertexConstantBuffer = nullptr;
 
 	depthStencil = nullptr;
 	depthState = nullptr;	
@@ -413,6 +414,7 @@ void BufferComponents::ReleaseAll() {
 	SAFE_RELEASE(gTerrainBuffer);
 	SAFE_RELEASE(gConstantBuffer);
 	SAFE_RELEASE(gMTLBuffer);
+	SAFE_RELEASE(gVertexConstantBuffer);
 
 	SAFE_RELEASE(depthStencil);
 	SAFE_RELEASE(depthState);
@@ -429,6 +431,7 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
 	CreateRasterizerState(gDevice);
+	CreateVertexConstantBuffer(gDevice);
 
 }
 
@@ -469,15 +472,40 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
+	XMFLOAT3 max = { 100,100,100 };
+	XMFLOAT3 min = { -100,0,-100 };
+	XMFLOAT3 range = { 0,0,0 };
+	range.x = max.x - min.x;
+	range.y = max.y - min.y;
+	range.z = max.z - min.z;
 
-	TriangleVertex triangleVertices[1] =
+	
+	
+
+	TriangleVertex triangleVertices[1000];
+	
+
+	for (int i = 0; i < 1000; i++)
 	{
-
-		20.0f, 19.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
-		0.0f, 1.0f,	//v1 uv coordinates
-
+		triangleVertices[i].posX.x = 0;
+		triangleVertices[i].posX.y = 0;
+		triangleVertices[i].posX.z = 0;
 		
-	};
+		XMFLOAT3 random = { 0,0,0 };
+		float randomNum = rand() % 200 + (-99);
+		float randomNum2 = rand() % 100 +5;
+		float randomNum3 = rand() % 200 + (-99);
+		cout << randomNum << endl;
+		random.x = randomNum;
+		random.y = randomNum2;
+		random.z = randomNum3;
+		cout << random.x << " " << random.y << " " << random.z << endl;
+		triangleVertices[i].posX.x = random.x;
+		triangleVertices[i].posX.y = random.y;
+		triangleVertices[i].posX.z = random.z;
+		
+	}
+	
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
@@ -591,7 +619,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	DirectX::XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 2));
 	DirectX::XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
-
+	
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
 	
 
@@ -754,4 +782,38 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 
 	return true;
 
+}
+
+bool BufferComponents::CreateVertexConstantBuffer(ID3D11Device* &gDevice)
+{
+	HRESULT hr;
+
+
+
+
+	D3D11_BUFFER_DESC VtxBufferDesc;
+	VtxBufferDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+	VtxBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	VtxBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	VtxBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	VtxBufferDesc.MiscFlags = 0;
+	VtxBufferDesc.StructureByteStride = 0;
+
+	// We set the the subresource data
+
+	D3D11_SUBRESOURCE_DATA VtxData;
+	VtxData.pSysMem = &VtxConstantData;
+	VtxData.SysMemPitch = 0;
+	VtxData.SysMemSlicePitch = 0;
+
+	// Finally after creating description and subresource data, we create the constant buffer
+
+	hr = gDevice->CreateBuffer(&VtxBufferDesc, &VtxData, &gVertexConstantBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
 }

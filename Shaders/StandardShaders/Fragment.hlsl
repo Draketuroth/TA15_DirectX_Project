@@ -15,7 +15,7 @@ Texture2D tex0 : register(t0);
 struct PS_IN
 {
 	//float4 Norm: NORMAL;
-	//float2 Tex : TEXCOORD;
+	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
@@ -25,7 +25,7 @@ struct PS_IN
 float4 PS_main(PS_IN input) : SV_Target
 {
 
-	return float4(1.0f,1.0f,1.0f,1.0f);
+	//return float4(1.0f,1.0f,1.0f,1.0f);
 
 	//float3 lightSource = float3(0.0f, 0.0f, 0.0f);	// Light source in the form of a point light
 	//float3 lightVector;
@@ -58,8 +58,8 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	//// Now the Sample state will sample the color output from the texture file so that we can return the correct color
 
-	////texColor = tex0.Sample(texSampler, input.Tex).xyz;
-
+	float4 texColor = tex0.Sample(texSampler, input.Tex);
+	return float4 (texColor);
 	//color = (200, 200, 200);		//float4(texColor, 1.0f);
 
 	/*return float4(ads, 1.0f) * color;*/
