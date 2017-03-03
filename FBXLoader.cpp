@@ -18,9 +18,13 @@ FbxImport::FbxImport() {
 
 FbxImport::~FbxImport() {
 
+
+}
+
+void FbxImport::ReleaseAll() {
+
 	SAFE_RELEASE(gBoneBuffer);
 	SAFE_RELEASE(gBoneVertexBuffer);
-
 }
 
 HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
@@ -73,7 +77,7 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n"
 				"# Skeletal Animation Log\n"
 				"# Based in Autodesk FBX SDK\n"
-				"# Fredrik Linde TA15 2016\n"
+				"# Fredrik Linde TA15 2017\n"
 				"# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
 
 	//----------------------------------------------------------------------------------------------------------------------------------//

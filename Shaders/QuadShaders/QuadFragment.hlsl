@@ -6,7 +6,6 @@
 
 SamplerState texSampler: register(s0);
 Texture2D tex0 : register(t0);
-Texture2D tex1 : register(t1);
 
 struct PS_IN
 {
@@ -16,16 +15,10 @@ struct PS_IN
 
 float4 PS_main(PS_IN input) : SV_Target{
 
-	float4 texColor, blurColor, color;
+	float4 texColor, color;
 
 	texColor = tex0.Sample(texSampler, input.texcoord);
 
-	blurColor = tex0.Sample(texSampler, input.texcoord);
-	texColor = tex1.Sample(texSampler, input.texcoord);
-
-	// Use these to turn off/on the gaussian blur in the scene
-
-	return blurColor;
-	//return texColor;
+	return texColor;
 
 }
