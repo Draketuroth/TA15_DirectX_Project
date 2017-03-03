@@ -1,0 +1,8 @@
+Sometimes, git pull isn't enough... (if you get "Already up to date.")
+
+It may be necessary to do the merge from the command line:
+
+In Visual Studio (2015, Update 3 for me) in the Team Explorer, Branches, Actions, Open In Command Prompt, then:
+
+git merge NameOfBranchBeingMergedFrom
+Then close that window and do the rest (Merge Conflicts, etc) from VS
