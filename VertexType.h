@@ -38,8 +38,7 @@ struct OBJStruct
 
 struct TriangleVertex{
 
-	float x, y, z;
-	float u, v;
+	XMFLOAT3 posX;
 };
 
 

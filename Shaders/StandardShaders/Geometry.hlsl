@@ -19,6 +19,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixViewInverse;
 	float4 cameraPos;
 	float4 cameraUp;
+	
 
 	
 };
@@ -26,7 +27,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 struct GS_IN
 {
 	float3 Pos : POSITION;
-	float2 Tex : TEXCOORD;
+	
 	
 
 };
@@ -34,7 +35,7 @@ struct GS_IN
 struct GS_OUT
 {
 	//float4 Norm: NORMAL;
-	//float2 Tex : TEXCOORD;
+	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
@@ -50,7 +51,7 @@ struct GS_OUT
 {	 
 	 GS_OUT output;
 
-	 
+	
 	 //Normalen för quaden.
 	 float3 normal = cameraPos.xyz-input[0].Pos ;
 	 normal = normalize(normal);
@@ -89,6 +90,11 @@ struct GS_OUT
 	float4 v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // top right
 	float4 v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // bottom right
 
+	float2 uvTL = {0.0f,0.0f};
+	float2 uvBL = {1.0f,0.0f};
+	float2 uvTR = {0.0f,1.0f};
+	float2 uvBR = {1.0f,1.0f};
+
 	// up from view matrix;
 
 
@@ -115,13 +121,26 @@ struct GS_OUT
 	 float4 position3 = mul(v3, worldViewProj);
 	 float4 position4 = mul(v4, worldViewProj);
 
+
+
+	 // top left
 	 output.Pos = position;
+	 output.Tex = uvTL;
 	 PStream.Append(output);
+
+	 // bottom left
 	 output.Pos = position2;
+	 output.Tex = uvBL;
 	 PStream.Append(output);
+
+	 // top right
 	 output.Pos = position3;
+	 output.Tex = uvTR;
 	 PStream.Append(output);
+
+	 //bottom left
 	 output.Pos = position4;
+	 output.Tex = uvBR;
 	 PStream.Append(output);
 
 	
