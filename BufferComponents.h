@@ -30,6 +30,7 @@ struct GS_CONSTANT_BUFFER {
 	XMFLOAT4 cameraPos;
 	XMFLOAT4 cameraUp;
 	XMMATRIX worldInvTranspose;
+	float normalMappingFlag;
 	
 	
 

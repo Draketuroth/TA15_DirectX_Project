@@ -16,6 +16,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	float4 cameraPos;
 	float4 cameraUp;
 	matrix worldInvTranspose;
+	float normalMappingFlag;
 };
 
 struct GS_IN
