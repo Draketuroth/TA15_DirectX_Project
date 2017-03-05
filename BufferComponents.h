@@ -84,7 +84,11 @@ public:
 
 	ID3D11RasterizerState* gRasteriserState;
 
+	ID3D11Buffer* gCubeBuffer;
+	ID3D11Buffer* gCubeIndexBuffer;
+
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
+	void computeTangentBasis(vector<XMFLOAT3> &vertices, vector<XMFLOAT2> &uvs, vector<XMFLOAT3> &normals, vector<XMFLOAT3> &tangents, vector<XMFLOAT3> bitangents);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
 	bool CreateVertexBuffer(ID3D11Device* &gDevice);
@@ -92,6 +96,8 @@ public:
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
+	bool CreateCubeBuffer(ID3D11Device* &gDevice);
+	bool CreateCubeIndexBuffer(ID3D11Device* &gDevice);
 
 };
 

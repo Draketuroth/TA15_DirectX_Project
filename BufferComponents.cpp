@@ -419,6 +419,9 @@ void BufferComponents::ReleaseAll() {
 	SAFE_RELEASE(depthView);
 
 	SAFE_RELEASE(gRasteriserState);
+
+	SAFE_RELEASE(gCubeBuffer);
+	SAFE_RELEASE(gCubeIndexBuffer);
 }
 
 void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -429,7 +432,65 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
 	CreateRasterizerState(gDevice);
+	CreateCubeBuffer(gDevice);
+	CreateCubeIndexBuffer(gDevice);
 
+}
+
+void BufferComponents::computeTangentBasis(vector<XMFLOAT3> &vertices, vector<XMFLOAT2> &uvs, vector<XMFLOAT3> &normals, vector<XMFLOAT3> &tangents, vector<XMFLOAT3> bitangents) {
+	
+	for (int i = 0; i < vertices.size(); i += 3) {
+
+		XMFLOAT3 v0 = vertices[i + 0];
+		XMFLOAT3 v1 = vertices[i + 1];
+		XMFLOAT3 v2 = vertices[i + 2];
+
+		XMFLOAT2 uv0 = uvs[i + 0];
+		XMFLOAT2 uv1 = uvs[i + 1];
+		XMFLOAT2 uv2 = uvs[i + 2];
+
+		XMFLOAT3 E2 = XMFLOAT3(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z);
+		XMFLOAT3 E3 = XMFLOAT3(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z);
+
+		XMFLOAT2 E2UV = XMFLOAT2(uv1.x - uv0.x, uv1.y - uv0.y);
+		XMFLOAT2 E3UV = XMFLOAT2(uv1.x - uv0.x, uv1.y - uv0.y);
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// TANGENT VECTOR
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		XMFLOAT3 T = XMFLOAT3(E2.x / E2UV.y, E2.y / E2UV.y, E2.y / E2UV.y);
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// NORMAL VECTOR
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		XMFLOAT3 N;
+		DirectX::XMVECTOR edge1 = DirectX::XMLoadFloat3(&XMFLOAT3(E2));
+		DirectX::XMVECTOR edge2 = DirectX::XMLoadFloat3(&XMFLOAT3(E3));
+
+		XMVECTOR edgeCross = XMVector3Cross(edge1, edge2);
+		XMStoreFloat3(&N, edgeCross);
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// BINORMAL VECTOR
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		XMFLOAT3 B;
+		XMVECTOR tangent = DirectX::XMLoadFloat3(&XMFLOAT3(T));
+		XMVECTOR normal = DirectX::XMLoadFloat3(&XMFLOAT3(N));
+
+		XMVECTOR crossTN = XMVector3Cross(tangent, normal);
+		XMStoreFloat3(&B, crossTN);
+
+		tangents.push_back(T);
+		tangents.push_back(T);
+		tangents.push_back(T);
+
+		bitangents.push_back(B);
+		bitangents.push_back(B);
+		bitangents.push_back(B);
+	}
 }
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
@@ -756,4 +817,149 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 
 	return true;
 
+}
+
+bool BufferComponents::CreateCubeBuffer(ID3D11Device* &gDevice){
+
+	HRESULT hr;
+
+	// Modified the TriangleVertex struct to include UV coordinates rather than Color
+
+	struct TriangleVertex
+	{
+		float x, y, z;
+		float u, v;
+	};
+
+	/*for (int i = 0; i < 6; i += 3) {
+
+
+	}*/
+
+	TriangleVertex triangleVertices[24] =
+	{
+
+		//Front face
+
+		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		1.0, -1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Back face
+
+		1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0, -1.0f, 1.0f, 1.0f, 1.0f,
+
+		// Left face
+
+		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Right face
+
+		1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+
+		// Top face
+
+		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, -1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Bottom face
+
+		1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f
+
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gCubeBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateCubeIndexBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Create Indices
+	unsigned int indices[] = {
+
+		// Front face
+		0,1,2,
+		2,1,3,
+
+		// Back face
+
+		4,5,6,
+		6,5,7,
+
+		// Left face
+
+		8,9,10,
+		10,9,11,
+
+		// Right face
+
+		12,13,14,
+		14,13,15,
+
+		// Top face
+
+		16,17,18,
+		18,17,19,
+
+		// Bottom face
+
+		20,21,22,
+		22,21,23 };
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC bufferDesc;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(unsigned int) * 36;
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = indices;
+	initData.SysMemPitch = 0;
+	initData.SysMemSlicePitch = 0;
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gCubeIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return hr;
+	}
+
+	return hr;
 }
