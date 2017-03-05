@@ -246,6 +246,7 @@ int RunApplication() {
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
+			cBufferPointer->worldInvTranspose = XMMatrixTranspose(XMMatrixInverse(NULL, bHandler.tWorldMatrix));
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;

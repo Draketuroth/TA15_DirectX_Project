@@ -20,7 +20,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0){
 	matrix matrixViewInverse;
 	float4 cameraPos;
 	float4 cameraUp;
-
+	matrix worldInvTranspose;
 };
 
 
