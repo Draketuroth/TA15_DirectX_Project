@@ -36,6 +36,7 @@ TextureComponents::~TextureComponents() {
 
 void TextureComponents::ReleaseAll() {
 
+	SAFE_RELEASE(normalMap);
 	SAFE_RELEASE(standardResource);
 	SAFE_RELEASE(boneResource);
 	SAFE_RELEASE(terrainResource);
@@ -112,7 +113,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 
 	CoInitialize(NULL);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
-	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &normalMap, 256);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickNormal.png", NULL, &normalMap, 256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 512);
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\terrain.png", NULL, &grassResource);
