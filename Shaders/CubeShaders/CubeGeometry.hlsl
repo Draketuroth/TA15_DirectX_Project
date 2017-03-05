@@ -10,10 +10,16 @@
 
 cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
+	matrix lightViewProj;
 	matrix worldViewProj;
 	matrix matrixWorld;
 	matrix matrixView;
 	matrix matrixProjection;
+	matrix floorRot;
+	matrix matrixViewInverse;
+	float4 cameraPos;
+	float4 cameraUp;
+
 
 };
 
@@ -75,7 +81,7 @@ struct GS_OUT
 
 		// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
 
-		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+		output.Pos = mul(float4(input[i].Pos.xyz + float3(0.0f, 5.0f, 0.0f), 1.0f), worldViewProj);
 
 		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
 
@@ -87,8 +93,5 @@ struct GS_OUT
 
 		triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	}
-
-	// RestartStrip() function is called to restart the calculations for the next primitive and it doesn't matter whether we use a prmitive topology of TRIANGLELIST or 
-	// TRIANGLESTRIP. We only have to restart after every triangle if we are using TRIANGLELIST as the defined primitive topology
 
 };

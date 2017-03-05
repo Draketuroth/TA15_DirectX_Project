@@ -434,6 +434,7 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
 	CreateRasterizerState(gDevice);
+	CreateVertexConstantBuffer(gDevice);
 	CreateCubeBuffer(gDevice);
 	CreateCubeIndexBuffer(gDevice);
 
@@ -982,6 +983,13 @@ bool BufferComponents::CreateCubeIndexBuffer(ID3D11Device* &gDevice) {
 	// Create the buffer
 
 	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gCubeIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
 
 }
 
