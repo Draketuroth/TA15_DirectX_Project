@@ -36,11 +36,12 @@ TextureComponents::~TextureComponents() {
 
 void TextureComponents::ReleaseAll() {
 
-	SAFE_RELEASE(normalMap);
 	SAFE_RELEASE(standardResource);
 	SAFE_RELEASE(boneResource);
 	SAFE_RELEASE(terrainResource);
 	SAFE_RELEASE(grassResource);
+	SAFE_RELEASE(fireflyResource);
+	SAFE_RELEASE(normalMap);
 
 	SAFE_RELEASE(geometryTexture);
 	SAFE_RELEASE(geometryTextureRTV);
