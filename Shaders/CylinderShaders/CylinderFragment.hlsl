@@ -4,11 +4,6 @@
 // BTH - Fredrik Linde TA15 2016
 //----------------------------------------------------------------------------------------------------------------------------------//
 
-// The registers are underlying hardware registers on the GPU where all data is stored during execution of the shaders
-// There are different types of register for different types of data
-// - SamplerState uses "s"
-// - Texture uses "t"
-
 SamplerState texSampler: register(s1);
 Texture2D gDiffuseMap : register(t0);
 Texture2D gNormalMap : register(t1);
@@ -98,7 +93,6 @@ struct PS_IN
 };
 
 
-// The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
 {
 

@@ -864,9 +864,7 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 	meshData.Vertices.clear();
 	meshData.Indices.clear();
 
-	//
 	// Build Stacks.
-	// 
 
 	float stackHeight = height / stackCount;
 
@@ -898,21 +896,6 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 			// Cylinder can be parameterized as follows, where we introduce v
 			// parameter that goes in the same direction as the v tex-coord
 			// so that the bitangent goes in the same direction as the v tex-coord.
-			//   Let r0 be the bottom radius and let r1 be the top radius.
-			//   y(v) = h - hv for v in [0,1].
-			//   r(v) = r1 + (r0-r1)v
-			//
-			//   x(t, v) = r(v)*cos(t)
-			//   y(t, v) = h - hv
-			//   z(t, v) = r(v)*sin(t)
-			// 
-			//  dx/dt = -r(v)*sin(t)
-			//  dy/dt = 0
-			//  dz/dt = +r(v)*cos(t)
-			//
-			//  dx/dv = (r0-r1)*cos(t)
-			//  dy/dv = -h
-			//  dz/dv = (r0-r1)*sin(t)
 
 			// This is unit length.
 			vertex.TangentU = XMFLOAT3(-s, 0.0f, c);
@@ -954,6 +937,8 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 
 void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
 {
+	// Build top cap.
+
 	UINT baseIndex = (UINT)meshData.Vertices.size();
 
 	float y = 0.5f*height;
@@ -989,9 +974,8 @@ void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, 
 
 void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
 {
-	// 
+	
 	// Build bottom cap.
-	//
 
 	UINT baseIndex = (UINT)meshData.Vertices.size();
 	float y = -0.5f*height;
