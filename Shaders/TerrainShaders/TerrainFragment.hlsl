@@ -11,8 +11,8 @@ Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float4 Kd;
-	float4 Ka;
+	float4 Kd; // diffuse reflect
+	float4 Ka; // ambient reflect
 	float4 tf;
 	float4 Ks;
 	float ni;
