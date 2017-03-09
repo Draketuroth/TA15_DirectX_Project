@@ -130,6 +130,8 @@ int RunApplication() {
 	mCam.mLastMousePos.x = 0;
 	mCam.mLastMousePos.y = 0;
 
+	static bool normalMapping = 1;
+
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	D3D11_MAPPED_SUBRESOURCE VertexBufferResource;
 
@@ -246,12 +248,21 @@ int RunApplication() {
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
+			cBufferPointer->worldInvTranspose = XMMatrixTranspose(XMMatrixInverse(NULL, bHandler.tWorldMatrix));
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
-			
+
+			if (GetAsyncKeyState('N') & 0x8000) {
+
+				normalMapping = !normalMapping;
+				Sleep(200);
+			}
+
+			cBufferPointer->normalMappingFlag = normalMapping;
+
 			//to folow the hightmap
 			if (mCam.Collotion() == true)
 			{

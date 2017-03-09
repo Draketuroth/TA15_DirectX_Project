@@ -155,6 +155,35 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, nullResource);
 
 	////----------------------------------------------------------------------------------------------------------------------------------//
+	//// CUBE PIPELINE (FOR NORMAL MAPPING)
+	////----------------------------------------------------------------------------------------------------------------------------------//
+
+	ID3D11Buffer* nullGeometryShader[1] = { nullptr };
+
+	gHandler.gDeviceContext->VSSetShader(gHandler.gCylinderVertexShader, nullptr, 0);	// Setting the Vertex Shader 
+	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
+	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, nullGeometryShader);
+	gHandler.gDeviceContext->PSSetShader(gHandler.gCylinderFragmentShader, nullptr, 0); // Setting the Pixel Shader 
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
+	gHandler.gDeviceContext->PSSetShaderResources(1, 1, &tHandler.normalMap);
+	gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.texSampler);
+
+	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+	vertexSize = sizeof(PosNormalTexTan);	// TriangleVertex struct has a total of 5 floats
+	offset = 0;
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gCylinderBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gCylinderIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// The input assembler will now recieve the vertices and the vertex layout
+
+	// The vertices should be interpreted as parts of a triangle in the input assembler
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCylinderLayout);
+
+	gHandler.gDeviceContext->DrawIndexed(bHandler.cylinderIndicesCount, 0, 0);
+
+	////----------------------------------------------------------------------------------------------------------------------------------//
 	//// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
@@ -184,12 +213,10 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(1000, 0);
 
-
-
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// COMPUTE SHADER HORIZONTAL BLUR (SECOND PASS)
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	
+
 	ID3D11BlendState* nullBlend = nullptr;
 	gHandler.gDeviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 

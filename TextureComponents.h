@@ -25,6 +25,7 @@ public:
 	ID3D11ShaderResourceView* terrainResource;
 	ID3D11ShaderResourceView* grassResource;
 	ID3D11ShaderResourceView* fireflyResource;
+	ID3D11ShaderResourceView* normalMap;
 
 	ID3D11Texture2D* geometryTexture;
 	ID3D11RenderTargetView* geometryTextureRTV;

@@ -70,6 +70,9 @@
     <Filter Include="Source Files\HLSL\QuadShaders">
       <UniqueIdentifier>{dbe81f59-9752-43a8-82bf-4196f3a97d78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\CylinderShaders">
+      <UniqueIdentifier>{faa9312f-c326-4954-af7f-34cbfa52ee26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -145,6 +148,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\StandardShaders\ComputeShaderHV.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CylinderShaders\CylinderFragment.hlsl">
+      <Filter>Source Files\HLSL\CylinderShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CylinderShaders\CylinderVertex.hlsl">
+      <Filter>Source Files\HLSL\CylinderShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

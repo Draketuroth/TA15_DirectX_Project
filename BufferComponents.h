@@ -29,6 +29,8 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixViewInverse;
 	XMFLOAT4 cameraPos;
 	XMFLOAT4 cameraUp;
+	XMMATRIX worldInvTranspose;
+	float normalMappingFlag;
 	
 	
 
@@ -55,28 +57,34 @@ struct MTL_STRUCT
 	XMFLOAT2 padding;
 	};
 
+struct MeshData
+{
+	vector<Vertex> Vertices;
+	vector<UINT> Indices;
+};
 
 class BufferComponents {
 	
 public:
+
+	BufferComponents();
+	~BufferComponents();
+	void ReleaseAll();
 
 	bool fileFound;
 	vector<OBJStruct> ImportStruct;
 
 	MTL_STRUCT MTLConstantData;
 	VS_CONSTANT_BUFFER VtxConstantData;
-	BufferComponents();
-	~BufferComponents();
-	void ReleaseAll();
 
-// Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
+	UINT cylinderVertexCount;
+	UINT cylinderIndicesCount;
 
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
 	wstring OBJTexturePath;
 	
-
 	XMMATRIX tLightViewProj;
 
 	vector<Vertex_Bone> fbxVector;
@@ -93,6 +101,9 @@ public:
 
 	ID3D11RasterizerState* gRasteriserState;
 
+	ID3D11Buffer* gCylinderBuffer;
+	ID3D11Buffer* gCylinderIndexBuffer;
+
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
@@ -101,6 +112,12 @@ public:
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
+
+	bool CreateCylinderBuffers(ID3D11Device* &gDevice);
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+
 	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
 
 };
