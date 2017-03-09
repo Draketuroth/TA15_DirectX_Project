@@ -114,8 +114,23 @@ int main() {
 			MB_OK);
 	}
 	//Quadtree creation
-
-
+	if (!QTree.CreateTree(0, gHandler.gDevice))
+	{
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
+	if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
+	{
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Quadtree Indexbuffer couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
+	
 
 	return RunApplication();
 }
@@ -347,7 +362,7 @@ int RunApplication() {
 	tHandler.ReleaseAll();
 	bHandler.ReleaseAll();
 	gHandler.ReleaseAll();
-
+	QTree.release();
 	DestroyWindow(windowHandle);
 
 	return static_cast<int>(windowMessage.wParam);

@@ -15,7 +15,12 @@
 
 using namespace DirectX;
 using namespace std;
+struct Plane
+{
+	XMFLOAT3 Normal;
+	float Distance;
 
+};
 class Camera {
 
 public:
@@ -25,6 +30,9 @@ public:
 	~Camera();
 
 	POINT mLastMousePos;
+
+	//PLane for frustum
+	Plane Frustum[6];
 
 	// Get/Set Camera Properties
 	XMVECTOR GetPositionXM()const;
@@ -81,11 +89,13 @@ public:
 
 	//hightMap
 	bool Collotion();
-	XMFLOAT3 GetHeightPosition()const;
+//	XMFLOAT3 GetHeightPosition()const;
 
 	float GetX()const; 
 	float GetZ()const; 
 
+
+	void CreateFrustum();
 private:
 
 	// Camera coordinate system with coordinates relative to World Space

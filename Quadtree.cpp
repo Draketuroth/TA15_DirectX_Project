@@ -38,7 +38,7 @@ Quadtree::~Quadtree()
 		}
 	}
 }
-void Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
+bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 {
 	if (SubDiv == 0)
 	{
@@ -69,13 +69,7 @@ void Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	BRCenter.x += newExtent.x;
 	BRCenter.z -= newExtent.z;
 
-	if (SubDiv != totalSubDiv)
-	{
-		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent);
-		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent);
-		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent);
-		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent);
-	}
+
 	XMFLOAT3 cubePoints[8];
 	this->BBox.GetCorners(cubePoints);
 	Vertices vertexArr[] =
@@ -99,9 +93,27 @@ void Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	data.pSysMem = vertexArr;
 
 	HRESULT hr = gDevice->CreateBuffer(&vtxDesc, &data, &this->vtxBuffer);
-
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	if (SubDiv != totalSubDiv)
+	{
+		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent);
+		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent);
+		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent);
+		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent);
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		if (SubDiv != totalSubDiv)
+		{
+			this->nodes[i]->CreateTree(SubDiv + 1, gDevice);
+		}
+	}
+	return true;
 }
-void Quadtree::release(ID3D11Buffer* &vtxBuffer)
+void Quadtree::release()
 {
 	SAFE_RELEASE(this->vtxBuffer);
 
@@ -109,22 +121,48 @@ void Quadtree::release(ID3D11Buffer* &vtxBuffer)
 	{
 		if (this->nodes[i] != nullptr)
 		{
-			release(this->nodes[i]->vtxBuffer);
+			this->nodes[i]->release();
 		}
 	}
 }
-void Quadtree::render(ID3D11DeviceContext* &gDeviceContext)
+void Quadtree::render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler)
 {
+	gDeviceContext->VSSetShader(gHandler.gVertexQTreeShader, nullptr, 0);
+	gDeviceContext->PSSetShader(gHandler.gPixelQTreeShader, nullptr, 0);
+
 	UINT vertexSize = sizeof(QuadtreeVertex);
 	UINT offset = 0;
 	gDeviceContext->IASetVertexBuffers(0, 1, &this->vtxBuffer, &vertexSize, &offset);
+	
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	gDeviceContext->IASetIndexBuffer(this->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	gDeviceContext->IASetInputLayout(gHandler.gVertexQTreeLayout);
 
 	gDeviceContext->Draw(24, 0);
 	for (int i = 0; i < 4; i++)
 	{
 		if (this->nodes[i] != nullptr)
 		{
-			this->nodes[i]->render(gDeviceContext);
+			this->nodes[i]->render(gDeviceContext, gHandler);
 		}
 	}
+}
+bool Quadtree::createIndex(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext)
+{
+	D3D11_BUFFER_DESC indexDesc = {};
+	indexDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexDesc.ByteWidth = sizeof(int) * 16;
+	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = this->vtxIndex;
+
+	HRESULT hr = gDevice->CreateBuffer(&indexDesc, &initData, &this->indexBuffer);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
+
+	return true;
 }

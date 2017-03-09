@@ -33,10 +33,13 @@ public:
 	//int vtxIndex[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
 	int vtxIndex[16] = { 0, 1, 2, 3, 0, 4, 7, 3, 2, 6, 7, 4, 5, 1, 5, 6 };
 	ID3D11Buffer* vtxBuffer;
+	ID3D11Buffer* indexBuffer;
 
-	void CreateTree(int SubDiv, ID3D11Device* &gDevice);
-	void release(ID3D11Buffer* &vtxBuffer);
-	void render(ID3D11DeviceContext* &gDeviceContext);
+
+	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
+	void release();
+	void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
+	bool createIndex(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext);
 private:
 
 
