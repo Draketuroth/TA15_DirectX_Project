@@ -28,6 +28,7 @@ public:
 	Quadtree* nodes[4];
 	//	XMFLOAT3 Bounding[4];
 	BoundingBox BBox;
+	vector<BoundingBox> objects;
 	int SubDiv;
 	int totalSubDiv;
 	//int vtxIndex[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
@@ -40,6 +41,7 @@ public:
 	void release();
 	void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
 	bool createIndex(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext);
+	void checkIntersect(BoundingBox &Object);
 private:
 
 

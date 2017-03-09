@@ -13,7 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-
+#include <DirectXCollision.h>
 using namespace DirectX;
 
 // We require a combined transformation matrix from all the previously created matrices and a matrix to preserve the world positions throughout the pipeline
@@ -73,7 +73,7 @@ public:
 
 	bool fileFound;
 	vector<OBJStruct> ImportStruct;
-
+	BoundingBox MeshBB;
 	MTL_STRUCT MTLConstantData;
 	VS_CONSTANT_BUFFER VtxConstantData;
 

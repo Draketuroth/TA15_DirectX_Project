@@ -45,6 +45,7 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
 	}
+	
 	XMVECTOR halfExtent = XMLoadFloat3(&this->BBox.Extents) / 2;
 	XMFLOAT3 newExtent;
 	XMStoreFloat3(&newExtent, halfExtent);
@@ -165,4 +166,13 @@ bool Quadtree::createIndex(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDevice
 
 
 	return true;
+}
+void Quadtree::checkIntersect(BoundingBox &Object)
+{
+
+	for (int i = 0; i < 4; i++)
+	{
+
+	}
+
 }

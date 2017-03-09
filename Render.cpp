@@ -293,27 +293,27 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// Quad Tree PIPELINE 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-
-
-	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexQTreeShader, nullptr, 0);	// Setting the Vertex Shader 
-	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0); // Setting the Geometry Shader 
-	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelQTreeShader, nullptr, 0); // Setting the Pixel Shader 
-	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
-	gHandler.gDeviceContext->VSSetConstantBuffers(0, 0, nullptr);
-
-	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(QuadtreeVertex);
-	offset = 0;
-//	tree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	gHandler.gDeviceContext->IASetIndexBuffer(tree.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexQTreeLayout);
-	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &tree.vtxBuffer,&vertexSize, &offset);
-	
-	tree.render(gHandler.gDeviceContext, gHandler);
-
-	
+//
+//
+//	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexQTreeShader, nullptr, 0);	// Setting the Vertex Shader 
+//	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0); // Setting the Geometry Shader 
+//	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelQTreeShader, nullptr, 0); // Setting the Pixel Shader 
+//	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+//	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr); // Setting the Constant Buffer for the Vertex Shader
+//	gHandler.gDeviceContext->VSSetConstantBuffers(0, 0, nullptr);
+//
+//	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+//	vertexSize = sizeof(QuadtreeVertex);
+//	offset = 0;
+////	tree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
+//	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+//	gHandler.gDeviceContext->IASetIndexBuffer(tree.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+//	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexQTreeLayout);
+//	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &tree.vtxBuffer,&vertexSize, &offset);
+//	
+//	tree.render(gHandler.gDeviceContext, gHandler);
+//
+//	
 
 	// The input assembler will now recieve the vertices and the vertex layout
 

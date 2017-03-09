@@ -122,14 +122,14 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-	if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
+	/*if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree Indexbuffer couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}
+	}*/
 	
 
 	return RunApplication();
