@@ -187,7 +187,6 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	//// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
-	//d3dContext->OMSetBlendState(d3dBlendState, 0, 0xffffffff);
 	gHandler.gDeviceContext->OMSetBlendState(tHandler.blendState,0, 0xffffffff);
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
