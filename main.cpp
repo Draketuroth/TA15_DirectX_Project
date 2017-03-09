@@ -113,8 +113,7 @@ int main() {
 			MB_OK);
 	}
 	//Quadtree creation
-	QTree.CreateTree(QTree.Tree, QTree.Bounding, QTree.Tree->SubDiv, gHandler.gDevice);
-	QTree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
+
 
 
 	return RunApplication();

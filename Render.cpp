@@ -267,10 +267,10 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	offset = 0;
 //	tree.createIndexBuffer(gHandler.gDevice, gHandler.gDeviceContext);
 	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	gHandler.gDeviceContext->IASetIndexBuffer(tree.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	//gHandler.gDeviceContext->IASetIndexBuffer(, DXGI_FORMAT_R32_UINT, 0);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexQTreeLayout);
 	//gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &tree.Tree->vtxBuffer, &vertexSize, &offset);
-	tree.renderTree(tree.Tree, gHandler.gDeviceContext);
+
 
 
 	
