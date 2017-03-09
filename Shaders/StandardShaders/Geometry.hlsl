@@ -53,24 +53,24 @@ struct GS_OUT
 	 GS_OUT output;
 
 	
-	 //Normalen för quaden.
+	 //Normal for quad
 	 float3 normal = cameraPos.xyz-input[0].Pos ;
 	 normal = normalize(normal);
 
+
+	 // forced up vector for camera
 	 float3 cameraSpace = { 0, 1, 0 };
 	  
 
 	 
 	
-	 
+	
 
-	 
-	 float3 normalizedCamera = normalize(cameraUp.xyz);
-
-
+	 // the new right vector for the billboard
 	 float3 rightVec = cross(cameraSpace,normal);
 	 rightVec = normalize(rightVec);
 
+	 // the new upvector for the billboard ( not the forced  since it would be cylindricall billboarding with it.)
 	 float3 upVec = cross(normal, rightVec);
 	 upVec = normalize(upVec);
 
@@ -85,18 +85,20 @@ struct GS_OUT
 	
 
 	
-	 
-	float4 v = float4((input[0].Pos + (1 * rightVec) - (1 * upVec)),1.0f); // top left
-	float4 v2 = float4((input[0].Pos + (1 * rightVec) + (1 * upVec)),1.0f); // bottom left
-	float4 v3 = float4((input[0].Pos - (1 * rightVec) - (1 * upVec)),1.0f); // top right
-	float4 v4 = float4((input[0].Pos - (1 * rightVec) + (1 * upVec)),1.0f); // bottom right
+	 // the math to offset the 4 vertices of the billboarded quad
+	float4 v = float4((input[0].Pos + (0.4 * rightVec) - (0.4 * upVec)),1.0f); // top left
+	float4 v2 = float4((input[0].Pos + (0.4 * rightVec) + (0.4 * upVec)),1.0f); // bottom left
+	float4 v3 = float4((input[0].Pos - (0.4 * rightVec) - (0.4 * upVec)),1.0f); // top right
+	float4 v4 = float4((input[0].Pos - (0.4 * rightVec) + (0.4 * upVec)),1.0f); // bottom right
 
+
+	// UVs for the quad
 	float2 uvTL = {0.0f,0.0f};
 	float2 uvBL = {1.0f,0.0f};
 	float2 uvTR = {0.0f,1.0f};
 	float2 uvBR = {1.0f,1.0f};
 
-	// up from view matrix;
+	
 
 
 	float3 worldPosition = mul(float4(input[0].Pos, 1.0f), matrixWorld).xyz;
@@ -108,15 +110,7 @@ struct GS_OUT
 
 	 output.WPos = worldPosition;
 
-	// float4 pos1 = { input[0].Pos.x-1,input[0].Pos.y+1,input[0].Pos.z,1};
-	// //float4 pos1 = { 0,1,0,1 };
-	// float4 pos2 = { input[0].Pos.x-1,input[0].Pos.y - 1,input[0].Pos.z,1 };
-	//// float4 pos2 = { 0,0,0,1};
-	// float4 pos3 = { input[0].Pos.x+1,input[0].Pos.y + 1,input[0].Pos.z,1 };
-	//// float4 pos3 = { 1,1,0,1};
-	// float4 pos4 = { input[0].Pos.x+1,input[0].Pos.y - 1,input[0].Pos.z,1 };
-	//// float4 pos4 = { 1,0,0,1};
-
+	
 	 float4 position = mul(v, worldViewProj);
 	 float4 position2 = mul(v2, worldViewProj);
 	 float4 position3 = mul(v3, worldViewProj);
@@ -147,7 +141,7 @@ struct GS_OUT
 	
 	
 
-	 //PStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+	 
 	 
 
 };
