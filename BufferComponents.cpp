@@ -211,7 +211,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			converter[u].y -= 1;
 			converter[u].z -= 1;
 
-			cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+			
 		}
 
 	
@@ -503,14 +503,14 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 		float randomNum = rand() % 200 + (-99);
 		float randomNum2 = rand() % 100 +5;
 		float randomNum3 = rand() % 200 + (-99);
-		cout << randomNum << endl;
+		
 		random.x = randomNum;
 		random.y = randomNum2;
 		random.z = randomNum3;
-		cout << random.x << " " << random.y << " " << random.z << endl;
-		triangleVertices[i].posX.x = random.x;
-		triangleVertices[i].posX.y = random.y;
-		triangleVertices[i].posX.z = random.z;
+		
+		triangleVertices[i].posX.x = randomNum;
+		triangleVertices[i].posX.y = randomNum2;
+		triangleVertices[i].posX.z = randomNum3;
 		
 	}
 	

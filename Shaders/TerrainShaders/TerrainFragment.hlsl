@@ -11,10 +11,10 @@ Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float4 Kd; // diffuse reflect
-	float4 Ka; // ambient reflect
+	float4 Kd; // Diffuse color
+	float4 Ka; // ambient color
 	float4 tf;
-	float4 Ks;
+	float4 Ks; // specular color
 	float ni;
 	float illum;
 	float2 padding;
@@ -88,7 +88,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	{
 		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
 
-		specularLight = Ks2 * pow(max(dot(r, v), 0.0f), shinyPower);
+		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
 	}
