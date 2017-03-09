@@ -362,7 +362,6 @@ int RunApplication() {
 	tHandler.ReleaseAll();
 	bHandler.ReleaseAll();
 	gHandler.ReleaseAll();
-	QTree.release();
 	DestroyWindow(windowHandle);
 
 	return static_cast<int>(windowMessage.wParam);
