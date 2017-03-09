@@ -18,9 +18,13 @@ FbxImport::FbxImport() {
 
 FbxImport::~FbxImport() {
 
+
+}
+
+void FbxImport::ReleaseAll() {
+
 	SAFE_RELEASE(gBoneBuffer);
 	SAFE_RELEASE(gBoneVertexBuffer);
-
 }
 
 HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
@@ -73,7 +77,7 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n"
 				"# Skeletal Animation Log\n"
 				"# Based in Autodesk FBX SDK\n"
-				"# Fredrik Linde TA15 2016\n"
+				"# Fredrik Linde TA15 2017\n"
 				"# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -319,6 +323,8 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 			currentCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster (in our case the joint) at binding time from local space to world space
 			globalBindPoseInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
+			ConvertToLeftHanded(transformMatrix);
+			ConvertToLeftHanded(transformLinkMatrix);
 			ConvertToLeftHanded(globalBindPoseInverseMatrix);
 
 			// Next we must update the matrices in the skeleton hierarchy 
@@ -642,11 +648,10 @@ void FbxImport::ProcessControlPoints(FbxNode* node) {	// Function to process eve
 		ControlPoint* currentControlPoint = new ControlPoint();	
 		XMFLOAT3 position;
 		position.x = static_cast<float>(pMesh->GetControlPointAt(i).mData[0]);
-		//logFile << "        " << position.x << "  ";
+		
 		position.y = static_cast<float>(pMesh->GetControlPointAt(i).mData[1]);
-		//logFile << position.y << "  ";
+		
 		position.z = static_cast<float>(pMesh->GetControlPointAt(i).mData[2]);
-		//logFile << position.z << "\n";
 
 		currentControlPoint->Position = position;
 		controlPoints[i] = currentControlPoint;

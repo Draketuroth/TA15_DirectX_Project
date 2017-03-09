@@ -394,21 +394,31 @@ BufferComponents::BufferComponents() {
 	gTerrainBuffer = nullptr;
 	gConstantBuffer = nullptr;	
 	gMTLBuffer = nullptr;
+	gVertexConstantBuffer = nullptr;
 
 	depthStencil = nullptr;
 	depthState = nullptr;	
 	depthView = nullptr;
 
 	gRasteriserState = nullptr;
+
+	gCylinderBuffer = nullptr;
+	gCylinderIndexBuffer = nullptr;
+
 }
 
 BufferComponents::~BufferComponents() {
 	
-	
+
+}
+
+void BufferComponents::ReleaseAll() {
+
 	SAFE_RELEASE(gVertexBuffer);
 	SAFE_RELEASE(gTerrainBuffer);
 	SAFE_RELEASE(gConstantBuffer);
 	SAFE_RELEASE(gMTLBuffer);
+	SAFE_RELEASE(gVertexConstantBuffer);
 
 	SAFE_RELEASE(depthStencil);
 	SAFE_RELEASE(depthState);
@@ -416,6 +426,8 @@ BufferComponents::~BufferComponents() {
 
 	SAFE_RELEASE(gRasteriserState);
 
+	SAFE_RELEASE(gCylinderBuffer);
+	SAFE_RELEASE(gCylinderIndexBuffer);
 }
 
 void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -426,6 +438,8 @@ void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	CreateTerrainBuffer(gDevice);
 	CreateOBJBuffer(gDevice);
 	CreateRasterizerState(gDevice);
+	CreateVertexConstantBuffer(gDevice);
+	CreateCylinderBuffers(gDevice);
 
 }
 
@@ -466,15 +480,40 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
+	XMFLOAT3 max = { 100,100,100 };
+	XMFLOAT3 min = { -100,0,-100 };
+	XMFLOAT3 range = { 0,0,0 };
+	range.x = max.x - min.x;
+	range.y = max.y - min.y;
+	range.z = max.z - min.z;
 
-	TriangleVertex triangleVertices[1] =
+	
+	
+
+	TriangleVertex triangleVertices[1000];
+	
+
+	for (int i = 0; i < 1000; i++)
 	{
-
-		20.0f, 19.0f, 0.0f,	//v1 position	(LEFT BOTTOM)
-		0.0f, 1.0f,	//v1 uv coordinates
-
+		triangleVertices[i].posX.x = 0;
+		triangleVertices[i].posX.y = 0;
+		triangleVertices[i].posX.z = 0;
 		
-	};
+		XMFLOAT3 random = { 0,0,0 };
+		float randomNum = rand() % 200 + (-99);
+		float randomNum2 = rand() % 100 +5;
+		float randomNum3 = rand() % 200 + (-99);
+		cout << randomNum << endl;
+		random.x = randomNum;
+		random.y = randomNum2;
+		random.z = randomNum3;
+		cout << random.x << " " << random.y << " " << random.z << endl;
+		triangleVertices[i].posX.x = random.x;
+		triangleVertices[i].posX.y = random.y;
+		triangleVertices[i].posX.z = random.z;
+		
+	}
+	
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
@@ -588,7 +627,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	DirectX::XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 2));
 	DirectX::XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
-
+	
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
 	
 
@@ -632,8 +671,6 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
 	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
-
-	
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
@@ -755,4 +792,253 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 
 	return true;
 
+}
+
+bool BufferComponents::CreateCylinderBuffers(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	MeshData cylinder;
+	CreateCylinder(3.0f, 3.0f, 20.0f, 15, 15, cylinder);
+
+	cylinderVertexCount = cylinder.Vertices.size();
+	cylinderIndicesCount = cylinder.Indices.size();
+
+	vector<PosNormalTexTan> vertices(cylinderVertexCount);
+
+	for (size_t i = 0; i < cylinder.Vertices.size(); ++i)
+	{
+		vertices[i].Pos = cylinder.Vertices[i].Position;
+		vertices[i].Normal = cylinder.Vertices[i].Normal;
+		vertices[i].Tex = cylinder.Vertices[i].TexC;
+		vertices[i].TangentU = cylinder.Vertices[i].TangentU;
+	}
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(PosNormalTexTan) * cylinderVertexCount;
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = &vertices[0];
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gCylinderBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	vector<UINT> indices;
+	indices.insert(indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC indexBufferDesc;
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(UINT) * cylinderIndicesCount;
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = &indices[0];
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&indexBufferDesc, &initData, &gCylinderIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
+}
+
+void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+{
+	meshData.Vertices.clear();
+	meshData.Indices.clear();
+
+	// Build Stacks.
+
+	float stackHeight = height / stackCount;
+
+	// Amount to increment radius as we move up each stack level from bottom to top.
+	float radiusStep = (topRadius - bottomRadius) / stackCount;
+
+	UINT ringCount = stackCount + 1;
+
+	// Compute vertices for each stack ring starting at the bottom and moving up.
+	for (UINT i = 0; i < ringCount; ++i)
+	{
+		float y = -0.5f*height + i*stackHeight;
+		float r = bottomRadius + i*radiusStep;
+
+		// vertices of ring
+		float dTheta = 2.0f*XM_PI / sliceCount;
+		for (UINT j = 0; j <= sliceCount; ++j)
+		{
+			Vertex vertex;
+
+			float c = cosf(j*dTheta);
+			float s = sinf(j*dTheta);
+
+			vertex.Position = XMFLOAT3(r*c, y, r*s);
+
+			vertex.TexC.x = (float)j / sliceCount;
+			vertex.TexC.y = 1.0f - (float)i / stackCount;
+
+			// Cylinder can be parameterized as follows, where we introduce v
+			// parameter that goes in the same direction as the v tex-coord
+			// so that the bitangent goes in the same direction as the v tex-coord.
+
+			// This is unit length.
+			vertex.TangentU = XMFLOAT3(-s, 0.0f, c);
+
+			float dr = bottomRadius - topRadius;
+			XMFLOAT3 bitangent(dr*c, -height, dr*s);
+
+			XMVECTOR T = XMLoadFloat3(&vertex.TangentU);
+			XMVECTOR B = XMLoadFloat3(&bitangent);
+			XMVECTOR N = XMVector3Normalize(XMVector3Cross(T, B));
+			XMStoreFloat3(&vertex.Normal, N);
+
+			meshData.Vertices.push_back(vertex);
+		}
+	}
+
+	// Add one because we duplicate the first and last vertex per ring
+	// since the texture coordinates are different.
+	UINT ringVertexCount = sliceCount + 1;
+
+	// Compute indices for each stack.
+	for (UINT i = 0; i < stackCount; ++i)
+	{
+		for (UINT j = 0; j < sliceCount; ++j)
+		{
+			meshData.Indices.push_back(i*ringVertexCount + j);
+			meshData.Indices.push_back((i + 1)*ringVertexCount + j);
+			meshData.Indices.push_back((i + 1)*ringVertexCount + j + 1);
+
+			meshData.Indices.push_back(i*ringVertexCount + j);
+			meshData.Indices.push_back((i + 1)*ringVertexCount + j + 1);
+			meshData.Indices.push_back(i*ringVertexCount + j + 1);
+		}
+	}
+
+	BuildCylinderTopCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
+	BuildCylinderBottomCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
+}
+
+void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+{
+	// Build top cap.
+
+	UINT baseIndex = (UINT)meshData.Vertices.size();
+
+	float y = 0.5f*height;
+	float dTheta = 2.0f*XM_PI / sliceCount;
+
+	// Duplicate cap ring vertices because the texture coordinates and normals differ.
+	for (UINT i = 0; i <= sliceCount; ++i)
+	{
+		float x = topRadius*cosf(i*dTheta);
+		float z = topRadius*sinf(i*dTheta);
+
+		// Scale down by the height to try and make top cap texture coord area
+		// proportional to base.
+		float u = x / height + 0.5f;
+		float v = z / height + 0.5f;
+
+		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+	}
+
+	// Cap center vertex.
+	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+
+	// Index of center vertex.
+	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
+
+	for (UINT i = 0; i < sliceCount; ++i)
+	{
+		meshData.Indices.push_back(centerIndex);
+		meshData.Indices.push_back(baseIndex + i + 1);
+		meshData.Indices.push_back(baseIndex + i);
+	}
+}
+
+void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+{
+	
+	// Build bottom cap.
+
+	UINT baseIndex = (UINT)meshData.Vertices.size();
+	float y = -0.5f*height;
+
+	// vertices of ring
+	float dTheta = 2.0f*XM_PI / sliceCount;
+	for (UINT i = 0; i <= sliceCount; ++i)
+	{
+		float x = bottomRadius*cosf(i*dTheta);
+		float z = bottomRadius*sinf(i*dTheta);
+
+		// Scale down by the height to try and make top cap texture coord area
+		// proportional to base.
+		float u = x / height + 0.5f;
+		float v = z / height + 0.5f;
+
+		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+	}
+
+	// Cap center vertex.
+	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+
+	// Cache the index of center vertex.
+	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
+
+	for (UINT i = 0; i < sliceCount; ++i)
+	{
+		meshData.Indices.push_back(centerIndex);
+		meshData.Indices.push_back(baseIndex + i);
+		meshData.Indices.push_back(baseIndex + i + 1);
+	}
+}
+
+bool BufferComponents::CreateVertexConstantBuffer(ID3D11Device* &gDevice)
+{
+	HRESULT hr;
+
+
+
+
+	D3D11_BUFFER_DESC VtxBufferDesc;
+	VtxBufferDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+	VtxBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	VtxBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	VtxBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	VtxBufferDesc.MiscFlags = 0;
+	VtxBufferDesc.StructureByteStride = 0;
+
+	// We set the the subresource data
+
+	D3D11_SUBRESOURCE_DATA VtxData;
+	VtxData.pSysMem = &VtxConstantData;
+	VtxData.SysMemPitch = 0;
+	VtxData.SysMemSlicePitch = 0;
+
+	// Finally after creating description and subresource data, we create the constant buffer
+
+	hr = gDevice->CreateBuffer(&VtxBufferDesc, &VtxData, &gVertexConstantBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
 }

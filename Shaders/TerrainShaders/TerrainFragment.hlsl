@@ -11,12 +11,13 @@ Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float3 Kd;
-	float3 Ka;
-	float3 tf;
-	float3 Ks;
+	float4 Kd;
+	float4 Ka;
+	float4 tf;
+	float4 Ks;
 	float ni;
 	float illum;
+	float2 padding;
 };
 
 
@@ -29,9 +30,10 @@ struct PS_IN
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
 	float4 lPos : TEXCOORD1;
-	
-	
 };
+
+
+//float3 NormalToWorldSpace(float3 normalMapSample, float3 uintNormalW, float3 tangentW); 
 
 // The transformed geometry from the geometry shader is now mapped onto the active Render Target, which will be our back buffer
 float4 PS_main(PS_IN input) : SV_Target
@@ -102,7 +104,6 @@ float4 PS_main(PS_IN input) : SV_Target
 	
 	//return float4(color,1);// *shadowCheck;
 
-	//return float4((ads, 1.0f) *color,1) *shadowCheck;
-	return float4(texColor, 1) * shadowCheck;
-	//return float4(normalize(input.WPos),1.0f);
+	return float4((ads, 1.0f) *color,1) *shadowCheck;
+	//return float4(texColor, 1) * shadowCheck;
 };

@@ -33,10 +33,20 @@ GraphicComponents::GraphicComponents() {
 	gQuadVertexShader = nullptr;
 	gQuadPixelShader = nullptr;
 
+	gCylinderLayout = nullptr;
+	gCylinderVertexShader = nullptr;
+	gCylinderFragmentShader = nullptr;
+
 }
 
 GraphicComponents::~GraphicComponents() {
 	
+	
+
+}
+
+void GraphicComponents::ReleaseAll() {
+
 	SAFE_RELEASE(gSwapChain);
 	SAFE_RELEASE(gDevice);
 	SAFE_RELEASE(gDeviceContext);
@@ -66,6 +76,10 @@ GraphicComponents::~GraphicComponents() {
 
 	SAFE_RELEASE(gQuadVertexShader);
 	SAFE_RELEASE(gQuadPixelShader);
+
+	SAFE_RELEASE(gCylinderLayout);
+	SAFE_RELEASE(gCylinderVertexShader);
+	SAFE_RELEASE(gCylinderFragmentShader);
 
 }
 
@@ -112,6 +126,11 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 	}
 
 	if (!CreateQuadShader()) {
+
+		return false;
+	}
+
+	if (!CreateCylinderShaders()) {
 
 		return false;
 	}
@@ -325,8 +344,7 @@ bool GraphicComponents::CreateStandardShaders() {
 
 	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
 
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 
@@ -965,84 +983,106 @@ bool GraphicComponents::CreateQuadShader() {
 
 	return true;
 }
-bool GraphicComponents::CreateQTreeShaders()
-{
-	ID3DBlob* VsBlob;
-	ID3DBlob* VsErrorBlob;
-	//Quadtree vertex shader
-	HRESULT hr = D3DCompileFromFile(
-		L"Shaders\\QuadtreeShaders\\QuadTreeVertex.hlsl",
+
+bool GraphicComponents::CreateCylinderShaders() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr; // lvl 1 blue slime
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\CylinderShaders\\CylinderVertex.hlsl",
 		nullptr,
 		nullptr,
 		"VS_main",
 		"vs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
-		0,
-		&VsBlob,
-		&VsErrorBlob
+		&vsBlob,
+		&vsErrorBlob
 	);
-	if (FAILED(hr))
-	{
-		cout << "Vertex Shader Error: Quadtree Vertex shader could not be compiled or loaded from file" << endl;
-	}
-	if (VsErrorBlob) {
 
-		OutputDebugStringA((char*)VsErrorBlob->GetBufferPointer());
-		VsErrorBlob->Release();
-	}
-	hr = gDevice->CreateVertexShader(VsBlob->GetBufferPointer(), VsBlob->GetBufferSize(), NULL, &gVertexQTreeShader);
-	if (FAILED(hr))
-	{
-		cout << "Vertex Shader Error: Vertex Quadtree Shader could not be created" << endl;
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Cube Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
 		return false;
 	}
-	VsBlob->Release();
 
 
-	//input layout
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gCylinderVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Cube Vertex Shader could not be created" << endl;
+		return false;
+	}
+
 	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
 
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }	
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 
 	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
-	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, VsBlob->GetBufferPointer(), VsBlob->GetBufferSize(), &gVertexQTreeLayout);
+	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gCylinderLayout);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Cube Shader Input Layout could not be created" << endl;
+	}
+
+	vsBlob->Release();
 
 
-
-	//Quadtree pixel shader
-	ID3DBlob* PsBlob;
-	ID3DBlob* PsErrorBlob;
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
 
 	hr = D3DCompileFromFile(
-		L"Shaders\\QuadtreeShaders\\QuadTreeFragment.hlsl",
+		L"Shaders\\CylinderShaders\\CylinderFragment.hlsl",
 		nullptr,
 		nullptr,
 		"PS_main",
 		"ps_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
 		0,
-		0,
-		&PsBlob,
-		&PsErrorBlob
+		&psBlob,
+		&psErrorBlob
 	);
-	if (FAILED(hr))
-	{
-		cout << "Pixel Shader Error: Quadtree Vertex shader could not be compiled or loaded from file" << endl;
-	}
-	if (PsErrorBlob) {
 
-		OutputDebugStringA((char*)PsErrorBlob->GetBufferPointer());
-		PsErrorBlob->Release();
-	}
-	hr = gDevice->CreatePixelShader(PsBlob->GetBufferPointer(), PsBlob->GetBufferSize(), NULL, &gPixelQTreeShader);
-	if (FAILED(hr))
-	{
-		cout << "Pixel Shader Error: Pixel Quadtree Shader could not be created" << endl;
+	if (FAILED(hr)) {
+
+		cout << "Cube Fragment Shader Error: Cube Fragment Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
 		return false;
 	}
-	PsBlob->Release();
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gCylinderFragmentShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
 
 	return true;
+
 }
-	

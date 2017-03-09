@@ -58,7 +58,7 @@ void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_D
 	float4 blurColor = float4(0, 0, 0, 0);
 	
 	[unroll]
-	for(int i = -gBlurRadius; i <= gBlurRadius; ++i)
+	for (int i = -gBlurRadius; i <= gBlurRadius; ++i)
 	{
 		int k = groupThreadID.y + gBlurRadius + i;
 		

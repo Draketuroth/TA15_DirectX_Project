@@ -19,7 +19,7 @@ using namespace DirectX;
 // We require a combined transformation matrix from all the previously created matrices and a matrix to preserve the world positions throughout the pipeline
 
 struct GS_CONSTANT_BUFFER {
-	
+
 	XMMATRIX lightViewProj;
 	XMMATRIX worldViewProj;
 	XMMATRIX matrixWorld;
@@ -29,7 +29,16 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixViewInverse;
 	XMFLOAT4 cameraPos;
 	XMFLOAT4 cameraUp;
+	XMMATRIX worldInvTranspose;
+	float normalMappingFlag;
 	
+	
+
+};
+
+struct VS_CONSTANT_BUFFER {
+
+	XMFLOAT4 particleMovement[1000];
 
 };
 
@@ -39,35 +48,43 @@ __declspec(align(16))
 struct MTL_STRUCT
 	{
 
-	XMFLOAT3 Kd;
-	XMFLOAT3 Ka;
-	XMFLOAT3 Tf;
-	XMFLOAT3 Ks;
+	XMFLOAT4 Kd;
+	XMFLOAT4 Ka;
+	XMFLOAT4 Tf;
+	XMFLOAT4 Ks;
 	float Ni;
 	float Illum;
-
+	XMFLOAT2 padding;
 	};
 
+struct MeshData
+{
+	vector<Vertex> Vertices;
+	vector<UINT> Indices;
+};
 
 class BufferComponents {
 	
 public:
 
+	BufferComponents();
+	~BufferComponents();
+	void ReleaseAll();
+
 	bool fileFound;
 	vector<OBJStruct> ImportStruct;
 
 	MTL_STRUCT MTLConstantData;
-	BufferComponents();
-	virtual ~BufferComponents();
+	VS_CONSTANT_BUFFER VtxConstantData;
 
-// Storing both the transposed WorldViewProj and WorldMatrix as global variables to easily reach them when performing calculations in the update loop
+	UINT cylinderVertexCount;
+	UINT cylinderIndicesCount;
 
 	XMMATRIX transformMatrix;
 	XMMATRIX tWorldMatrix;
 	XMMATRIX tFloorRot;
 	wstring OBJTexturePath;
 	
-
 	XMMATRIX tLightViewProj;
 
 	vector<Vertex_Bone> fbxVector;
@@ -76,12 +93,16 @@ public:
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
 	ID3D11Buffer* gConstantBuffer;	// Constant buffer to provide the vertex shader with updated transformation data per frame
 	ID3D11Buffer* gMTLBuffer;
+	ID3D11Buffer* gVertexConstantBuffer;
 
 	ID3D11Texture2D* depthStencil;	// Depth-stencil texture
 	ID3D11DepthStencilState* depthState;	// Depth-stencil state used for the output merger
 	ID3D11DepthStencilView* depthView;	// Depth-stencil view to access the depth stencil texture
 
 	ID3D11RasterizerState* gRasteriserState;
+
+	ID3D11Buffer* gCylinderBuffer;
+	ID3D11Buffer* gCylinderIndexBuffer;
 
 	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
@@ -91,7 +112,13 @@ public:
 	bool CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateOBJBuffer(ID3D11Device* &gDevice);
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
-	
+
+	bool CreateCylinderBuffers(ID3D11Device* &gDevice);
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+
+	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
 
 };
 

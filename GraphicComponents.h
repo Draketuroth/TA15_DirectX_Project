@@ -15,7 +15,8 @@ class GraphicComponents {
 public:
 
 	GraphicComponents();
-	virtual ~GraphicComponents();
+	~GraphicComponents();
+	void ReleaseAll();
 
 	IDXGISwapChain* gSwapChain;	// Swap Chain responsible for switching between a collection of buffers and show images to the user
 	ID3D11Device* gDevice;	// Graphic Device
@@ -47,9 +48,9 @@ public:
 	ID3D11VertexShader* gQuadVertexShader;
 	ID3D11PixelShader* gQuadPixelShader;
 
-	ID3D11InputLayout* gVertexQTreeLayout;
-	ID3D11VertexShader* gVertexQTreeShader;
-	ID3D11PixelShader* gPixelQTreeShader;
+	ID3D11InputLayout* gCylinderLayout;
+	ID3D11VertexShader* gCylinderVertexShader;
+	ID3D11PixelShader* gCylinderFragmentShader;
 
 	bool InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler);	// Function called to initalize the necessary components, as listen below
 	bool CreateRenderTargetView(BufferComponents &bHandler);	// We require a render target view for rendering and we create this by taking the back buffer from the swap chain
@@ -59,10 +60,11 @@ public:
 	bool CreateTerrainShaders();	// Function to create all the potential shaders to be used in the application
 	bool CreateBoneShaders();
 	bool CreateShadowMapShader();
-	bool CreateQTreeShaders();
 
 	bool CreateComputeShaders();
 	bool CreateQuadShader();
+
+	bool CreateCylinderShaders();
 
 	bool CreateDepthStencil(BufferComponents &bHandler);
 	void SetViewport();		// Functions to define the properties of our viewport

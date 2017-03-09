@@ -26,14 +26,22 @@ TextureComponents::TextureComponents() {
 	pShadowMap = nullptr;
 	pSmDepthView = nullptr;
 	pSmSRView = nullptr;
+	blendState = nullptr;
 }
 
 TextureComponents::~TextureComponents() {
 	
+
+}
+
+void TextureComponents::ReleaseAll() {
+
 	SAFE_RELEASE(standardResource);
 	SAFE_RELEASE(boneResource);
 	SAFE_RELEASE(terrainResource);
 	SAFE_RELEASE(grassResource);
+	SAFE_RELEASE(fireflyResource);
+	SAFE_RELEASE(normalMap);
 
 	SAFE_RELEASE(geometryTexture);
 	SAFE_RELEASE(geometryTextureRTV);
@@ -52,6 +60,7 @@ TextureComponents::~TextureComponents() {
 	SAFE_RELEASE(pShadowMap);
 	SAFE_RELEASE(pSmDepthView);
 	SAFE_RELEASE(pSmSRView);
+	SAFE_RELEASE(blendState);
 }
 
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &bHandler) {
@@ -81,22 +90,44 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 		return false;
 	}
 
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;//D3D11_BLEND_SRC1_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_ALPHA;//D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	hr = gDevice->CreateBlendState(&blendDesc, &blendState);
+
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
 	ID3D11Texture2D* texture = nullptr;
 
 	
 
 	CoInitialize(NULL);
-	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickTexture.png", NULL, &standardResource, 256);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickGreyTexture.jpg", NULL, &standardResource, 1024);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\BrickGreyNormal.jpg", NULL, &normalMap, 1024);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\chess.jpg", NULL, &boneResource, 512);
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\terrain.png", NULL, &grassResource);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\firefly.png", NULL, &fireflyResource);
 
 	if (SUCCEEDED(hr) && texture != 0) {
 
 		gDevice->CreateShaderResourceView(texture, nullptr, &standardResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &normalMap);
 		gDevice->CreateShaderResourceView(texture, nullptr, &boneResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &terrainResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &grassResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &fireflyResource);
 
 		if (FAILED(hr)) {
 
