@@ -75,13 +75,20 @@ int main() {
 
 		MessageBox(
 			NULL,
-			L"CRITICAL ERROR: DirectX couldn't be initialized\nClosing application...",
+			L"CRITICAL ERROR: DirectX Context couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
 
 
-	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
+	if (!bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter)) {
+
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Buffers couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
 
 	//hightMap
 	terrain.LoadRAW(); 

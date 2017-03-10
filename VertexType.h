@@ -9,12 +9,12 @@
 using namespace std;
 using namespace DirectX;
 
-struct Vertex
+struct Vertex_Cylinder
 {
-	Vertex() {}
-	Vertex(const XMFLOAT3& p, const XMFLOAT3& n, const XMFLOAT3& t, const XMFLOAT2& uv)
+	Vertex_Cylinder() {}
+	Vertex_Cylinder(const XMFLOAT3& p, const XMFLOAT3& n, const XMFLOAT3& t, const XMFLOAT2& uv)
 		: Position(p), Normal(n), TangentU(t), TexC(uv) {}
-	Vertex(
+	Vertex_Cylinder(
 		float px, float py, float pz,
 		float nx, float ny, float nz,
 		float tx, float ty, float tz,
@@ -54,6 +54,12 @@ struct Vertex_Standard {
 
 };
 
+struct Vertex_Cube {
+
+	float x, y, z;
+	float u, v;
+};
+
 struct OBJStruct
 {
 	XMFLOAT3 Varr;
@@ -67,7 +73,5 @@ struct TriangleVertex{
 
 	XMFLOAT3 posX;
 };
-
-
 
 #endif

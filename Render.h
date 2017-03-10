@@ -17,6 +17,8 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 
 void RenderCylinder(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
 
+void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
+
 void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
 
 void ComputeBlur(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);

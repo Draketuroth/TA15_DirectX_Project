@@ -43,6 +43,10 @@ struct VS_CONSTANT_BUFFER {
 
 };
 
+struct CUBE_CONSTANT_BUFFER {
+
+	XMMATRIX cubeTransforms;
+};
 
 //Declspec helps to declare the bytewidth of the constant buffer
 __declspec(align(16))
@@ -60,11 +64,11 @@ struct MTL_STRUCT
 
 struct CylinderMeshData
 {
-	vector<Vertex> Vertices;
+	vector<Vertex_Cylinder> Vertices;
 	vector<UINT> Indices;
 };
 
-struct Objects {
+struct CubeObjects {
 
 	XMMATRIX objectWorldMatrix;
 	BoundingBox bbox;
@@ -96,6 +100,9 @@ public:
 	XMMATRIX tLightViewProj;
 
 	vector<Vertex_Bone> fbxVector;
+	
+	CubeObjects cubeObjects[8];
+	ID3D11Buffer* cubeConstantBuffer;
 
 	ID3D11Buffer* gVertexBuffer;	// Vertex buffer
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
@@ -112,7 +119,10 @@ public:
 	ID3D11Buffer* gCylinderBuffer;
 	ID3D11Buffer* gCylinderIndexBuffer;
 
-	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
+	ID3D11Buffer* gCubeBuffer;
+	ID3D11Buffer* gCubeIndexBuffer;
+
+	bool SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
 	bool CreateVertexBuffer(ID3D11Device* &gDevice);
@@ -127,6 +137,11 @@ public:
 	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
 
 	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
+
+	bool CreateCubeVertices(ID3D11Device* &gDevice);
+	bool CreateCubeIndices(ID3D11Device* &gDevice);
+
+	bool CreateFrustumCubes(ID3D11Device* &gDevice);
 
 };
 

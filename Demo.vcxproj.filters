@@ -73,6 +73,9 @@
     <Filter Include="Source Files\HLSL\CylinderShaders">
       <UniqueIdentifier>{faa9312f-c326-4954-af7f-34cbfa52ee26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\CubeShaders">
+      <UniqueIdentifier>{66dba8c4-1e50-4396-8a25-4147913ae6ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -154,6 +157,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\CylinderShaders\CylinderVertex.hlsl">
       <Filter>Source Files\HLSL\CylinderShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeFragment.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeGeometry.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeVertex.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

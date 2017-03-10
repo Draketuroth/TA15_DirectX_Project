@@ -428,19 +428,69 @@ void BufferComponents::ReleaseAll() {
 
 	SAFE_RELEASE(gCylinderBuffer);
 	SAFE_RELEASE(gCylinderIndexBuffer);
+
+	SAFE_RELEASE(gCubeBuffer);
+	SAFE_RELEASE(gCubeIndexBuffer);
 }
 
-void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
+bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
 
-	CreateVertexBuffer(gDevice);
-	CreateSkeletalBuffers(gDevice, fbxImporter);
-	CreateConstantBuffer(gDevice, mCam);
-	CreateTerrainBuffer(gDevice);
-	CreateOBJBuffer(gDevice);
-	CreateRasterizerState(gDevice);
-	CreateVertexConstantBuffer(gDevice);
+	if (!CreateVertexBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if(!CreateSkeletalBuffers(gDevice, fbxImporter)){
+
+		return false;
+	}
+
+	if(!CreateConstantBuffer(gDevice, mCam)){
+
+		return false;
+	}
+
+	if(!CreateTerrainBuffer(gDevice)){
+
+		return false;
+	}
+	
+	if(!CreateOBJBuffer(gDevice)){
+
+		return false;
+	
+	}
+
+	if(!CreateRasterizerState(gDevice)){
+	
+		return false;
+	
+	}
+	
+	if(!CreateVertexConstantBuffer(gDevice)){
+	
+		return false;
+	
+	}
+
 	CreateCylinderBuffers(gDevice);
 
+	if (!CreateCubeVertices(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateCubeIndices(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateFrustumCubes(gDevice)) {
+
+		return false;
+	}
+
+	return true;
 }
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
@@ -883,7 +933,7 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 		float dTheta = 2.0f*XM_PI / sliceCount;
 		for (UINT j = 0; j <= sliceCount; ++j)
 		{
-			Vertex vertex;
+			Vertex_Cylinder vertex;
 
 			float c = cosf(j*dTheta);
 			float s = sinf(j*dTheta);
@@ -955,11 +1005,11 @@ void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, 
 		float u = x / height + 0.5f;
 		float v = z / height + 0.5f;
 
-		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+		meshData.Vertices.push_back(Vertex_Cylinder(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
 	}
 
 	// Cap center vertex.
-	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+	meshData.Vertices.push_back(Vertex_Cylinder(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
 
 	// Index of center vertex.
 	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
@@ -992,11 +1042,11 @@ void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadiu
 		float u = x / height + 0.5f;
 		float v = z / height + 0.5f;
 
-		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+		meshData.Vertices.push_back(Vertex_Cylinder(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
 	}
 
 	// Cap center vertex.
-	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+	meshData.Vertices.push_back(Vertex_Cylinder(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
 
 	// Cache the index of center vertex.
 	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
@@ -1034,6 +1084,198 @@ bool BufferComponents::CreateVertexConstantBuffer(ID3D11Device* &gDevice)
 	// Finally after creating description and subresource data, we create the constant buffer
 
 	hr = gDevice->CreateBuffer(&VtxBufferDesc, &VtxData, &gVertexConstantBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	Vertex_Cube cubeVertices[24] =
+	{
+
+		//Front face
+
+		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		1.0, -1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Back face
+
+		1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0, -1.0f, 1.0f, 1.0f, 1.0f,
+
+		// Left face
+
+		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Right face
+
+		1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+
+		// Top face
+
+		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, -1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+
+		// Bottom face
+
+		1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f
+
+
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(cubeVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = cubeVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gCubeBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Create Indices
+	unsigned int indices[] = {
+
+		// Front face
+		0,1,2,
+		2,1,3,
+
+		// Back face
+
+		4,5,6,
+		6,5,7,
+
+		// Left face
+
+		8,9,10,
+		10,9,11,
+
+		// Right face
+
+		12,13,14,
+		14,13,15,
+
+		// Top face
+
+		16,17,18,
+		18,17,19,
+
+		// Bottom face
+
+		20,21,22,
+		22,21,23 };
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC bufferDesc;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(unsigned int) * 36;
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = indices;
+	initData.SysMemPitch = 0;
+	initData.SysMemSlicePitch = 0;
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gCubeIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Calculate World Matrices
+
+	cubeObjects[0].objectWorldMatrix = XMMatrixTranslation(5.0f, 0.0f, 10.0f);
+	cubeObjects[1].objectWorldMatrix = XMMatrixTranslation(10.0f, 0.0f, 5.0f);
+
+	cubeObjects[2].objectWorldMatrix = XMMatrixTranslation(-5.0f, 0.0f, 10.0f);
+	cubeObjects[3].objectWorldMatrix = XMMatrixTranslation(-10.0f, 0.0f, 5.0f);
+
+	cubeObjects[4].objectWorldMatrix = XMMatrixTranslation(-5.0f, 0.0f, -10.0f);
+	cubeObjects[5].objectWorldMatrix = XMMatrixTranslation(-10.0f, 0.0f, -5.0f);
+
+	cubeObjects[6].objectWorldMatrix = XMMatrixTranslation(5.0f, 0.0f, -10.0f);
+	cubeObjects[7].objectWorldMatrix = XMMatrixTranslation(10.0f, 0.0f, -5.0f);
+
+	// Calculate Bounding Box for the mesh
+
+	// Set Render Check
+
+
+	// Create Cube Transform Constant Buffer
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// BONE BUFFER DESCRIPTION
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	CUBE_CONSTANT_BUFFER initCubeData;
+
+	initCubeData.cubeTransforms = XMMatrixIdentity();
+
+	D3D11_BUFFER_DESC cubeBufferDesc;
+
+	memset(&cubeBufferDesc, 0, sizeof(cubeBufferDesc));
+
+	cubeBufferDesc.ByteWidth = sizeof(VS_SKINNED_DATA);
+	cubeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cubeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cubeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cubeBufferDesc.MiscFlags = 0;
+	cubeBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA cubeSubData;
+	cubeSubData.pSysMem = &initCubeData;
+	cubeSubData.SysMemPitch = 0;
+	cubeSubData.SysMemSlicePitch = 0;
+
+	hr = gDevice->CreateBuffer(&cubeBufferDesc, &cubeSubData, &cubeConstantBuffer);
 
 	if (FAILED(hr)) {
 

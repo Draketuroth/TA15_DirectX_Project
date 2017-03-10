@@ -15,6 +15,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	RenderCylinder(gHandler, bHandler, tHandler);
 
+	RenderCubes(gHandler, bHandler, tHandler);
+
 	RenderParticles(gHandler, bHandler, tHandler);
 
 	ComputeBlur(gHandler, bHandler, tHandler);
@@ -210,6 +212,46 @@ void RenderCylinder(GraphicComponents &gHandler, BufferComponents &bHandler, Tex
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCylinderLayout);
 
 	gHandler.gDeviceContext->DrawIndexed(bHandler.cylinderIndicesCount, 0, 0);
+}
+
+void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
+
+	////----------------------------------------------------------------------------------------------------------------------------------//
+	//// CUBE PIPELINE (FOR FRUSTUM CULLING)
+	////----------------------------------------------------------------------------------------------------------------------------------//
+
+	gHandler.gDeviceContext->VSSetShader(gHandler.gCubeVertexShader, nullptr, 0);	
+	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); 
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.cubeConstantBuffer);
+	gHandler.gDeviceContext->GSSetShader(gHandler.gCubeGeometryShader, nullptr, 0);
+	
+	gHandler.gDeviceContext->PSSetShader(gHandler.gCubePixelShader, nullptr, 0);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
+	gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.texSampler);
+
+	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
+	UINT32 vertexSize = sizeof(Vertex_Cube);	// TriangleVertex struct has a total of 5 floats
+	UINT32 offset = 0;
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gCubeBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gCubeIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// The input assembler will now recieve the vertices and the vertex layout
+
+	// The vertices should be interpreted as parts of a triangle in the input assembler
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCubeLayout);
+
+	////----------------------------------------------------------------------------------------------------------------------------------//
+	//// POINTER TO CUBE CONSTANT BUFFER
+	////----------------------------------------------------------------------------------------------------------------------------------//
+
+	/*D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
+
+	gHandler.gDeviceContext->Map(bHandler.gConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCubeResource);
+
+	CUBE_CONSTANT_BUFFER* cBufferPointer = (CUBE_CONSTANT_BUFFER*)mappedCubeResource.pData;*/
+
+	gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
 }
 
 void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
