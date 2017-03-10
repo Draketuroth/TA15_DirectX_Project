@@ -15,6 +15,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix matrixWorld;
 	matrix matrixView;
 	matrix matrixProjection;
+	matrix viewProj;
 	matrix floorRot;
 	matrix matrixViewInverse;
 	float4 cameraPos;
@@ -26,7 +27,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
 cbuffer CUBE_CONSTANT_BUFFER : register(b1) {
 
-
+	matrix cubeTransforms;
 };
 
 struct GS_IN
@@ -45,43 +46,30 @@ struct GS_OUT
 	
 };
 
-// The geometry shader takes an entire primitive as an array as its input, but it also require an upper limit for the amount of 
-// vertices to output. Therefore the program runs for every primitive. Because we are going to output two triangles, the total 
-// vertex count must be a total of 6
-
 [maxvertexcount(3)]
  void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream)
 {	 
 	 GS_OUT output;
 
-	 // UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	 uint i;
-	
-	// Calculate the length of the sides A and B to use them for calculating the normal
 
 	float3 sideA = input[1].Pos.xyz - input[0].Pos.xyz;
 	float3 sideB = input[2].Pos.xyz - input[0].Pos.xyz;
-
-	// Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
 	float3 normalAB = normalize(cross(sideA, sideB));
 
 	for (i = 0; i < 3; i++)
 	{
-		// To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
 
-		output.WPos = mul(float4(input[i].Pos.xyz, 1.0f), matrixWorld);
+		output.WPos = mul(float4(input[i].Pos.xyz, 1.0f), cubeTransforms);
 
-		// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
+		matrix cubeWVP = mul(cubeTransforms,viewProj);
+		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), cubeWVP);
 
-		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
-
-		// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
-
-		output.Norm = mul(float4(normalAB, 1.0f), matrixWorld);
+		output.Norm = mul(float4(normalAB, 1.0f), cubeTransforms);
 		output.Tex = input[i].Tex;
 
-		triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+		triStream.Append(output);
 	}
 
 };

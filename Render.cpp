@@ -245,13 +245,21 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 	//// POINTER TO CUBE CONSTANT BUFFER
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
-	/*D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
+	for(int i = 0; i < 8; i++){
 
-	gHandler.gDeviceContext->Map(bHandler.gConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCubeResource);
+		D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
 
-	CUBE_CONSTANT_BUFFER* cBufferPointer = (CUBE_CONSTANT_BUFFER*)mappedCubeResource.pData;*/
+		CUBE_CONSTANT_BUFFER* cubeBufferPointer = (CUBE_CONSTANT_BUFFER*)mappedCubeResource.pData;
 
-	gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
+		gHandler.gDeviceContext->Map(bHandler.cubeConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCubeResource);
+
+		cubeBufferPointer->cubeTransforms = bHandler.cubeObjects[i].objectWorldMatrix;
+
+		gHandler.gDeviceContext->Unmap(bHandler.cubeConstantBuffer, 0);
+
+		gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
+
+	}
 }
 
 void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {

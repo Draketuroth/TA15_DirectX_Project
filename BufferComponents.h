@@ -26,6 +26,7 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixWorld;
 	XMMATRIX matrixView;
 	XMMATRIX matrixProjection;
+	XMMATRIX viewProj;
 	XMMATRIX floorRot;
 	XMMATRIX matrixViewInverse;
 	XMFLOAT4 cameraPos;
@@ -141,7 +142,7 @@ public:
 	bool CreateCubeVertices(ID3D11Device* &gDevice);
 	bool CreateCubeIndices(ID3D11Device* &gDevice);
 
-	bool CreateFrustumCubes(ID3D11Device* &gDevice);
+	bool CreateFrustumCubes(ID3D11Device* &gDevice, Vertex_Cube cubeVertices[24]);
 
 };
 

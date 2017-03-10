@@ -37,6 +37,11 @@ GraphicComponents::GraphicComponents() {
 	gCylinderVertexShader = nullptr;
 	gCylinderFragmentShader = nullptr;
 
+	gCubeLayout = nullptr;
+	gCubeVertexShader = nullptr;
+	gCubePixelShader = nullptr;
+	gCubeGeometryShader = nullptr;
+
 }
 
 GraphicComponents::~GraphicComponents() {

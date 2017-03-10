@@ -405,6 +405,9 @@ BufferComponents::BufferComponents() {
 	gCylinderBuffer = nullptr;
 	gCylinderIndexBuffer = nullptr;
 
+	gCubeBuffer = nullptr;
+	gCubeIndexBuffer = nullptr;
+
 }
 
 BufferComponents::~BufferComponents() {
@@ -481,11 +484,6 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	}
 
 	if (!CreateCubeIndices(gDevice)) {
-
-		return false;
-	}
-
-	if (!CreateFrustumCubes(gDevice)) {
 
 		return false;
 	}
@@ -1160,6 +1158,12 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		return false;
 	}
 
+	if (!CreateFrustumCubes(gDevice, cubeVertices)) {
+
+		return false;
+	
+	}
+
 	return true;
 }
 
@@ -1226,33 +1230,38 @@ bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
 	return true;
 }
 
-bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice) {
+bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, Vertex_Cube cubeVertices[24]) {
 
 	HRESULT hr;
 
-	// Calculate World Matrices
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// CUBE WORLD MATRICES
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	
+	cubeObjects[0].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(5.0f, 20.0f, 10.0f));
+	cubeObjects[1].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(10.0f, 20.0f, 5.0f));
 
-	cubeObjects[0].objectWorldMatrix = XMMatrixTranslation(5.0f, 0.0f, 10.0f);
-	cubeObjects[1].objectWorldMatrix = XMMatrixTranslation(10.0f, 0.0f, 5.0f);
+	cubeObjects[2].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-5.0f, 20.0f, 10.0f));
+	cubeObjects[3].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-10.0f, 20.0f, 5.0f));
 
-	cubeObjects[2].objectWorldMatrix = XMMatrixTranslation(-5.0f, 0.0f, 10.0f);
-	cubeObjects[3].objectWorldMatrix = XMMatrixTranslation(-10.0f, 0.0f, 5.0f);
+	cubeObjects[4].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-5.0f, 20.0f, -10.0f));
+	cubeObjects[5].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-10.0f, 20.0f, -5.0f));
 
-	cubeObjects[4].objectWorldMatrix = XMMatrixTranslation(-5.0f, 0.0f, -10.0f);
-	cubeObjects[5].objectWorldMatrix = XMMatrixTranslation(-10.0f, 0.0f, -5.0f);
-
-	cubeObjects[6].objectWorldMatrix = XMMatrixTranslation(5.0f, 0.0f, -10.0f);
-	cubeObjects[7].objectWorldMatrix = XMMatrixTranslation(10.0f, 0.0f, -5.0f);
-
-	// Calculate Bounding Box for the mesh
-
-	// Set Render Check
-
-
-	// Create Cube Transform Constant Buffer
+	cubeObjects[6].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(5.0f, 20.0f, -10.0f));
+	cubeObjects[7].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(10.0f, 20.0f, -5.0f));
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	// BONE BUFFER DESCRIPTION
+	// CUBE BOUNDING BOX
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// INITIAL RENDER CHECKS
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// CUBE CONSTANT BUFFER DESCRIPTION
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	CUBE_CONSTANT_BUFFER initCubeData;
@@ -1263,7 +1272,7 @@ bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice) {
 
 	memset(&cubeBufferDesc, 0, sizeof(cubeBufferDesc));
 
-	cubeBufferDesc.ByteWidth = sizeof(VS_SKINNED_DATA);
+	cubeBufferDesc.ByteWidth = sizeof(CUBE_CONSTANT_BUFFER);
 	cubeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cubeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cubeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
