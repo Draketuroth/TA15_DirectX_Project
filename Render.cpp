@@ -3,14 +3,35 @@
 
 void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain) {
 
-	static bool blurFilter = false;
-	UINT message;
+	ClearRenderTargets(gHandler, bHandler, tHandler);
+
+	RenderShadowMap(gHandler, bHandler, tHandler);
+
+	SetGeometryTexture(gHandler, bHandler, tHandler);
+
+	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
+
+	RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
+
+	RenderCylinder(gHandler, bHandler, tHandler);
+
+	RenderParticles(gHandler, bHandler, tHandler);
+
+	ComputeBlur(gHandler, bHandler, tHandler);
+
+	DrawFullScreenQuad(gHandler, bHandler, tHandler);
+}
+
+void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	// clear the back buffer to a deep blue
 	float clearColor[] = { 0, 0, 0, 1 };	// Back buffer clear color as an array of floats (rgba)
 	gHandler.gDeviceContext->ClearRenderTargetView(gHandler.gBackbufferRTV, clearColor);	// Clear the render target view using the specified color
 	gHandler.gDeviceContext->ClearRenderTargetView(tHandler.geometryTextureRTV, clearColor);
 	gHandler.gDeviceContext->ClearDepthStencilView(bHandler.depthView, D3D11_CLEAR_DEPTH, 1.0f, 0);	// Clear the depth stencil view
+}
+
+void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING)
@@ -39,6 +60,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
+}
+
+void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// FIRST PASS TO DRAW GEOMETRY (Change render target view to render geometry to a texture that is separate from the back buffer texture)
@@ -46,6 +70,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.geometryTextureRTV, bHandler.depthView);
+}
+
+void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter) {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// SKELETAL ANIMATION RENDER
@@ -62,8 +89,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(Vertex_Bone);
-	offset = 0;
+	UINT32 vertexSize = sizeof(Vertex_Bone);
+	UINT32 offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &fbxImporter.gBoneVertexBuffer, &vertexSize, &offset);
 
 	//// The input assembler will now recieve the vertices and the vertex layout
@@ -74,8 +101,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(fbxImporter.vertices.size(), 0);
 
+}
 
-
+void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, Terrain &terrain) {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// OBJ PARSER PIPELINE
@@ -105,8 +133,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 		// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-		vertexSize = sizeof(OBJStruct);
-		offset = 0;
+		UINT32 vertexSize = sizeof(OBJStruct);
+		UINT32 offset = 0;
 		gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
 
 		// The input assembler will now recieve the vertices and the vertex layout
@@ -116,9 +144,6 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 		gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 		gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
-
-
-
 
 	}
 
@@ -137,8 +162,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(OBJStruct);
-	offset = 0;
+	UINT32 vertexSize = sizeof(OBJStruct);
+	UINT32 offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &terrain.mQuadPatchVB, &vertexSize, &offset);
 	gHandler.gDeviceContext->IASetIndexBuffer(terrain.mQuadPatchIB, DXGI_FORMAT_R32_UINT, offset);
 
@@ -153,9 +178,12 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	ID3D11ShaderResourceView* nullResource[2] = { nullptr };
 	//resourceArr[1] = nullptr;
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, nullResource);
+}
+
+void RenderCylinder(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	////----------------------------------------------------------------------------------------------------------------------------------//
-	//// CUBE PIPELINE (FOR NORMAL MAPPING)
+	//// CYLINDER PIPELINE (FOR NORMAL MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
 	ID3D11Buffer* nullGeometryShader[1] = { nullptr };
@@ -170,8 +198,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(PosNormalTexTan);	// TriangleVertex struct has a total of 5 floats
-	offset = 0;
+	UINT32 vertexSize = sizeof(PosNormalTexTan);	// TriangleVertex struct has a total of 5 floats
+	UINT32 offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gCylinderBuffer, &vertexSize, &offset);
 	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gCylinderIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
@@ -182,12 +210,15 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCylinderLayout);
 
 	gHandler.gDeviceContext->DrawIndexed(bHandler.cylinderIndicesCount, 0, 0);
+}
+
+void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	////----------------------------------------------------------------------------------------------------------------------------------//
 	//// STANDARD PIPELINE (NOT FOR SHADOW MAPPING)
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
-	gHandler.gDeviceContext->OMSetBlendState(tHandler.blendState,0, 0xffffffff);
+	gHandler.gDeviceContext->OMSetBlendState(tHandler.blendState, 0, 0xffffffff);
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0); // Setting the Geometry Shader 
@@ -195,13 +226,13 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexConstantBuffer);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-	
+
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.fireflyResource);
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
-	vertexSize = sizeof(TriangleVertex);
-	offset = 0;
+	UINT32 vertexSize = sizeof(TriangleVertex);
+	UINT32 offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gVertexBuffer, &vertexSize, &offset);
 
 	// The input assembler will now recieve the vertices and the vertex layout
@@ -212,12 +243,15 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	gHandler.gDeviceContext->Draw(1000, 0);
 
+	ID3D11BlendState* nullBlend = nullptr;
+	gHandler.gDeviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+}
+
+void ComputeBlur(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
+
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// COMPUTE SHADER HORIZONTAL BLUR (SECOND PASS)
 	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	ID3D11BlendState* nullBlend = nullptr;
-	gHandler.gDeviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 
 	ID3D11Buffer* nullVBuffer[] = { NULL };
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 0, nullVBuffer, NULL, NULL);
@@ -260,14 +294,19 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	gHandler.gDeviceContext->VSSetShader(gHandler.gQuadVertexShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gQuadPixelShader, nullptr, 0);
+}
+
+void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
+
+	static bool blurFilter = false;
 
 	if (GetAsyncKeyState('B') & 0x8000) {
 
 		blurFilter = !blurFilter;
 		Sleep(200);
 	}
-	
-	if (blurFilter == true){
+
+	if (blurFilter == true) {
 
 		gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.blurredResultSRV_HV);
 
@@ -277,7 +316,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 		gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.geometryTextureSRV);
 	}
-	
+
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
 	gHandler.gDeviceContext->Draw(3, 0);

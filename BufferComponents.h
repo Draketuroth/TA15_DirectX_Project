@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include "DirectXCollision.h"
 
 using namespace DirectX;
 
@@ -57,10 +58,17 @@ struct MTL_STRUCT
 	XMFLOAT2 padding;
 	};
 
-struct MeshData
+struct CylinderMeshData
 {
 	vector<Vertex> Vertices;
 	vector<UINT> Indices;
+};
+
+struct Objects {
+
+	XMMATRIX objectWorldMatrix;
+	BoundingBox bbox;
+	bool renderCheck;
 };
 
 class BufferComponents {
@@ -114,9 +122,9 @@ public:
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
 
 	bool CreateCylinderBuffers(ID3D11Device* &gDevice);
-	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
 
 	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
 

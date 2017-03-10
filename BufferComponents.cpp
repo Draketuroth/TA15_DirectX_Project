@@ -798,7 +798,7 @@ bool BufferComponents::CreateCylinderBuffers(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	MeshData cylinder;
+	CylinderMeshData cylinder;
 	CreateCylinder(3.0f, 3.0f, 20.0f, 15, 15, cylinder);
 
 	cylinderVertexCount = cylinder.Vertices.size();
@@ -859,7 +859,7 @@ bool BufferComponents::CreateCylinderBuffers(ID3D11Device* &gDevice) {
 
 }
 
-void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	meshData.Vertices.clear();
 	meshData.Indices.clear();
@@ -935,7 +935,7 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 	BuildCylinderBottomCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
 }
 
-void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	// Build top cap.
 
@@ -972,7 +972,7 @@ void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, 
 	}
 }
 
-void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	
 	// Build bottom cap.
