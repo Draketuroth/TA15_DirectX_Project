@@ -21,4 +21,19 @@ float4 PS_main(PS_IN input) : SV_Target{
 
 	return texColor;
 
+	/*if (input.position.x > 300 && input.position.x < 700) {
+
+		return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	if (input.position.x > 700 && input.position.x < 1024) {
+
+	return float4(0.0f, 0.0f, 1.0f, 1.0f);
+	}
+
+	else {
+
+		return float4(0.0f, 1.0f, 0.0f, 1.0f);
+	}*/
+
 }

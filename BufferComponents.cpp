@@ -543,10 +543,10 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 
 	for (unsigned int i = 0; i < fbxImporter.meshSkeleton.hierarchy.size(); i++) {
 
-		XMMATRIX boneTransform = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
+		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
 
-		skinData.gBoneTransform[i] = boneTransform;
-		fbxImporter.invertedBindPose[i] = boneTransform;
+		skinData.gBoneTransform[i] = inversedBindPose;
+		fbxImporter.invertedBindPose[i] = inversedBindPose;
 
 	}
 
@@ -654,7 +654,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
 	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 20, 20, 1));
-	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 1));
+	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 0));
 	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
 
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
@@ -669,7 +669,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	float lFarPlane = 50.0f;
 
 	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
-	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = lightView * lightProj;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//

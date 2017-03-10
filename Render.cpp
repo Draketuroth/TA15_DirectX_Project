@@ -16,7 +16,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	gHandler.gDeviceContext->OMSetRenderTargets(0, 0, tHandler.pSmDepthView);
+	gHandler.gDeviceContext->OMSetRenderTargets(0, nullptr, tHandler.pSmDepthView);
 	gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 

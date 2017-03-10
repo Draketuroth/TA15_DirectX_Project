@@ -29,7 +29,7 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
 	float3 ViewPos : POSITION1;
-	float4 lPos : TEXCOORD1;
+	float4 lPos : POSITION2;
 };
 
 
