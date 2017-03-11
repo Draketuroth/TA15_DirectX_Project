@@ -493,9 +493,56 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
-	
+	float maxX = 0;
+	float minX = 0;
+	float maxY = 0;
+	float minY = 0;
+	float maxZ = 0;
+	float minZ = 0;
 	
 	importer(ImportStruct,MTLConstantData,0,fileFound,OBJTexturePath);
+	int arrayLength = ImportStruct.size();
+	for (int i = 0; i < arrayLength; i++)
+	{
+		cout << "X: " << ImportStruct[i].Varr.x << " Y: " << ImportStruct[i].Varr.y << " Z: " << ImportStruct[i].Varr.z << endl;
+
+		if (maxX < ImportStruct[i].Varr.x)
+		{
+			maxX = ImportStruct[i].Varr.x;
+		}
+		if (minX > ImportStruct[i].Varr.x)
+		{
+			minX = ImportStruct[i].Varr.x;
+		}
+		if (maxY < ImportStruct[i].Varr.y)
+		{								
+			maxY = ImportStruct[i].Varr.y;
+		}								
+		if (minY > ImportStruct[i].Varr.y)
+		{								
+			minY = ImportStruct[i].Varr.y;
+		}
+		if (maxZ < ImportStruct[i].Varr.z)
+		{								
+			maxZ = ImportStruct[i].Varr.z;
+		}								
+		if (minZ > ImportStruct[i].Varr.z)
+		{							
+			minZ = ImportStruct[i].Varr.z;
+		}
+	}
+	int extentX = 0;
+	int extentY = 0;
+	int extentZ = 0;
+	XMFLOAT3 bbCenter;
+	float XCenter = (maxX / 2) + (minX / 2);
+	float YCenter = (maxY / 2) + (minY / 2);
+	float ZCenter = (maxZ / 2) + (minZ / 2);
+	bbCenter = { XCenter, YCenter, ZCenter };
+	this->MeshBB.Center = bbCenter;
+	this->MeshBB.Extents = { abs(maxX - bbCenter.x), abs(maxY - bbCenter.y), abs(maxZ - bbCenter.z) };
+
+	
 
 	HRESULT hr;
 

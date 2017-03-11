@@ -321,4 +321,59 @@ void Camera::OnMouseMove(WPARAM btnState, int x, int y) {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
+void Camera::CreateFrustum()
+{
+	XMMATRIX ViewMatrix, ProjMatrix;
+	XMFLOAT4X4* M;
+	ViewMatrix = this->View();
+	ProjMatrix = this->Proj();
+	XMMATRIX VP = XMMatrixMultiply(ViewMatrix, ProjMatrix);
+	XMVECTOR vecTest;
+	
+	XMStoreFloat4x4(M, VP);
+	
+	XMVECTORF32 tempVec = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+
+	//Left plane
+	this->Frustum[0].Normal.x = -(M->_14 + M->_11);
+	this->Frustum[0].Normal.y = -(M->_24 + M->_21);
+	this->Frustum[0].Normal.z = -(M->_34 + M->_41);
+	this->Frustum[0].Distance = -(M->_44 + M->_41);
+
+	//Right plane
+	this->Frustum[1].Normal.x = -(M->_14 - M->_11);
+	this->Frustum[1].Normal.y = -(M->_24 - M->_21);
+	this->Frustum[1].Normal.z = -(M->_34 - M->_41);
+	this->Frustum[1].Distance = -(M->_44 - M->_41);
+
+	//Top plane
+	this->Frustum[2].Normal.x = -(M->_14 - M->_12);
+	this->Frustum[2].Normal.y = -(M->_24 - M->_22);
+	this->Frustum[2].Normal.z = -(M->_34 - M->_42);
+	this->Frustum[2].Distance = -(M->_44 - M->_42);
+
+	//Bot Plane
+	this->Frustum[3].Normal.x = -(M->_14 + M->_12);
+	this->Frustum[3].Normal.y = -(M->_24 + M->_22);
+	this->Frustum[3].Normal.z = -(M->_34 + M->_42);
+	this->Frustum[3].Distance = -(M->_44 + M->_42);
+
+	//Near Plane
+	this->Frustum[4].Normal.x = -(M->_14 + M->_13);
+	this->Frustum[4].Normal.y = -(M->_24 + M->_23);
+	this->Frustum[4].Normal.z = -(M->_34 + M->_43);
+	this->Frustum[4].Distance = -(M->_44 + M->_43);
+				  
+	//Far plane
+	this->Frustum[5].Normal.x = -(M->_14 - M->_13);
+	this->Frustum[5].Normal.y = -(M->_24 - M->_23);
+	this->Frustum[5].Normal.z = -(M->_34 - M->_43);
+	this->Frustum[5].Distance = -(M->_44 - M->_43);
+	
+	//Normalize all the planes
+	for (size_t i = 0; i < 6; i++)
+	{
+		XMVector3Normalize(XMLoadFloat3(&this->Frustum[i].Normal));
+	}
+}
