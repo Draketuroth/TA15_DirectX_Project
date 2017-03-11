@@ -18,7 +18,7 @@
 #include "GraphicComponents.h"
 #include "BufferComponents.h"
 #include "TextureComponents.h"
-//#include "Quadtree.h"
+#include "Quadtree.h"
 
 #include "Terrain.h"
 
@@ -121,14 +121,14 @@ int main() {
 			MB_OK);
 	}
 	//Quadtree creation
-	if (!QTree.CreateTree(0, gHandler.gDevice))
+	/*if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}
+	}*/
 	/*if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
 	{
 		MessageBox(
@@ -342,20 +342,21 @@ int RunApplication() {
 
 
 			
-			if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
+			/*if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
 			{
 				for (UINT i = 0; i < 4; i++)
 				{
 
 				}
-			}
+			}*/
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			// Now we can render using the new updated buffers on the GPU
 
-			Render(gHandler, bHandler, tHandler, fbxImporter, terrain, QTree);
+			Render(gHandler, bHandler, tHandler, fbxImporter, terrain);
 
 			// When everythig has been drawn out, finish by presenting the final result on the screen by swapping between the back and front buffers
 

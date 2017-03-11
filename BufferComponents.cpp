@@ -539,8 +539,6 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 	float YCenter = (maxY / 2) + (minY / 2);
 	float ZCenter = (maxZ / 2) + (minZ / 2);
 	bbCenter = { XCenter, YCenter, ZCenter };
-	this->MeshBB.Center = bbCenter;
-	this->MeshBB.Extents = { abs(maxX - bbCenter.x), abs(maxY - bbCenter.y), abs(maxZ - bbCenter.z) };
 
 	
 

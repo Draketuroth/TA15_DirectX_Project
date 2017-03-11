@@ -1,4 +1,4 @@
-#pragma once
+
 #include "BufferComponents.h";
 #include "GraphicComponents.h";
 #include <DirectXCollision.h>;

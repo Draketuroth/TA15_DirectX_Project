@@ -1,7 +1,7 @@
 
 #include "Render.h"
 
-void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain, Quadtree &tree) {
+void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter, Terrain &terrain) {
 
 	ClearRenderTargets(gHandler, bHandler, tHandler);
 
