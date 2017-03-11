@@ -1265,11 +1265,16 @@ bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 bound
 	
 	for (int i = 0; i < 8; i++) {
 		
-		//FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
 		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
-		//cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
+		cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
 		cubeObjects[i].renderCheck = true;
 	}
+
+	cubeObjects[0].renderCheck = false;
+	cubeObjects[1].renderCheck = false;
+	cubeObjects[2].renderCheck = false;
+	cubeObjects[3].renderCheck = false;
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// CUBE CONSTANT BUFFER DESCRIPTION
