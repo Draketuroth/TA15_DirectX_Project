@@ -18,14 +18,16 @@ public:
 	int totalSubDiv;
 	//int vtxIndex[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
 //	int vtxIndex[16] = { 0, 1, 2, 3, 0, 4, 7, 3, 2, 6, 7, 4, 5, 1, 5, 6 };
+	XMFLOAT3 halfDiag;
+	int intersection;
 
 
-
+	void calculateHalfD();
 	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
-	void release();
 	void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
-	bool createIndex(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext);
-	void checkIntersect(BoundingBox &Object);
+	void checkBoundingBox(BoundingBox &Object);
+	int frustumIntersect(Camera camera);
+	void recursiveIntersect(Camera camera);
 private:
 
 };
