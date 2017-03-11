@@ -1271,11 +1271,6 @@ bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 bound
 		cubeObjects[i].renderCheck = true;
 	}
 
-	cubeObjects[0].renderCheck = false;
-	cubeObjects[1].renderCheck = false;
-	cubeObjects[2].renderCheck = false;
-	cubeObjects[3].renderCheck = false;
-
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// CUBE CONSTANT BUFFER DESCRIPTION
 	//----------------------------------------------------------------------------------------------------------------------------------//

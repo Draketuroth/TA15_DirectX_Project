@@ -99,8 +99,8 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
-	if (!CreateDepthStencil(bHandler))
-	{
+
+	if (!CreateDepthStencil(bHandler)) {
 		return false;
 	}
 
@@ -120,8 +120,9 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
-	if (!CreateShadowMapShader())
-	{
+
+	if (!CreateShadowMapShader()) {
+		
 		return false;
 	}
 

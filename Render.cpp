@@ -245,9 +245,9 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 	//// POINTER TO CUBE CONSTANT BUFFER
 	////----------------------------------------------------------------------------------------------------------------------------------//
 
-	for(int i = 0; i < 8; i++){
+	D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
 
-		D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
+	for(int i = 0; i < 8; i++){
 
 		CUBE_CONSTANT_BUFFER* cubeBufferPointer = (CUBE_CONSTANT_BUFFER*)mappedCubeResource.pData;
 
@@ -257,9 +257,9 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 		gHandler.gDeviceContext->Unmap(bHandler.cubeConstantBuffer, 0);
 
-		if(bHandler.cubeObjects[i].renderCheck == true){
+		if (bHandler.cubeObjects[i].renderCheck == true){
 
-		gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
+			gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
 
 		}
 
