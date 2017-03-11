@@ -1095,6 +1095,8 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
+	XMFLOAT3 boundingPoints[24];
+
 	Vertex_Cube cubeVertices[24] =
 	{
 
@@ -1143,6 +1145,13 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 
 	};
 
+	for (int i = 0; i < 24; i++) {
+
+		boundingPoints[i].x = cubeVertices[i].x;
+		boundingPoints[i].y = cubeVertices[i].y;
+		boundingPoints[i].z = cubeVertices[i].z;
+	}
+
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -1158,7 +1167,7 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		return false;
 	}
 
-	if (!CreateFrustumCubes(gDevice, cubeVertices)) {
+	if (!CreateFrustumCubes(gDevice, boundingPoints)) {
 
 		return false;
 	
@@ -1230,7 +1239,7 @@ bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
 	return true;
 }
 
-bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, Vertex_Cube cubeVertices[24]) {
+bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 boundingPoints[24]) {
 
 	HRESULT hr;
 
@@ -1254,11 +1263,13 @@ bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, Vertex_Cube cu
 	// CUBE BOUNDING BOX
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// INITIAL RENDER CHECKS
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
+	for (int i = 0; i < 8; i++) {
+		
+		//FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
+		//cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
+		cubeObjects[i].renderCheck = true;
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// CUBE CONSTANT BUFFER DESCRIPTION

@@ -238,7 +238,7 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 	// The input assembler will now recieve the vertices and the vertex layout
 
 	// The vertices should be interpreted as parts of a triangle in the input assembler
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCubeLayout);
 
 	////----------------------------------------------------------------------------------------------------------------------------------//
@@ -257,7 +257,11 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 		gHandler.gDeviceContext->Unmap(bHandler.cubeConstantBuffer, 0);
 
+		if(bHandler.cubeObjects[i].renderCheck == true){
+
 		gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
+
+		}
 
 	}
 }

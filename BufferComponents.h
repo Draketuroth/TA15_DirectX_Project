@@ -142,7 +142,7 @@ public:
 	bool CreateCubeVertices(ID3D11Device* &gDevice);
 	bool CreateCubeIndices(ID3D11Device* &gDevice);
 
-	bool CreateFrustumCubes(ID3D11Device* &gDevice, Vertex_Cube cubeVertices[24]);
+	bool CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 boundingPoints[24]);
 
 };
 
