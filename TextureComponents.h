@@ -43,8 +43,10 @@ public:
 	ID3D11SamplerState* texSampler;
 	ID3D11BlendState* blendState;
 	ID3D11Texture2D* pShadowMap;
+
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
+	ID3D11DepthStencilState* pSmDepthState;
 
 	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);

@@ -15,7 +15,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	RenderCylinder(gHandler, bHandler, tHandler);
 
-	RenderCubes(gHandler, bHandler, tHandler);
+	//RenderCubes(gHandler, bHandler, tHandler);
 
 	RenderParticles(gHandler, bHandler, tHandler);
 
@@ -31,6 +31,7 @@ void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler,
 	gHandler.gDeviceContext->ClearRenderTargetView(gHandler.gBackbufferRTV, clearColor);	// Clear the render target view using the specified color
 	gHandler.gDeviceContext->ClearRenderTargetView(tHandler.geometryTextureRTV, clearColor);
 	gHandler.gDeviceContext->ClearDepthStencilView(bHandler.depthView, D3D11_CLEAR_DEPTH, 1.0f, 0);	// Clear the depth stencil view
+	gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);	// Clear the depth stencil view
 }
 
 void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
@@ -38,10 +39,9 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING)
 	//----------------------------------------------------------------------------------------------------------------------------------//
-
+	
+	gHandler.gDeviceContext->OMSetDepthStencilState(tHandler.pSmDepthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(0, nullptr, tHandler.pSmDepthView);
-	gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gShadowVS, nullptr, 0);	// Setting the Vertex Shader 
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0); // Setting the Geometry Shader 
@@ -133,6 +133,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 		gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 		gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
 		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+		gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.shadowSampler);
 
 		// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
 		UINT32 vertexSize = sizeof(OBJStruct);
@@ -162,6 +163,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
+	gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.shadowSampler);
 
 	// The stride and offset must be stored in variables as we need to provide pointers to these when setting the vertex buffer
 	UINT32 vertexSize = sizeof(OBJStruct);

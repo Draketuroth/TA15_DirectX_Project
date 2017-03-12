@@ -121,14 +121,14 @@ int main() {
 			MB_OK);
 	}
 	
-	if (!QTree.CreateTree(0, gHandler.gDevice))
+	/*if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}
+	}*/
 
 	return RunApplication();
 }
