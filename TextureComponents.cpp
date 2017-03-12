@@ -66,6 +66,49 @@ void TextureComponents::ReleaseAll() {
 	SAFE_RELEASE(pSmSRView);
 }
 
+DXGI_FORMAT TextureComponents::GetDepthResourceFormat(DXGI_FORMAT depthformat)
+{
+	DXGI_FORMAT resformat;
+	switch (depthformat)
+	{
+	case DXGI_FORMAT::DXGI_FORMAT_D16_UNORM:
+		resformat = DXGI_FORMAT::DXGI_FORMAT_R16_TYPELESS;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT:
+		resformat = DXGI_FORMAT::DXGI_FORMAT_R24G8_TYPELESS;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT:
+		resformat = DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+		resformat = DXGI_FORMAT::DXGI_FORMAT_R32G8X24_TYPELESS;
+		break;
+	}
+
+	return resformat;
+}
+
+DXGI_FORMAT TextureComponents::GetDepthSRVFormat(DXGI_FORMAT depthformat)
+{
+	DXGI_FORMAT srvformat;
+	switch (depthformat)
+	{
+	case DXGI_FORMAT::DXGI_FORMAT_D16_UNORM:
+		srvformat = DXGI_FORMAT::DXGI_FORMAT_R16_FLOAT;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT:
+		srvformat = DXGI_FORMAT::DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT:
+		srvformat = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+		break;
+	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+		srvformat = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+		break;
+	}
+	return srvformat;
+}
+
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &bHandler) {
 
 	HRESULT hr;
@@ -145,6 +188,8 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 {
 	HRESULT hr;
 
+	DXGI_FORMAT resformat = GetDepthResourceFormat(DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
+	DXGI_FORMAT srvformat = GetDepthSRVFormat(DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
 
 	D3D11_SAMPLER_DESC shadowSamp;
 	ZeroMemory(&shadowSamp, sizeof(shadowSamp));
@@ -155,6 +200,7 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 	shadowSamp.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	shadowSamp.MinLOD = 0;
 	shadowSamp.MaxLOD = D3D11_FLOAT32_MAX;
+	
 	hr = gDevice->CreateSamplerState(&shadowSamp, &shadowSampler);
 
 	if (FAILED(hr)) {
@@ -164,15 +210,21 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 
 
 	//Shadow map texture description
-	D3D11_TEXTURE2D_DESC texDesc = {};
+	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Width = WIDTH;
 	texDesc.Height = HEIGHT;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	texDesc.Format = resformat;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+	hr = gDevice->CreateTexture2D(&texDesc, NULL, &this->pShadowMap);
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	D3D11_DEPTH_STENCIL_DESC stencilDesc;
 
@@ -210,25 +262,21 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 
 	//Depth stencil view description
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
-	//Shader resource view description
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
-
-	hr = gDevice->CreateTexture2D(&texDesc, NULL, &this->pShadowMap);
-	if (FAILED(hr))
-	{
-		return false;
-	}
 	hr = gDevice->CreateDepthStencilView(pShadowMap, &descDSV, &pSmDepthView);
 	if (FAILED(hr))
 	{
 		return false;
 	}
+
+	//Shader resource view description
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = srvformat;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+
 	hr = gDevice->CreateShaderResourceView(pShadowMap, &srvDesc, &pSmSRView);
 	if (FAILED(hr))
 	{

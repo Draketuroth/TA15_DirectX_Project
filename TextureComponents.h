@@ -47,6 +47,9 @@ public:
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
 	ID3D11DepthStencilState* pSmDepthState;
+	
+	DXGI_FORMAT GetDepthResourceFormat(DXGI_FORMAT depthformat);
+	DXGI_FORMAT GetDepthSRVFormat(DXGI_FORMAT depthformat);
 
 	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);
