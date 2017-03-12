@@ -1,7 +1,8 @@
 
-#include "BufferComponents.h";
-#include "GraphicComponents.h";
-#include <DirectXCollision.h>;
+#include "BufferComponents.h"
+#include "GraphicComponents.h"
+#include <DirectXCollision.h>
+
 using namespace DirectX;
 //Project clone2
 class Quadtree

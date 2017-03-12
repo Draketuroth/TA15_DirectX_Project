@@ -1,4 +1,5 @@
-#include "Quadtree.h";
+#include "Quadtree.h"
+
 //Project clone2
 Quadtree::Quadtree()
 {
@@ -13,6 +14,7 @@ Quadtree::Quadtree()
 	}
 
 }
+
 Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents)
 {
 	//for (size_t i = 0; i < 4; i++)
@@ -30,6 +32,7 @@ Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents)
 	}
 
 }
+
 Quadtree::~Quadtree()
 {
 	for (UINT i = 0; i < 4; i++)
@@ -40,6 +43,7 @@ Quadtree::~Quadtree()
 		}
 	}
 }
+
 bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 {
 	if (SubDiv == 0)
@@ -95,6 +99,7 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	
 	return true;
 }
+
 void Quadtree::checkBoundingBox(BoundingBox &Object)
 {
 	if (this->BBox.Contains(Object))
@@ -115,6 +120,7 @@ void Quadtree::checkBoundingBox(BoundingBox &Object)
 		}
 	}
 }
+
 int Quadtree::frustumIntersect(Camera camera)
 {
 	float e = 0;
@@ -150,6 +156,7 @@ int Quadtree::frustumIntersect(Camera camera)
 
 	return INTERSECT;
 }
+
 void Quadtree::calculateHalfD()
 {
 	
@@ -199,6 +206,7 @@ void Quadtree::calculateHalfD()
 	XMStoreFloat3(&this->halfDiag, h);
 
 }
+
 void Quadtree::recursiveIntersect(Camera camera)
 {
 	if (SubDiv != totalSubDiv)

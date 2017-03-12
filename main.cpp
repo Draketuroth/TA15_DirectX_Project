@@ -120,29 +120,29 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-	//Quadtree creation
-	/*if (!QTree.CreateTree(0, gHandler.gDevice))
+	
+	if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}*/
-	/*if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
-	{
-		MessageBox(
-			NULL,
-			L"CRITICAL ERROR: Quadtree Indexbuffer couldn't be initialized\nClosing application...",
-			L"ERROR",
-			MB_OK);
-	}*/
-	
+	}
 
 	return RunApplication();
 }
 
 int RunApplication() {
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// FRUSTUM CULLING INITIALIZATION
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	for (int i = 0; i < 8; i++) {
+
+		QTree.checkBoundingBox(bHandler.cubeObjects[i].bbox);
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PREDEFINED VARIABLES
@@ -349,6 +349,8 @@ int RunApplication() {
 
 				}
 			}*/
+
+
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
