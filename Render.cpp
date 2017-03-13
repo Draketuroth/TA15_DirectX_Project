@@ -37,7 +37,7 @@ void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler,
 void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING)
+	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING OF THE OBJ/TERRAIN DRAW CALL)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
 	gHandler.gDeviceContext->OMSetDepthStencilState(tHandler.pSmDepthState, 1);

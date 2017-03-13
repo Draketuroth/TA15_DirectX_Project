@@ -757,6 +757,8 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lAspect = WIDTH / HEIGHT;
 
+	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
+
 	float lNearPlane = 0.1f;
 
 	float lFarPlane = 50.f;
