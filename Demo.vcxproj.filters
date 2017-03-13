@@ -67,11 +67,20 @@
     <Filter Include="Source Files\HLSL\ShadowShaders">
       <UniqueIdentifier>{45d4cfad-9abf-4088-86ae-28ba89d91683}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\HLSL\QuadShaders">
-      <UniqueIdentifier>{dbe81f59-9752-43a8-82bf-4196f3a97d78}</UniqueIdentifier>
+    <Filter Include="Source Files\HLSL\QuadtreeShaders">
+      <UniqueIdentifier>{b93b6588-92bf-42dc-a3fb-008010a08214}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\HLSL\CylinderShaders">
       <UniqueIdentifier>{faa9312f-c326-4954-af7f-34cbfa52ee26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HLSL\ComputeShaders">
+      <UniqueIdentifier>{1a7c8e41-fae7-4a75-8770-ad6a1eeea575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HLSL\CubeShaders">
+      <UniqueIdentifier>{59ad7e8b-7776-4599-ad59-8e65a4792e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HLSL\QuadShaders">
+      <UniqueIdentifier>{b51ee67a-6f75-4050-add0-aa52dd17847a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +91,9 @@
       <Filter>Source Files\Pipeline Components</Filter>
     </ClCompile>
     <ClCompile Include="GraphicComponents.cpp">
+      <Filter>Source Files\Pipeline Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureComponents.cpp">
       <Filter>Source Files\Pipeline Components</Filter>
     </ClCompile>
     <ClCompile Include="Render.cpp">
@@ -102,7 +114,7 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files\Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="TextureComponents.cpp">
+    <ClCompile Include="Quadtree.cpp">
       <Filter>Source Files\Pipeline Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,12 +140,6 @@
     <FxCompile Include="Shaders\ShadowShaders\ShadowVS.hlsl">
       <Filter>Source Files\HLSL\ShadowShaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl">
-      <Filter>Source Files\HLSL\QuadShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\QuadShaders\QuadFragment.hlsl">
-      <Filter>Source Files\HLSL\QuadShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\StandardShaders\Fragment.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
     </FxCompile>
@@ -143,17 +149,38 @@
     <FxCompile Include="Shaders\StandardShaders\Vertex.hlsl">
       <Filter>Source Files\HLSL\StandardShaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHB.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHV.hlsl">
-      <Filter>Source Files\HLSL\StandardShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\CylinderShaders\CylinderFragment.hlsl">
       <Filter>Source Files\HLSL\CylinderShaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\CylinderShaders\CylinderVertex.hlsl">
       <Filter>Source Files\HLSL\CylinderShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadtreeShaders\QuadTreeFragment.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadtreeShaders\QuadTreeVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHB.hlsl">
+      <Filter>Source Files\HLSL\ComputeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StandardShaders\ComputeShaderHV.hlsl">
+      <Filter>Source Files\HLSL\ComputeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeGeometry.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeFragment.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeShaders\CubeVertex.hlsl">
+      <Filter>Source Files\HLSL\CubeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadShaders\QuadFragment.hlsl">
+      <Filter>Source Files\HLSL\QuadShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,8 +217,8 @@
     <ClInclude Include="Terrain.h">
       <Filter>Header Files\Terrain</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="Quadtree.h">
+      <Filter>Header Files\Pipeline Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

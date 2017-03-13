@@ -37,6 +37,11 @@ GraphicComponents::GraphicComponents() {
 	gCylinderVertexShader = nullptr;
 	gCylinderFragmentShader = nullptr;
 
+	gCubeLayout = nullptr;
+	gCubeVertexShader = nullptr;
+	gCubePixelShader = nullptr;
+	gCubeGeometryShader = nullptr;
+
 }
 
 GraphicComponents::~GraphicComponents() {
@@ -81,6 +86,11 @@ void GraphicComponents::ReleaseAll() {
 	SAFE_RELEASE(gCylinderVertexShader);
 	SAFE_RELEASE(gCylinderFragmentShader);
 
+	SAFE_RELEASE(gCubeLayout);
+	SAFE_RELEASE(gCubeVertexShader);
+	SAFE_RELEASE(gCubePixelShader);
+	SAFE_RELEASE(gCubeGeometryShader);
+
 }
 
 bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler) {
@@ -89,8 +99,8 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
-	if (!CreateDepthStencil(bHandler))
-	{
+
+	if (!CreateDepthStencil(bHandler)) {
 		return false;
 	}
 
@@ -110,8 +120,9 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 
 		return false;
 	}
-	if (!CreateShadowMapShader())
-	{
+
+	if (!CreateShadowMapShader()) {
+		
 		return false;
 	}
 
@@ -131,6 +142,11 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 	}
 
 	if (!CreateCylinderShaders()) {
+
+		return false;
+	}
+
+	if (!CreateCubeShaders()) {
 
 		return false;
 	}
@@ -1085,4 +1101,140 @@ bool GraphicComponents::CreateCylinderShaders() {
 
 	return true;
 
+}
+
+bool GraphicComponents::CreateCubeShaders() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr; // lvl 1 blue slime
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\CubeShaders\\CubeVertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gCubeVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Vertex Shader could not be created" << endl;
+		return false;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gCubeLayout);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Vertex Shader Error: Shader Input Layout could not be created" << endl;
+	}
+
+	vsBlob->Release();
+
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\CubeShaders\\CubeFragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Fragment Shader Error: Fragment Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gCubePixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
+
+	ID3DBlob* gsBlob = nullptr;
+	ID3DBlob* gsErrorBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"Shaders\\CubeShaders\\CubeGeometry.hlsl",
+		nullptr,
+		nullptr,
+		"GS_main",
+		"gs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&gsBlob,
+		&gsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Geometry Shader Error: Geometry Shader could not be compiled or loaded from file" << endl;
+
+		if (gsErrorBlob) {
+
+			OutputDebugStringA((char*)gsBlob->GetBufferPointer());
+			gsErrorBlob->Release();
+		}
+
+	}
+
+	hr = gDevice->CreateGeometryShader(gsBlob->GetBufferPointer(), gsBlob->GetBufferSize(), nullptr, &gCubeGeometryShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Cube Geometry Shader Error: Geometry Shader could not be created" << endl;
+		return false;
+	}
+
+	gsBlob->Release();
+
+	return true;
 }

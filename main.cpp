@@ -18,6 +18,7 @@
 #include "GraphicComponents.h"
 #include "BufferComponents.h"
 #include "TextureComponents.h"
+#include "Quadtree.h"
 
 #include "Terrain.h"
 
@@ -41,7 +42,7 @@ Camera mCam;
 GraphicComponents gHandler;
 BufferComponents bHandler;
 TextureComponents tHandler;
-
+Quadtree QTree;
 //----------------------------------------------------------------------------------------------------------------------------------//
 // FORWARD DECLARATIONS
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -55,8 +56,8 @@ Terrain terrain;
 
 int main() {
 
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
-
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
+	//_CrtSetBreakAlloc(207);
 	// We always want to keep our eyes open for terminal errors, which mainly occur when the window isn't created
 
 	if (!WindowInitialize(windowHandle)) {
@@ -75,13 +76,20 @@ int main() {
 
 		MessageBox(
 			NULL,
-			L"CRITICAL ERROR: DirectX couldn't be initialized\nClosing application...",
+			L"CRITICAL ERROR: DirectX Context couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
 
 
-	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
+	if (!bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter)) {
+
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Buffers couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
 
 	//hightMap
 	terrain.LoadRAW(); 
@@ -104,6 +112,7 @@ int main() {
 			MB_OK);
 	}
 
+
 	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
 		MessageBox(
 			NULL,
@@ -111,6 +120,15 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
+	
+	/*if (!QTree.CreateTree(0, gHandler.gDevice))
+	{
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}*/
 
 	return RunApplication();
 }
@@ -118,10 +136,17 @@ int main() {
 int RunApplication() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	// PREDEFINED VARIABLES
+	// FRUSTUM CULLING INITIALIZATION
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);	// Memory leak detection flag
+	/*for (int i = 0; i < 8; i++) {
+
+		QTree.checkBoundingBox(bHandler.cubeObjects[i].bbox);
+	}*/
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PREDEFINED VARIABLES
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	MSG windowMessage = { 0 };
 
@@ -228,7 +253,6 @@ int RunApplication() {
 			
 			HRESULT hr;
 			
-			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -248,6 +272,7 @@ int RunApplication() {
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
+			cBufferPointer->viewProj = tCameraViewProj;
 			cBufferPointer->worldInvTranspose = XMMatrixTranspose(XMMatrixInverse(NULL, bHandler.tWorldMatrix));
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
@@ -313,6 +338,13 @@ int RunApplication() {
 
 
 			
+			/*if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
+			{
+				for (UINT i = 0; i < 4; i++)
+				{
+
+				}
+			}*/
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
@@ -341,7 +373,6 @@ int RunApplication() {
 	tHandler.ReleaseAll();
 	bHandler.ReleaseAll();
 	gHandler.ReleaseAll();
-
 	DestroyWindow(windowHandle);
 
 	return static_cast<int>(windowMessage.wParam);

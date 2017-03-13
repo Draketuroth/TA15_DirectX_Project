@@ -16,6 +16,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0){
 	matrix matrixWorld;
 	matrix matrixView;
 	matrix matrixProjection;
+	matrix viewProj;
 	matrix floorRot;
 	matrix matrixViewInverse;
 	float4 cameraPos;
@@ -25,7 +26,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0){
 };
 
 
-VS_OUT VS_main(VS_IN input) : SV_POSITION
+VS_OUT VS_main(VS_IN input)
 {
 	VS_OUT output = (VS_OUT)0;
 
