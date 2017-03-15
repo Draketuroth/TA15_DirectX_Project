@@ -25,11 +25,6 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 
 };
 
-cbuffer CUBE_CONSTANT_BUFFER : register(b1) {
-
-	matrix cubeTransforms;
-};
-
 struct GS_IN
 {
 	float3 Pos : POSITION;
@@ -42,7 +37,8 @@ struct GS_OUT
 	float4 Norm: NORMAL;
 	float2 Tex: TEXCOORD;
 	float4 Pos : SV_POSITION;
-	float4 WPos : WPOSITION;
+	float3 WPos : WPOSITION;
+	float3 ViewPos : POSITION1;
 	
 };
 
@@ -58,18 +54,36 @@ struct GS_OUT
 
 	float3 normalAB = normalize(cross(sideA, sideB));
 
-	for (i = 0; i < 3; i++)
-	{
+	float3 normal, viewVector;
 
-		output.WPos = mul(float4(input[i].Pos.xyz, 1.0f), cubeTransforms);
+	// Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
-		matrix cubeWVP = mul(cubeTransforms,viewProj);
-		output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), cubeWVP);
+	float4 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
+	float4 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
+	float4 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
 
-		output.Norm = mul(float4(normalAB, 1.0f), cubeTransforms);
-		output.Tex = input[i].Tex;
+	float3 triangleSideA = (position - position2).xyz;
+	float3 triangleSideB = (position - position3).xyz;
 
-		triStream.Append(output);
+	normal = normalize(cross(triangleSideA, triangleSideB));
+
+	if (dot(normal.xyz, -position.xyz) > 0.0f) {
+
+		for (i = 0; i < 3; i++)
+		{
+			float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+			output.WPos = worldPosition;
+
+			output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+
+			output.Norm = mul(float4(normalAB, 1.0f), matrixWorld);
+			output.Tex = input[i].Tex;
+
+			output.ViewPos = cameraPos - worldPosition;
+
+			triStream.Append(output);
+		}
+
 	}
 
 };

@@ -42,6 +42,7 @@ void TextureComponents::ReleaseAll() {
 	SAFE_RELEASE(grassResource);
 	SAFE_RELEASE(fireflyResource);
 	SAFE_RELEASE(normalMap);
+	SAFE_RELEASE(FrustumCubeResource);
 
 	SAFE_RELEASE(geometryTexture);
 	SAFE_RELEASE(geometryTextureRTV);
@@ -165,6 +166,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 	CreateWICTextureFromFile(gDevice,NULL, bHandler.OBJTexturePath.c_str(), NULL,&terrainResource,256);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\terrain.png", NULL, &grassResource);
 	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\firefly.png", NULL, &fireflyResource);
+	CreateWICTextureFromFile(gDevice, NULL, L"Textures\\FrustumCubeTexture.jpg", NULL, &FrustumCubeResource);
 
 	if (SUCCEEDED(hr) && texture != 0) {
 
@@ -174,6 +176,7 @@ bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &b
 		gDevice->CreateShaderResourceView(texture, nullptr, &terrainResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &grassResource);
 		gDevice->CreateShaderResourceView(texture, nullptr, &fireflyResource);
+		gDevice->CreateShaderResourceView(texture, nullptr, &FrustumCubeResource);
 
 		if (FAILED(hr)) {
 

@@ -13,9 +13,9 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
 
-	RenderCylinder(gHandler, bHandler, tHandler);
+	RenderCubes(gHandler, bHandler, tHandler);
 
-	//RenderCubes(gHandler, bHandler, tHandler);
+	RenderCylinder(gHandler, bHandler, tHandler);
 
 	RenderParticles(gHandler, bHandler, tHandler);
 
@@ -54,7 +54,7 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	UINT32 offset = 0;
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gTerrainBuffer, &vertexSize, &offset);
 
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gVertexTerrainLayout);
 
 	gHandler.gDeviceContext->Draw(bHandler.ImportStruct.size(), 0);
@@ -207,44 +207,31 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gCubeVertexShader, nullptr, 0);	
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); 
-	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.cubeConstantBuffer);
 	gHandler.gDeviceContext->GSSetShader(gHandler.gCubeGeometryShader, nullptr, 0);
 	
 	gHandler.gDeviceContext->PSSetShader(gHandler.gCubePixelShader, nullptr, 0);
-	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.standardResource);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.FrustumCubeResource);
 	gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.texSampler);
 
 	UINT32 vertexSize = sizeof(Vertex_Cube);
 	UINT32 offset = 0;
-	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gCubeBuffer, &vertexSize, &offset);
 	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gCubeIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gCubeLayout);
 
-	////----------------------------------------------------------------------------------------------------------------------------------//
-	//// POINTER TO CUBE CONSTANT BUFFER
-	////----------------------------------------------------------------------------------------------------------------------------------//
+	for (int i = 0; i < CUBECAPACITY; i++){
 
-	D3D11_MAPPED_SUBRESOURCE mappedCubeResource;
+		if(bHandler.cubeObjects[i].renderCheck == true){
 
-	for(int i = 0; i < 8; i++){
+		gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.cubeObjects[i].gCubeVertexBuffer, &vertexSize, &offset);
 
-		CUBE_CONSTANT_BUFFER* cubeBufferPointer = (CUBE_CONSTANT_BUFFER*)mappedCubeResource.pData;
-
-		gHandler.gDeviceContext->Map(bHandler.cubeConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCubeResource);
-
-		cubeBufferPointer->cubeTransforms = bHandler.cubeObjects[i].objectWorldMatrix;
-
-		gHandler.gDeviceContext->Unmap(bHandler.cubeConstantBuffer, 0);
-
-		if (bHandler.cubeObjects[i].renderCheck == true){
-
-			gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
+		gHandler.gDeviceContext->DrawIndexed(36, 0, 0);
 
 		}
 
 	}
+
 }
 
 void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {

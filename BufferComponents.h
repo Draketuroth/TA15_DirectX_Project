@@ -44,11 +44,6 @@ struct VS_CONSTANT_BUFFER {
 
 };
 
-struct CUBE_CONSTANT_BUFFER {
-
-	XMMATRIX cubeTransforms;
-};
-
 //Declspec helps to declare the bytewidth of the constant buffer
 __declspec(align(16))
 struct MTL_STRUCT
@@ -72,6 +67,7 @@ struct CylinderMeshData
 struct CubeObjects {
 
 	XMMATRIX objectWorldMatrix;
+	ID3D11Buffer* gCubeVertexBuffer;;
 	BoundingBox bbox;
 	bool renderCheck;
 };
@@ -102,8 +98,7 @@ public:
 
 	vector<Vertex_Bone> fbxVector;
 	
-	CubeObjects cubeObjects[8];
-	ID3D11Buffer* cubeConstantBuffer;
+	CubeObjects cubeObjects[CUBECAPACITY];
 
 	ID3D11Buffer* gVertexBuffer;	// Vertex buffer
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
@@ -120,7 +115,6 @@ public:
 	ID3D11Buffer* gCylinderBuffer;
 	ID3D11Buffer* gCylinderIndexBuffer;
 
-	ID3D11Buffer* gCubeBuffer;
 	ID3D11Buffer* gCubeIndexBuffer;
 
 	bool SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
@@ -142,7 +136,7 @@ public:
 	bool CreateCubeVertices(ID3D11Device* &gDevice);
 	bool CreateCubeIndices(ID3D11Device* &gDevice);
 
-	bool CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 boundingPoints[24]);
+	float RandomNumber(float Minimum, float Maximum);
 
 };
 
