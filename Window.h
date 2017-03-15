@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "MacroDefinitions.h"
+#include "BufferComponents.h"
 
 using namespace std;
 
@@ -17,6 +18,6 @@ LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam,
 
 bool WindowInitialize(HWND &windowHandle);	// Function to run the application
 
-void showFPS(HWND windowHandle, float deltaTime);
+void showFPS(HWND windowHandle, float deltaTime, BufferComponents &bHandler);
 
 #endif WINDOW_H

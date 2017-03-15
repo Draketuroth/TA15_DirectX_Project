@@ -224,7 +224,7 @@ int RunApplication() {
 				mCam.Strafe(speed * deltaTime);
 			}
 
-			showFPS(windowHandle, deltaTime);
+			showFPS(windowHandle, deltaTime, bHandler);
 
 			fbxImporter.animTimePos += deltaTime * 20;
 
