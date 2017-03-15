@@ -405,7 +405,6 @@ BufferComponents::BufferComponents() {
 	gCylinderBuffer = nullptr;
 	gCylinderIndexBuffer = nullptr;
 
-	gCubeBuffer = nullptr;
 	gCubeIndexBuffer = nullptr;
 
 }
@@ -432,8 +431,12 @@ void BufferComponents::ReleaseAll() {
 	SAFE_RELEASE(gCylinderBuffer);
 	SAFE_RELEASE(gCylinderIndexBuffer);
 
-	SAFE_RELEASE(gCubeBuffer);
 	SAFE_RELEASE(gCubeIndexBuffer);
+
+	for (int i = 0; i < CUBECAPACITY; i++) {
+
+		SAFE_RELEASE(cubeObjects[i].gCubeVertexBuffer);
+	}
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -734,7 +737,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float fov = PI * 0.45f;		// We recieve the field of view in radians by multiplying with PI
 
-	float aspectRatio = WIDTH / HEIGHT;		// Using the already defined macros for the width and height of the viewport
+	float aspectRatio = WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
 
 	float nearPlane = 0.1f;
 
@@ -755,7 +758,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//Light View matrix
 	float lFov = PI * 0.45f;
 
-	float lAspect = WIDTH / HEIGHT;
+	float lAspect = WIDTH / (float)HEIGHT;
 
 	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
 
@@ -763,8 +766,8 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lFarPlane = 50.f;
 	
-	XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect , lNearPlane, lFarPlane);
-	//XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	//XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect , lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = XMMatrixMultiply(lightView, lightProj);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -1142,83 +1145,143 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	XMFLOAT3 boundingPoints[24];
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// INITIALIZE OFFSET VARIABLES
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	Vertex_Cube cubeVertices[24] =
-	{
+	float xOffsetValue = 0.0f;
+	float yOffsetValue = 0.0f;
+	float zOffsetValue = 0.0f;
+	float spacing = 0.0f;
 
-		//Front face
+	srand(time(NULL));
 
-		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
-		1.0, -1.0f, -1.0f, 1.0f, 1.0f,
+	for(int i = 0; i < CUBECAPACITY; i++){
 
-		// Back face
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
+		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
-		-1.0, -1.0f, 1.0f, 1.0f, 1.0f,
+		xOffsetValue = RandomNumber(-30, 30);
+		yOffsetValue = RandomNumber(5, 30);
+		zOffsetValue = RandomNumber(-30, 30);
+		spacing = RandomNumber(-25, 25);
 
-		// Left face
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// HARDCODED VERTICES
+		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+		Vertex_Cube cubeVertices[24] =
+		{
 
-		// Right face
+			//Front face
 
-		1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
-		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			1.0, -1.0f, -1.0f, 1.0f, 1.0f,
 
-		// Top face
+			// Back face
 
-		-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, -1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+			-1.0, -1.0f, 1.0f, 1.0f, 1.0f,
 
-		// Bottom face
+			// Left face
 
-		1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
-		1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f, 1.0f, 1.0f
+			-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+
+			// Right face
+
+			1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+
+			// Top face
+
+			-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			-1.0f, 1.0f, -1.0f, 0.0f, 1.0f,
+			1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+
+			// Bottom face
+
+			1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f, 1.0f, 1.0f
 
 
-	};
+		};
 
-	for (int i = 0; i < 24; i++) {
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// OFFSET VERTICES
+		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		boundingPoints[i].x = cubeVertices[i].x;
-		boundingPoints[i].y = cubeVertices[i].y;
-		boundingPoints[i].z = cubeVertices[i].z;
+		for (int j = 0; j < 24; j++) {
+
+			cubeVertices[j].x += xOffsetValue + spacing;
+			cubeVertices[j].y += yOffsetValue;
+			cubeVertices[j].z += zOffsetValue + spacing;
+			
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// FILL LIST OF VERTICES FOR BOUNDING BOX CREATION
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		XMFLOAT3 boundingPoints[24];
+
+		for (int k = 0; k < 24; k++) {
+
+			boundingPoints[k].x = cubeVertices[k].x;
+			boundingPoints[k].y = cubeVertices[k].y;
+			boundingPoints[k].z = cubeVertices[k].z;
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// CREATE VERTEX BUFFER
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(cubeVertices);
+
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = cubeVertices;
+		hr = gDevice->CreateBuffer(&bufferDesc, &data, &cubeObjects[i].gCubeVertexBuffer);
+
+		if (FAILED(hr)) {
+
+			return false;
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// TRANSFORM BOUNDING BOX AND INITIALIZE RENDER CHECK BOOLEAN VARIABLE
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		//FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
+		//cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
+		cubeObjects[i].renderCheck = true;
+
 	}
 
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(cubeVertices);
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// RENDER CHECK TEST
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = cubeVertices;
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gCubeBuffer);
+	/*for (int a = 0; a < 40; a++) {
 
-	if (FAILED(hr)) {
-
-		return false;
-	}
-
-	if (!CreateFrustumCubes(gDevice, boundingPoints)) {
-
-		return false;
-	
-	}
+		cubeObjects[a].renderCheck = false;
+	}*/
 
 	return true;
 }
@@ -1286,68 +1349,7 @@ bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
 	return true;
 }
 
-bool BufferComponents::CreateFrustumCubes(ID3D11Device* &gDevice, XMFLOAT3 boundingPoints[24]) {
+float BufferComponents::RandomNumber(float Minimum, float Maximum) {
 
-	HRESULT hr;
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// CUBE WORLD MATRICES
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	
-	cubeObjects[0].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(5.0f, 20.0f, 10.0f));
-	cubeObjects[1].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(10.0f, 20.0f, 5.0f));
-
-	cubeObjects[2].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-5.0f, 20.0f, 10.0f));
-	cubeObjects[3].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-10.0f, 20.0f, 5.0f));
-
-	cubeObjects[4].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-5.0f, 20.0f, -10.0f));
-	cubeObjects[5].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(-10.0f, 20.0f, -5.0f));
-
-	cubeObjects[6].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(5.0f, 20.0f, -10.0f));
-	cubeObjects[7].objectWorldMatrix = XMMatrixTranspose(XMMatrixTranslation(10.0f, 20.0f, -5.0f));
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// CUBE BOUNDING BOX
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	
-	for (int i = 0; i < 8; i++) {
-		
-		FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
-		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
-		cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
-		cubeObjects[i].renderCheck = true;
-	}
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// CUBE CONSTANT BUFFER DESCRIPTION
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	CUBE_CONSTANT_BUFFER initCubeData;
-
-	initCubeData.cubeTransforms = XMMatrixIdentity();
-
-	D3D11_BUFFER_DESC cubeBufferDesc;
-
-	memset(&cubeBufferDesc, 0, sizeof(cubeBufferDesc));
-
-	cubeBufferDesc.ByteWidth = sizeof(CUBE_CONSTANT_BUFFER);
-	cubeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cubeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cubeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cubeBufferDesc.MiscFlags = 0;
-	cubeBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA cubeSubData;
-	cubeSubData.pSysMem = &initCubeData;
-	cubeSubData.SysMemPitch = 0;
-	cubeSubData.SysMemSlicePitch = 0;
-
-	hr = gDevice->CreateBuffer(&cubeBufferDesc, &cubeSubData, &cubeConstantBuffer);
-
-	if (FAILED(hr)) {
-
-		return false;
-	}
-
-	return true;
+	return ((float(rand()) / float(RAND_MAX)) * (Maximum - Minimum)) + Minimum;
 }

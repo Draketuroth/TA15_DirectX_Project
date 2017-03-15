@@ -55,9 +55,9 @@ struct GS_OUT
 
 	 // Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
-	 float4 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
-	 float4 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
-	 float4 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
+	 float3 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
+	 float3 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
+	 float3 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
 
 	 float3 triangleSideA = position - position2;
 	 float3 triangleSideB = position - position3;
@@ -67,11 +67,11 @@ struct GS_OUT
 	 // UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	 uint i;
 
-	 for (i = 0; i < 3; i++) {
+	 if (dot(normal, -position) > 0.0f) {
 
-		 float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
+		 for (i = 0; i < 3; i++) {
 
-		 if (dot(normal, -position) > 0.0f) {
+			 float3 worldPosition = mul(float4(input[i].Pos, 1.0f), matrixWorld).xyz;
 
 			 // To store and calculate the World position for output to the pixel shader, the input position must be multiplied with the World matrix
 			 output.WPos = worldPosition;
@@ -86,11 +86,11 @@ struct GS_OUT
 
 			 output.Tex = input[i].Tex;
 
+			 output.ViewPos = cameraPos - worldPosition;
+
+			 triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
+
 		 }
-
-		 output.ViewPos = cameraPos - worldPosition;
-
-		 triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 	 }
 
 };

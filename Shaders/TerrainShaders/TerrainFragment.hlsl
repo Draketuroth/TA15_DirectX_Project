@@ -54,7 +54,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	//pixel depth for shadows
 	float depth = input.lPos.z / input.lPos.w;
 	
-	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.25f : 1.0f;
+	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.0f : 1.0f;
 
 	float nDotL;
 	float3 texColor;
@@ -103,7 +103,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	}
 	
 	//return float4(color,1);// *shadowCheck;
-
-	return float4((ads, 1.0f) *color,1) *shadowCheck;
+	return float4((ads, 1.0f) * color, 1) * shadowCheck;
+	//return float4((ads, 1.0f) *color,1) * float4(shadowCheck, 0.0f, 1.0f, 1.0f);
 	//return float4(texColor, 1) * shadowCheck;
 };
