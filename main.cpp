@@ -166,7 +166,7 @@ int RunApplication() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
-	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that hsould be checked for culling
+	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that needs to be assigned to a node in the quadtree
 	{
 		QTree.checkBoundingBox(bHandler.cubeObjects[i]);
 	}
