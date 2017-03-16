@@ -136,15 +136,6 @@ int main() {
 int RunApplication() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	// FRUSTUM CULLING INITIALIZATION
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	/*for (int i = 0; i < 8; i++) {
-
-		QTree.checkBoundingBox(bHandler.cubeObjects[i].bbox);
-	}*/
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PREDEFINED VARIABLES
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
@@ -175,7 +166,10 @@ int RunApplication() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
-	
+	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that hsould be checked for culling
+	{
+		QTree.checkBoundingBox(bHandler.cubeObjects[i]);
+	}
 
 	while (windowMessage.message != WM_QUIT) {
 
@@ -249,7 +243,7 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
-			
+			mCam.CreateFrustum();
 			
 			HRESULT hr;
 			
@@ -336,16 +330,15 @@ int RunApplication() {
 				gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer, 0);
 			}
 
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// QUAD TREE FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			
-			/*if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
-			{
-				for (UINT i = 0; i < 4; i++)
-				{
+			QTree.recursiveIntersect(mCam);//Check for frustum intersection
 
-				}
-			}*/
-			QTree.recursiveIntersect(mCam);
+
+			QTree.checkRenderObjects();
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
 			//----------------------------------------------------------------------------------------------------------------------------------//

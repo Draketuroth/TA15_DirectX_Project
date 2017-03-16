@@ -336,6 +336,7 @@ void Camera::CreateFrustum()
 
 
 	//Left plane
+	
 	this->Frustum[0].Normal.x = -(M->_14 + M->_11);
 	this->Frustum[0].Normal.y = -(M->_24 + M->_21);
 	this->Frustum[0].Normal.z = -(M->_34 + M->_41);

@@ -1268,11 +1268,19 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
 		cubeObjects[i].objectWorldMatrix = XMMatrixIdentity();
-		
-		FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		XMMATRIX transform = XMMATRIX(cubeObjects[i].objectWorldMatrix);
+
 		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
+
+		cubeObjects[i].bbox.Extents = { 1, 1, 1 };
+
 		cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
-		cubeObjects[i].renderCheck = true;
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// INITIALIZE RENDER CHECK TO FALSE FOR ALL CUBES
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		
+		cubeObjects[i].renderCheck = false;
 
 	}
 
@@ -1280,10 +1288,10 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 	// RENDER CHECK TEST
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	for (int a = 0; a < 40; a++) {
+	/*for (int a = 0; a < 40; a++) {
 
 		cubeObjects[a].renderCheck = false;
-	}
+	}*/
 
 	return true;
 }
