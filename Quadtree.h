@@ -14,7 +14,7 @@ public:
 
 	Quadtree* nodes[4];
 	BoundingBox BBox;
-	vector<BoundingBox> objects;
+	vector<CubeObjects> objects;
 	int SubDiv;
 	int totalSubDiv;
 	//int vtxIndex[24] = { 0, 1, 2, 3, 0, 4, 7, 3, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 4, 5, 6, 7 };
@@ -25,8 +25,8 @@ public:
 
 	void calculateHalfD();
 	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
-	void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
-	void checkBoundingBox(BoundingBox &Object);
+	//void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
+	void checkBoundingBox(CubeObjects &Object);
 	int frustumIntersect(Camera camera);
 	void recursiveIntersect(Camera camera);
 private:

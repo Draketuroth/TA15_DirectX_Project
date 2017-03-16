@@ -100,13 +100,13 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	return true;
 }
 
-void Quadtree::checkBoundingBox(BoundingBox &Object)
+void Quadtree::checkBoundingBox(CubeObjects &Object)
 {
-	if (this->BBox.Contains(Object))
+	if (this->BBox.Contains(Object.bbox))
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			if (this->nodes[i]->BBox.Contains(Object))
+			if (this->nodes[i]->BBox.Contains(Object.bbox))
 			{
 				if (this->SubDiv != this->totalSubDiv - 1)
 				{
@@ -130,13 +130,14 @@ int Quadtree::frustumIntersect(Camera camera)
 	for (size_t i = 0; i < 6; i++)
 	{
 		e = (this->halfDiag.x * abs(camera.Frustum[i].Normal.x)) + (this->halfDiag.y * abs(camera.Frustum[i].Normal.y)) + (this->halfDiag.z * abs(camera.Frustum[i].Normal.z));
-		XMVECTOR c = XMLoadFloat3(&this->BBox.Center);
-		XMVECTOR n = XMLoadFloat3(&camera.Frustum[i].Normal);
-		XMVECTOR cn = XMVector3Dot(c, n);
+		XMVECTOR c = XMLoadFloat3(&this->BBox.Center);//Center for BBox
+		XMVECTOR n = XMLoadFloat3(&camera.Frustum[i].Normal); //normal for the frustum plane
+		XMVECTOR cn = XMVector3Dot(c, n); // dot product between C and N
 		XMFLOAT3 cnFloat;
 		XMStoreFloat3(&cnFloat, cn);
+		//Calculations down below is a formula that can be referenced to the RTR book
 		s = cnFloat.x + camera.Frustum[i].Distance;
-		if (s - e > 0)
+		if (s - e > 0)//is outside the plane
 		{
 			outCounter++;
 		}
@@ -144,7 +145,7 @@ int Quadtree::frustumIntersect(Camera camera)
 		{
 			return OUTSIDE;
 		}
-		if (s + e < 0)
+		if (s + e < 0)//inside the plane
 		{
 			inCounter++;
 		}
