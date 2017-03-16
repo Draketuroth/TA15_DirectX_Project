@@ -324,7 +324,7 @@ void Camera::OnMouseMove(WPARAM btnState, int x, int y) {
 void Camera::CreateFrustum()
 {
 	XMMATRIX ViewMatrix, ProjMatrix;
-	XMFLOAT4X4* M;
+	XMFLOAT4X4* M = nullptr;
 	ViewMatrix = this->View();
 	ProjMatrix = this->Proj();
 	XMMATRIX VP = XMMatrixMultiply(ViewMatrix, ProjMatrix);
