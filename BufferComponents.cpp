@@ -211,7 +211,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			converter[u].y -= 1;
 			converter[u].z -= 1;
 
-			cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+			//cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
 		}
 
 	
@@ -363,12 +363,12 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		
 	//-----------------------------------------------------------------//
 		//cout << "material: " << material << endl;
-		cout << "illum: " << illum << endl;
+		/*cout << "illum: " << illum << endl;
 		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
 		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
 		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
 		cout << "Ni: " << Ni << endl;
-		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;
+		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;*/
 	}
 
 	
@@ -405,6 +405,8 @@ BufferComponents::BufferComponents() {
 	gCylinderBuffer = nullptr;
 	gCylinderIndexBuffer = nullptr;
 
+	gCubeIndexBuffer = nullptr;
+
 }
 
 BufferComponents::~BufferComponents() {
@@ -428,19 +430,68 @@ void BufferComponents::ReleaseAll() {
 
 	SAFE_RELEASE(gCylinderBuffer);
 	SAFE_RELEASE(gCylinderIndexBuffer);
+
+	SAFE_RELEASE(gCubeIndexBuffer);
+
+	for (int i = 0; i < CUBECAPACITY; i++) {
+
+		SAFE_RELEASE(cubeObjects[i].gCubeVertexBuffer);
+	}
 }
 
-void BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
+bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
 
-	CreateVertexBuffer(gDevice);
-	CreateSkeletalBuffers(gDevice, fbxImporter);
-	CreateConstantBuffer(gDevice, mCam);
-	CreateTerrainBuffer(gDevice);
-	CreateOBJBuffer(gDevice);
-	CreateRasterizerState(gDevice);
-	CreateVertexConstantBuffer(gDevice);
+	if (!CreateVertexBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if(!CreateSkeletalBuffers(gDevice, fbxImporter)){
+
+		return false;
+	}
+
+	if(!CreateConstantBuffer(gDevice, mCam)){
+
+		return false;
+	}
+
+	if(!CreateTerrainBuffer(gDevice)){
+
+		return false;
+	}
+	
+	if(!CreateOBJBuffer(gDevice)){
+
+		return false;
+	
+	}
+
+	if(!CreateRasterizerState(gDevice)){
+	
+		return false;
+	
+	}
+	
+	if(!CreateVertexConstantBuffer(gDevice)){
+	
+		return false;
+	
+	}
+
 	CreateCylinderBuffers(gDevice);
 
+	if (!CreateCubeVertices(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateCubeIndices(gDevice)) {
+
+		return false;
+	}
+
+	return true;
 }
 
 bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
@@ -456,7 +507,7 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 	int arrayLength = ImportStruct.size();
 	for (int i = 0; i < arrayLength; i++)
 	{
-		cout << "X: " << ImportStruct[i].Varr.x << " Y: " << ImportStruct[i].Varr.y << " Z: " << ImportStruct[i].Varr.z << endl;
+		//cout << "X: " << ImportStruct[i].Varr.x << " Y: " << ImportStruct[i].Varr.y << " Z: " << ImportStruct[i].Varr.z << endl;
 
 		if (maxX < ImportStruct[i].Varr.x)
 		{
@@ -491,8 +542,6 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 	float YCenter = (maxY / 2) + (minY / 2);
 	float ZCenter = (maxZ / 2) + (minZ / 2);
 	bbCenter = { XCenter, YCenter, ZCenter };
-	this->MeshBB.Center = bbCenter;
-	this->MeshBB.Extents = { abs(maxX - bbCenter.x), abs(maxY - bbCenter.y), abs(maxZ - bbCenter.z) };
 
 	
 
@@ -550,11 +599,11 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 		float randomNum = rand() % 200 + (-99);
 		float randomNum2 = rand() % 100 +5;
 		float randomNum3 = rand() % 200 + (-99);
-		cout << randomNum << endl;
+		//cout << randomNum << endl;
 		random.x = randomNum;
 		random.y = randomNum2;
 		random.z = randomNum3;
-		cout << random.x << " " << random.y << " " << random.z << endl;
+		//cout << random.x << " " << random.y << " " << random.z << endl;
 		triangleVertices[i].posX.x = random.x;
 		triangleVertices[i].posX.y = random.y;
 		triangleVertices[i].posX.z = random.z;
@@ -590,10 +639,10 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 
 	for (unsigned int i = 0; i < fbxImporter.meshSkeleton.hierarchy.size(); i++) {
 
-		XMMATRIX boneTransform = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
+		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
 
-		skinData.gBoneTransform[i] = boneTransform;
-		fbxImporter.invertedBindPose[i] = boneTransform;
+		skinData.gBoneTransform[i] = inversedBindPose;
+		fbxImporter.invertedBindPose[i] = inversedBindPose;
 
 	}
 
@@ -688,7 +737,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float fov = PI * 0.45f;		// We recieve the field of view in radians by multiplying with PI
 
-	float aspectRatio = WIDTH / HEIGHT;		// Using the already defined macros for the width and height of the viewport
+	float aspectRatio = WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
 
 	float nearPlane = 0.1f;
 
@@ -701,23 +750,25 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
 	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 20, 20, 1));
-	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 1));
+	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 0));
 	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
 
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
 
 	//Light View matrix
-	float lFov = PI * 0.20f;
+	float lFov = PI * 0.45f;
 
-	float lAspect = WIDTH / HEIGHT;
+	float lAspect = WIDTH / (float)HEIGHT;
+
+	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
 
 	float lNearPlane = 0.1f;
 
-	float lFarPlane = 50.0f;
-
-	//XMMATRIX lightProj = XMMatrixPerspectiveFoLH(lFov, lAspect, lNearPlane, lFarPlane);
-	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH / 100, HEIGHT / 100, lNearPlane, lFarPlane);
-	XMMATRIX lightViewProj = lightView * lightProj;
+	float lFarPlane = 50.f;
+	
+	//XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect , lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightViewProj = XMMatrixMultiply(lightView, lightProj);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
@@ -845,7 +896,7 @@ bool BufferComponents::CreateCylinderBuffers(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	MeshData cylinder;
+	CylinderMeshData cylinder;
 	CreateCylinder(3.0f, 3.0f, 20.0f, 15, 15, cylinder);
 
 	cylinderVertexCount = cylinder.Vertices.size();
@@ -906,7 +957,7 @@ bool BufferComponents::CreateCylinderBuffers(ID3D11Device* &gDevice) {
 
 }
 
-void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	meshData.Vertices.clear();
 	meshData.Indices.clear();
@@ -930,7 +981,7 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 		float dTheta = 2.0f*XM_PI / sliceCount;
 		for (UINT j = 0; j <= sliceCount; ++j)
 		{
-			Vertex vertex;
+			Vertex_Cylinder vertex;
 
 			float c = cosf(j*dTheta);
 			float s = sinf(j*dTheta);
@@ -982,7 +1033,7 @@ void BufferComponents::CreateCylinder(float bottomRadius, float topRadius, float
 	BuildCylinderBottomCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
 }
 
-void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	// Build top cap.
 
@@ -1002,11 +1053,11 @@ void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, 
 		float u = x / height + 0.5f;
 		float v = z / height + 0.5f;
 
-		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+		meshData.Vertices.push_back(Vertex_Cylinder(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
 	}
 
 	// Cap center vertex.
-	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+	meshData.Vertices.push_back(Vertex_Cylinder(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
 
 	// Index of center vertex.
 	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
@@ -1019,7 +1070,7 @@ void BufferComponents::BuildCylinderTopCap(float bottomRadius, float topRadius, 
 	}
 }
 
-void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
+void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData)
 {
 	
 	// Build bottom cap.
@@ -1039,11 +1090,11 @@ void BufferComponents::BuildCylinderBottomCap(float bottomRadius, float topRadiu
 		float u = x / height + 0.5f;
 		float v = z / height + 0.5f;
 
-		meshData.Vertices.push_back(Vertex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
+		meshData.Vertices.push_back(Vertex_Cylinder(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v));
 	}
 
 	// Cap center vertex.
-	meshData.Vertices.push_back(Vertex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+	meshData.Vertices.push_back(Vertex_Cylinder(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
 
 	// Cache the index of center vertex.
 	UINT centerIndex = (UINT)meshData.Vertices.size() - 1;
@@ -1088,4 +1139,217 @@ bool BufferComponents::CreateVertexConstantBuffer(ID3D11Device* &gDevice)
 	}
 
 	return true;
+}
+
+bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// INITIALIZE OFFSET VARIABLES
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	float xOffsetValue = 0.0f;
+	float yOffsetValue = 0.0f;
+	float zOffsetValue = 0.0f;
+	float spacing = 0.0f;
+
+	srand(time(NULL));
+
+	for(int i = 0; i < CUBECAPACITY; i++){
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		xOffsetValue = RandomNumber(-30, 30);
+		yOffsetValue = RandomNumber(5, 30);
+		zOffsetValue = RandomNumber(-30, 30);
+		spacing = RandomNumber(-25, 25);
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// HARDCODED VERTICES
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		Vertex_Cube cubeVertices[24] =
+		{
+
+			//Front face
+
+			-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			1.0, -1.0f, -1.0f, 1.0f, 1.0f,
+
+			// Back face
+
+			1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+			-1.0, -1.0f, 1.0f, 1.0f, 1.0f,
+
+			// Left face
+
+			-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+
+			// Right face
+
+			1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+
+			// Top face
+
+			-1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+			-1.0f, 1.0f, -1.0f, 0.0f, 1.0f,
+			1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+
+			// Bottom face
+
+			1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
+			-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, -1.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f, 1.0f, 1.0f
+
+
+		};
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// OFFSET VERTICES
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		for (int j = 0; j < 24; j++) {
+
+			cubeVertices[j].x += xOffsetValue + spacing;
+			cubeVertices[j].y += yOffsetValue;
+			cubeVertices[j].z += zOffsetValue + spacing;
+			
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// FILL LIST OF VERTICES FOR BOUNDING BOX CREATION
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		XMFLOAT3 boundingPoints[24];
+
+		for (int k = 0; k < 24; k++) {
+
+			boundingPoints[k].x = cubeVertices[k].x;
+			boundingPoints[k].y = cubeVertices[k].y;
+			boundingPoints[k].z = cubeVertices[k].z;
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// CREATE VERTEX BUFFER
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(cubeVertices);
+
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = cubeVertices;
+		hr = gDevice->CreateBuffer(&bufferDesc, &data, &cubeObjects[i].gCubeVertexBuffer);
+
+		if (FAILED(hr)) {
+
+			return false;
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// TRANSFORM BOUNDING BOX AND INITIALIZE RENDER CHECK BOOLEAN VARIABLE
+		//----------------------------------------------------------------------------------------------------------------------------------//
+
+		//FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
+		//cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
+		cubeObjects[i].renderCheck = true;
+
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// RENDER CHECK TEST
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	/*for (int a = 0; a < 40; a++) {
+
+		cubeObjects[a].renderCheck = false;
+	}*/
+
+	return true;
+}
+
+bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Create Indices
+	unsigned int indices[] = {
+
+		// Front face
+		0,1,2,
+		2,1,3,
+
+		// Back face
+
+		4,5,6,
+		6,5,7,
+
+		// Left face
+
+		8,9,10,
+		10,9,11,
+
+		// Right face
+
+		12,13,14,
+		14,13,15,
+
+		// Top face
+
+		16,17,18,
+		18,17,19,
+
+		// Bottom face
+
+		20,21,22,
+		22,21,23 };
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC bufferDesc;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(unsigned int) * 36;
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = indices;
+	initData.SysMemPitch = 0;
+	initData.SysMemSlicePitch = 0;
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gCubeIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+float BufferComponents::RandomNumber(float Minimum, float Maximum) {
+
+	return ((float(rand()) / float(RAND_MAX)) * (Maximum - Minimum)) + Minimum;
 }

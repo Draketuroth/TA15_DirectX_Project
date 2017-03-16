@@ -11,10 +11,10 @@ Texture2D shadowMap : register(t1);
 
 cbuffer MTL_STRUCT : register (b0)
 {
-	float4 Kd;
-	float4 Ka;
+	float4 Kd; // Diffuse color
+	float4 Ka; // ambient color
 	float4 tf;
-	float4 Ks;
+	float4 Ks; // specular color
 	float ni;
 	float illum;
 	float2 padding;
@@ -54,7 +54,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	//pixel depth for shadows
 	float depth = input.lPos.z / input.lPos.w;
 	
-	float shadowCheck = (shadowMap.Sample(texSampler, smTexture).r + 0.0001f < depth) ? 0.25f : 1.0f;
+	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.0f : 1.0f;
 
 	float nDotL;
 	float3 texColor;
@@ -88,7 +88,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	{
 		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
 
-		specularLight = Ks2 * pow(max(dot(r, v), 0.0f), shinyPower);
+		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
 	}
@@ -103,7 +103,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	}
 	
 	//return float4(color,1);// *shadowCheck;
-
-	return float4((ads, 1.0f) *color,1) *shadowCheck;
+	return float4((ads, 1.0f) * color, 1) * shadowCheck;
+	//return float4((ads, 1.0f) *color,1) * float4(shadowCheck, 0.0f, 1.0f, 1.0f);
 	//return float4(texColor, 1) * shadowCheck;
 };

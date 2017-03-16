@@ -18,7 +18,7 @@
 #include "GraphicComponents.h"
 #include "BufferComponents.h"
 #include "TextureComponents.h"
-//#include "Quadtree.h"
+#include "Quadtree.h"
 
 #include "Terrain.h"
 
@@ -76,13 +76,20 @@ int main() {
 
 		MessageBox(
 			NULL,
-			L"CRITICAL ERROR: DirectX couldn't be initialized\nClosing application...",
+			L"CRITICAL ERROR: DirectX Context couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
 
 
-	bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter);
+	if (!bHandler.SetupScene(gHandler.gDevice, mCam, fbxImporter)) {
+
+		MessageBox(
+			NULL,
+			L"CRITICAL ERROR: Buffers couldn't be initialized\nClosing application...",
+			L"ERROR",
+			MB_OK);
+	}
 
 	//hightMap
 	terrain.LoadRAW(); 
@@ -113,29 +120,29 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-	//Quadtree creation
-	if (!QTree.CreateTree(0, gHandler.gDevice))
+	
+	/*if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}
-	/*if (!QTree.createIndex(gHandler.gDevice, gHandler.gDeviceContext))
-	{
-		MessageBox(
-			NULL,
-			L"CRITICAL ERROR: Quadtree Indexbuffer couldn't be initialized\nClosing application...",
-			L"ERROR",
-			MB_OK);
 	}*/
-	
 
 	return RunApplication();
 }
 
 int RunApplication() {
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// FRUSTUM CULLING INITIALIZATION
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	/*for (int i = 0; i < 8; i++) {
+
+		QTree.checkBoundingBox(bHandler.cubeObjects[i].bbox);
+	}*/
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PREDEFINED VARIABLES
@@ -217,7 +224,7 @@ int RunApplication() {
 				mCam.Strafe(speed * deltaTime);
 			}
 
-			showFPS(windowHandle, deltaTime);
+			showFPS(windowHandle, deltaTime, bHandler);
 
 			fbxImporter.animTimePos += deltaTime * 20;
 
@@ -246,7 +253,6 @@ int RunApplication() {
 			
 			HRESULT hr;
 			
-			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -266,6 +272,7 @@ int RunApplication() {
 			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
+			cBufferPointer->viewProj = tCameraViewProj;
 			cBufferPointer->worldInvTranspose = XMMatrixTranspose(XMMatrixInverse(NULL, bHandler.tWorldMatrix));
 			cBufferPointer->matrixWorld = bHandler.tWorldMatrix;
 			cBufferPointer->matrixViewInverse = XMMatrixInverse(NULL,tCameraView);
@@ -308,9 +315,6 @@ int RunApplication() {
 			// PARTICLE MOVEMENT
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			
-
-
 			time += deltaTime * 2000;
 
 			if (time > 150)
@@ -334,20 +338,21 @@ int RunApplication() {
 
 
 			
-			if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
+			/*if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
 			{
 				for (UINT i = 0; i < 4; i++)
 				{
 
 				}
-			}
+			}*/
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
 			// Now we can render using the new updated buffers on the GPU
 
-			Render(gHandler, bHandler, tHandler, fbxImporter, terrain, QTree);
+			Render(gHandler, bHandler, tHandler, fbxImporter, terrain);
 
 			// When everythig has been drawn out, finish by presenting the final result on the screen by swapping between the back and front buffers
 

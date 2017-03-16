@@ -52,9 +52,10 @@ public:
 	ID3D11VertexShader* gCylinderVertexShader;
 	ID3D11PixelShader* gCylinderFragmentShader;
 
-	ID3D11InputLayout* gVertexQTreeLayout;
-	ID3D11VertexShader* gVertexQTreeShader;
-	ID3D11PixelShader* gPixelQTreeShader;
+	ID3D11InputLayout* gCubeLayout;	
+	ID3D11VertexShader* gCubeVertexShader; 
+	ID3D11PixelShader* gCubePixelShader; 
+	ID3D11GeometryShader* gCubeGeometryShader; 
 
 	bool InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler);	// Function called to initalize the necessary components, as listen below
 	bool CreateRenderTargetView(BufferComponents &bHandler);	// We require a render target view for rendering and we create this by taking the back buffer from the swap chain
@@ -69,6 +70,8 @@ public:
 	bool CreateQuadShader();
 
 	bool CreateCylinderShaders();
+
+	bool CreateCubeShaders();
 
 	bool CreateDepthStencil(BufferComponents &bHandler);
 	void SetViewport();		// Functions to define the properties of our viewport

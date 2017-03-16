@@ -68,15 +68,24 @@ bool WindowInitialize(HWND &windowHandle) {
 	return true;
 }
 
-void showFPS(HWND windowHandle, float deltaTime) {
+void showFPS(HWND windowHandle, float deltaTime, BufferComponents &bHandler) {
 
 	static int interval;
 	
 	int fpsCounter = 1.0f / deltaTime;
+	int renderedCubes = 0;
 	
 	stringstream text_FPS;
+
+	for (int i = 0; i < CUBECAPACITY; i++) {
+
+		if (bHandler.cubeObjects[i].renderCheck == true) {
+
+			renderedCubes++;
+		}
+	}
 	
-	text_FPS << "FPS: " << fpsCounter;
+	text_FPS << "FPS: " << fpsCounter << " | Rendered Cubes: " << renderedCubes;
 
 	interval++;
 

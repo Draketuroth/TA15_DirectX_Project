@@ -26,6 +26,7 @@ public:
 	ID3D11ShaderResourceView* grassResource;
 	ID3D11ShaderResourceView* fireflyResource;
 	ID3D11ShaderResourceView* normalMap;
+	ID3D11ShaderResourceView* FrustumCubeResource;
 
 	ID3D11Texture2D* geometryTexture;
 	ID3D11RenderTargetView* geometryTextureRTV;
@@ -43,8 +44,13 @@ public:
 	ID3D11SamplerState* texSampler;
 	ID3D11BlendState* blendState;
 	ID3D11Texture2D* pShadowMap;
+
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
+	ID3D11DepthStencilState* pSmDepthState;
+	
+	DXGI_FORMAT GetDepthResourceFormat(DXGI_FORMAT depthformat);
+	DXGI_FORMAT GetDepthSRVFormat(DXGI_FORMAT depthformat);
 
 	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);

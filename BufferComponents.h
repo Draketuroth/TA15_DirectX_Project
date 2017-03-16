@@ -13,7 +13,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <DirectXCollision.h>
+#include "DirectXCollision.h"
+
 using namespace DirectX;
 
 // We require a combined transformation matrix from all the previously created matrices and a matrix to preserve the world positions throughout the pipeline
@@ -25,6 +26,7 @@ struct GS_CONSTANT_BUFFER {
 	XMMATRIX matrixWorld;
 	XMMATRIX matrixView;
 	XMMATRIX matrixProjection;
+	XMMATRIX viewProj;
 	XMMATRIX floorRot;
 	XMMATRIX matrixViewInverse;
 	XMFLOAT4 cameraPos;
@@ -42,7 +44,6 @@ struct VS_CONSTANT_BUFFER {
 
 };
 
-
 //Declspec helps to declare the bytewidth of the constant buffer
 __declspec(align(16))
 struct MTL_STRUCT
@@ -57,10 +58,18 @@ struct MTL_STRUCT
 	XMFLOAT2 padding;
 	};
 
-struct MeshData
+struct CylinderMeshData
 {
-	vector<Vertex> Vertices;
+	vector<Vertex_Cylinder> Vertices;
 	vector<UINT> Indices;
+};
+
+struct CubeObjects {
+
+	XMMATRIX objectWorldMatrix;
+	ID3D11Buffer* gCubeVertexBuffer;;
+	BoundingBox bbox;
+	bool renderCheck;
 };
 
 class BufferComponents {
@@ -73,7 +82,7 @@ public:
 
 	bool fileFound;
 	vector<OBJStruct> ImportStruct;
-	BoundingBox MeshBB;
+
 	MTL_STRUCT MTLConstantData;
 	VS_CONSTANT_BUFFER VtxConstantData;
 
@@ -88,6 +97,8 @@ public:
 	XMMATRIX tLightViewProj;
 
 	vector<Vertex_Bone> fbxVector;
+	
+	CubeObjects cubeObjects[CUBECAPACITY];
 
 	ID3D11Buffer* gVertexBuffer;	// Vertex buffer
 	ID3D11Buffer* gTerrainBuffer;	// for OBJ parser
@@ -104,7 +115,9 @@ public:
 	ID3D11Buffer* gCylinderBuffer;
 	ID3D11Buffer* gCylinderIndexBuffer;
 
-	void SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
+	ID3D11Buffer* gCubeIndexBuffer;
+
+	bool SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
 	bool CreateVertexBuffer(ID3D11Device* &gDevice);
@@ -114,11 +127,16 @@ public:
 	bool CreateRasterizerState(ID3D11Device* &gDevice);
 
 	bool CreateCylinderBuffers(ID3D11Device* &gDevice);
-	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, CylinderMeshData& meshData);
 
 	bool CreateVertexConstantBuffer(ID3D11Device* &gDevice);
+
+	bool CreateCubeVertices(ID3D11Device* &gDevice);
+	bool CreateCubeIndices(ID3D11Device* &gDevice);
+
+	float RandomNumber(float Minimum, float Maximum);
 
 };
 
