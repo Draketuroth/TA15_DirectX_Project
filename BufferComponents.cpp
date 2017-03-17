@@ -1267,10 +1267,20 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		// TRANSFORM BOUNDING BOX AND INITIALIZE RENDER CHECK BOOLEAN VARIABLE
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		//FXMMATRIX transform = FXMMATRIX(cubeObjects[i].objectWorldMatrix);
+		cubeObjects[i].objectWorldMatrix = XMMatrixIdentity();
+		XMMATRIX transform = XMMATRIX(cubeObjects[i].objectWorldMatrix);
+
 		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
-		//cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
-		cubeObjects[i].renderCheck = true;
+
+		cubeObjects[i].bbox.Extents = { 1, 1, 1 };
+
+		cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
+
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		// INITIALIZE RENDER CHECK TO FALSE FOR ALL CUBES
+		//----------------------------------------------------------------------------------------------------------------------------------//
+		
+		cubeObjects[i].renderCheck = false;
 
 	}
 
