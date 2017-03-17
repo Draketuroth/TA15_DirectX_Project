@@ -467,11 +467,11 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	
 	}
 
-	/*if(!CreateRasterizerState(gDevice)){
+	if(!CreateRasterizerState(gDevice)){
 	
 		return false;
 	
-	}*/
+	}
 	
 	if(!CreateVertexConstantBuffer(gDevice)){
 	
@@ -1164,7 +1164,7 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 	float zOffsetValue = 0.0f;
 	float spacing = 0.0f;
 
-	srand(time(NULL));
+	//srand(time(NULL));
 
 	for(int i = 0; i < CUBECAPACITY; i++){
 

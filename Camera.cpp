@@ -382,3 +382,9 @@ void Camera::CreateFrustum()
 
 	}
 }
+void Camera::testCreate()
+{
+
+	this->testFrust.CreateFromMatrix(this->testFrust, this->Proj());
+
+}

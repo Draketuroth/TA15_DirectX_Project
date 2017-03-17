@@ -6,7 +6,7 @@ Quadtree::Quadtree()
 	this->SubDiv = 0;
 	this->totalSubDiv = 4;
 	this->BBox.Center = { 0, 0, 0 };
-	this->BBox.Extents = { 0, 0, 0 };
+	this->BBox.Extents = { 32, 32, 32 };
 	this->BBox.Transform(this->BBox, this->WorldM);
 	this->intersection = OUTSIDE;
 	for (int i = 0; i < 4; i++)
@@ -105,9 +105,10 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 
 void Quadtree::checkBoundingBox(CubeObjects &Object)
 {
+
 	if (this->BBox.Contains(Object.bbox))//Check if the current node has an object
 	{
-		if (this->SubDiv != totalSubDiv)
+		if (this->SubDiv != totalSubDiv - 1)
 		{
 			for (int i = 0; i < 4; i++)//loops through children
 			{
@@ -128,7 +129,19 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 		}
 		else
 		{
-			this->objects.push_back(&Object);//Put the object thats in the lowest subdiv in the list of objects for this node
+			for (size_t i = 0; i < 4; i++)
+			{
+				if (this->nodes[i]->BBox.Contains(Object.bbox))
+				{
+					this->nodes[i]->objects.push_back(&Object);//Put the object thats in the lowest subdiv in the list of objects for this node
+					if (this->nodes[i]->objects.size() > 0)
+					{
+
+						cout << this->nodes[i]->SubDiv << endl << this->nodes[i]->objects.size() << endl;
+					}
+				}
+
+			}
 		}
 	}
 }
@@ -219,64 +232,95 @@ void Quadtree::calculateHalfD()
 
 }
 
+//void Quadtree::recursiveIntersect(Camera camera)
+//{
+//	if (SubDiv == 0)
+//	{
+//		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
+//		{
+//			this->intersection = INSIDE;
+//		}
+//		else
+//		{
+//			this->intersection = OUTSIDE;
+//		}
+//	}
+//	for (size_t i = 0; i < 4; i++)
+//	{
+//		if (SubDiv != totalSubDiv)
+//		{
+//			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
+//			{
+//				this->nodes[i]->intersection = INSIDE;
+//				this->nodes[i]->recursiveIntersect(camera);
+//			}
+//			else
+//			{
+//				this->nodes[i]->intersection = OUTSIDE;
+//			}
+//		}
+//	}
+//}
+
 void Quadtree::recursiveIntersect(Camera camera)
 {
-	if (SubDiv == 0)
+	if (this->SubDiv == 0)
 	{
-		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
+		if (camera.testFrust.Intersects(this->BBox))
 		{
-			this->intersection = INSIDE;
+			this->intersection = INTERSECT;
 		}
 		else
 		{
 			this->intersection = OUTSIDE;
 		}
 	}
-	for (size_t i = 0; i < 4; i++)
+	if (this->intersection != OUTSIDE)
 	{
-		if (SubDiv != totalSubDiv)
+		if (this->SubDiv != totalSubDiv)
 		{
-			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
+			for (size_t i = 0; i < 4; i++)
 			{
-				this->nodes[i]->intersection = INSIDE;
-				this->nodes[i]->recursiveIntersect(camera);
-			}
-			else
-			{
-				this->intersection = OUTSIDE;
+		
+				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
+				{
+					this->nodes[i]->intersection = INTERSECT;
+					this->nodes[i]->recursiveIntersect(camera);
+				}
+				else
+				{
+					this->nodes[i]->intersection = OUTSIDE;
+				}
+			
 			}
 		}
 	}
 }
-
 void Quadtree::checkRenderObjects()
 {
 	for (size_t i = 0; i < 4; i++)//Loops through children
 	{
-		if (this->SubDiv != totalSubDiv - 1)//do not stop until the lowest subdiv
+		if (this->SubDiv != totalSubDiv - 1)//do not stop until the second lowest subdiv
 		{
 		//if the node is inside the frustum we will continue to check for objects inside the node
-			
-			this->nodes[i]->checkRenderObjects();
-			
+			this->nodes[i]->checkRenderObjects();		
 		}
-		else//here we will stop at the second lowest subdiv, because we check the second lowest subdiv Quadtrees children, which in this case is the lowes subdiv
+		else//here we will stop at the second lowest subdiv, because we check the second lowest subdiv Quadtrees children, which is the lowes subdiv
 		{
 			if (this->nodes[i]->objects.size() > 0)
 			{
-				cout << this->objects.size() << endl;
-
-				for (size_t i = 0; i < this->nodes[i]->objects.size(); i++)
+				cout << this->nodes[i]->objects.size() << endl;
+				for (size_t j = 0; j < this->nodes[i]->objects.size(); j++)
 				{
 					if (this->nodes[i]->intersection != OUTSIDE)
 					{
-						this->nodes[i]->objects[i]->renderCheck = true;
+						this->nodes[i]->objects[j]->renderCheck = true;
 					}
 					else
 					{
-						this->nodes[i]->objects[i]->renderCheck = false;
+						this->nodes[i]->objects[j]->renderCheck = false;
 					}
-				}
+				}	
 			}			
 		}
 	}

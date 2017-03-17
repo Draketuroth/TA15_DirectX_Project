@@ -169,6 +169,7 @@ int RunApplication() {
 
 	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that needs to be assigned to a node in the quadtree
 	{
+
 		QTree.checkBoundingBox(bHandler.cubeObjects[i]);
 	}
 
@@ -313,6 +314,7 @@ int RunApplication() {
 
 
 			 mCam.CreateFrustum();
+			 mCam.testCreate();
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
 			 //----------------------------------------------------------------------------------------------------------------------------------//
