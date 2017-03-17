@@ -62,7 +62,6 @@ void TextureComponents::ReleaseAll() {
 	SAFE_RELEASE(texSampler);
 
 	SAFE_RELEASE(pShadowMap);
-	SAFE_RELEASE(pSmDepthState);
 	SAFE_RELEASE(pSmDepthView);
 	SAFE_RELEASE(pSmSRView);
 }
@@ -226,40 +225,6 @@ bool TextureComponents::CreateShadowMap(ID3D11Device* &gDevice)
 	hr = gDevice->CreateTexture2D(&texDesc, NULL, &this->pShadowMap);
 	if (FAILED(hr))
 	{
-		return false;
-	}
-
-	D3D11_DEPTH_STENCIL_DESC stencilDesc;
-
-	// Depth test
-	stencilDesc.DepthEnable = true;
-	stencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	stencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	// Stencil test
-	stencilDesc.StencilEnable = true;
-	stencilDesc.StencilReadMask = 0xFF;
-	stencilDesc.StencilWriteMask = 0xFF;
-
-	// Stencil operations if the pixel is facing forward
-
-	stencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	stencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	stencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	stencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if the pixel is facing backward
-
-	stencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	stencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	stencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	stencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Create Depth State
-	hr = gDevice->CreateDepthStencilState(&stencilDesc, &pSmDepthState);
-
-	if (FAILED(hr)) {
-
 		return false;
 	}
 

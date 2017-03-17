@@ -55,9 +55,9 @@ struct GS_OUT
 
 	 // Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
 
-	 float3 position = mul(float4(input[0].Pos, 1.0f), worldViewProj);
-	 float3 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj);
-	 float3 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj);
+	 float3 position = mul(float4(input[0].Pos, 1.0f), worldViewProj).xyz;
+	 float3 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj).xyz;
+	 float3 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj).xyz;
 
 	 float3 triangleSideA = position - position2;
 	 float3 triangleSideB = position - position3;
@@ -86,7 +86,7 @@ struct GS_OUT
 
 			 output.Tex = input[i].Tex;
 
-			 output.ViewPos = cameraPos - worldPosition;
+			 output.ViewPos = cameraPos.xyz - worldPosition.xyz;
 
 			 triStream.Append(output);	// The output stream can be seen as list which adds the most recent vertex to the last position in that list
 

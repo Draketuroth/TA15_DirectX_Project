@@ -40,7 +40,6 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING OF THE OBJ/TERRAIN DRAW CALL)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
-	gHandler.gDeviceContext->OMSetDepthStencilState(tHandler.pSmDepthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(0, nullptr, tHandler.pSmDepthView);
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gShadowVS, nullptr, 0);
@@ -222,7 +221,7 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 	for (int i = 0; i < CUBECAPACITY; i++){
 
-		if(bHandler.cubeObjects[i].renderCheck == true){
+		if (bHandler.cubeObjects[i].renderCheck == true){
 
 		gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.cubeObjects[i].gCubeVertexBuffer, &vertexSize, &offset);
 

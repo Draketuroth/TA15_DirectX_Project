@@ -121,28 +121,19 @@ int main() {
 			MB_OK);
 	}
 	
-	/*if (!QTree.CreateTree(0, gHandler.gDevice))
+	if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Quadtree couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
-	}*/
+	}
 
 	return RunApplication();
 }
 
 int RunApplication() {
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-	// FRUSTUM CULLING INITIALIZATION
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	/*for (int i = 0; i < 8; i++) {
-
-		QTree.checkBoundingBox(bHandler.cubeObjects[i].bbox);
-	}*/
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// PREDEFINED VARIABLES
@@ -175,7 +166,11 @@ int RunApplication() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
-	
+
+	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that needs to be assigned to a node in the quadtree
+	{
+		QTree.checkBoundingBox(bHandler.cubeObjects[i]);
+	}
 
 	while (windowMessage.message != WM_QUIT) {
 
@@ -250,12 +245,13 @@ int RunApplication() {
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 			
-			
-			HRESULT hr;
-			
+
+	
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			HRESULT hr;
 
 			// Here we disable GPU access to the vertex buffer data so I can change it on the CPU side and update it by sending it back when finished
 
@@ -307,9 +303,24 @@ int RunApplication() {
 				i = 0;
 			}*/
 
+
+
+
 			// At last we have to reenable GPU access to the vertex buffer data
 
 			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+
+
+
+			 mCam.CreateFrustum();
+			 //----------------------------------------------------------------------------------------------------------------------------------//
+			 // QUAD TREE FUNCTIONS
+			 //----------------------------------------------------------------------------------------------------------------------------------//
+
+			 QTree.recursiveIntersect(mCam);//Check for frustum intersection
+
+
+			 QTree.checkRenderObjects();
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// PARTICLE MOVEMENT
@@ -335,16 +346,6 @@ int RunApplication() {
 			
 				gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer, 0);
 			}
-
-
-			
-			/*if (QTree.frustumIntersect(mCam) == INTERSECT  || QTree.frustumIntersect(mCam) == INSIDE)
-			{
-				for (UINT i = 0; i < 4; i++)
-				{
-
-				}
-			}*/
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
