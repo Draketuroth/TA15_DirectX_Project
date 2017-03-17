@@ -22,7 +22,7 @@ public:
 	XMFLOAT3 halfDiag;
 	int intersection;
 	int ID;
-	XMMATRIX WorldM = XMMatrixIdentity();
+	XMMATRIX WorldM;
 
 	void calculateHalfD();
 	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);

@@ -116,7 +116,7 @@ private:
 	// Cache View/Proj Matrices 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
-
+	XMFLOAT4X4 cWorld;
 };
 
 #endif CAMERA_H

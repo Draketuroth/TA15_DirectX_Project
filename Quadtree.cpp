@@ -8,6 +8,7 @@ Quadtree::Quadtree()
 	this->totalSubDiv = 4;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
+	this->WorldM = XMMatrixIdentity();
 	this->BBox.Transform(this->BBox, this->WorldM);
 	this->intersection = OUTSIDE;
 	for (int i = 0; i < 4; i++)
@@ -57,7 +58,10 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 		this->BBox.Transform(this->BBox, this->WorldM);
 		this->calculateHalfD();
 	}
-	
+	if (this->SubDiv == 4)
+	{
+		this->ID = 1;
+	}
 	XMVECTOR halfExtent = XMLoadFloat3(&this->BBox.Extents) / 2;
 	XMFLOAT3 newExtent;
 	XMStoreFloat3(&newExtent, halfExtent);
@@ -84,10 +88,10 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 
 	if (SubDiv != totalSubDiv)
 	{
-		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent, this->ID + 1);
-		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID + 2);
-		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID + 3);
-		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID + 4);
+		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent, this->ID);
+		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID);
+		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID);
+		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID);
 
 		this->nodes[0]->calculateHalfD();
 		this->nodes[1]->calculateHalfD();
@@ -136,11 +140,11 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 				if (this->nodes[i]->BBox.Contains(Object.bbox))
 				{
 					this->nodes[i]->objects.push_back(&Object);//Put the object thats in the lowest subdiv in the list of objects for this node
-					if (this->nodes[i]->objects.size() > 0)
-					{
+					//if (this->nodes[i]->objects.size() > 0)
+					//{
 
-						cout << this->nodes[i]->SubDiv << endl << this->nodes[i]->objects.size() << endl;
-					}
+					//	//cout << this->nodes[i]->SubDiv << endl << this->nodes[i]->objects.size() << endl;
+					//}
 				}
 
 			}
@@ -293,7 +297,6 @@ void Quadtree::recursiveIntersect(Camera camera)
 				{
 					this->nodes[i]->intersection = OUTSIDE;
 				}
-			
 			}
 		}
 	}
@@ -311,7 +314,7 @@ void Quadtree::checkRenderObjects()
 		{
 			if (this->nodes[i]->objects.size() > 0)
 			{
-				cout << "Size: " << this->nodes[i]->objects.size() << endl << "ID: " << this->nodes[i]->ID << endl;
+				//cout << "Size: " << this->nodes[i]->objects.size() << endl << "ID: " << this->nodes[i]->ID << endl;
 				for (size_t j = 0; j < this->nodes[i]->objects.size(); j++)
 				{
 					if (this->nodes[i]->intersection != OUTSIDE)

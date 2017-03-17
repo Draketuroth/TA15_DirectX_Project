@@ -4,7 +4,7 @@
 
 // Constructor and destructor
 Camera::Camera() {
-
+	
 }
 
 Camera::~Camera() {
@@ -384,7 +384,11 @@ void Camera::CreateFrustum()
 }
 void Camera::testCreate()
 {
-
-	this->testFrust.CreateFromMatrix(this->testFrust, this->Proj());
+	BoundingFrustum tempFrust;
+	tempFrust.CreateFromMatrix(this->testFrust, this->Proj());
+	XMMATRIX tempWorld;
+	tempWorld = XMMatrixIdentity();
+	XMStoreFloat4x4(&this->cWorld, tempWorld);
+	this->testFrust.Transform(this->testFrust, tempWorld);
 
 }

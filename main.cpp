@@ -245,8 +245,9 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
+			mCam.testCreate();
+			//mCam.CreateFrustum();
 			
-
 	
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
@@ -314,7 +315,7 @@ int RunApplication() {
 
 
 			// mCam.CreateFrustum();
-			 mCam.testCreate();
+			
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
 			 //----------------------------------------------------------------------------------------------------------------------------------//

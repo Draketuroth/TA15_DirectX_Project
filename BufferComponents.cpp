@@ -741,7 +741,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float nearPlane = 0.1f;
 
-	float farPlane = 20000.f;
+	float farPlane = 100.f;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -1172,10 +1172,10 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		xOffsetValue = RandomNumber(-30, 30);
-		yOffsetValue = RandomNumber(5, 30);
-		zOffsetValue = RandomNumber(-30, 30);
-		spacing = RandomNumber(-25, 25);
+		xOffsetValue = RandomNumber(-15, 15);
+		yOffsetValue = RandomNumber(5, 15);
+		zOffsetValue = RandomNumber(-15, 15);
+		spacing = RandomNumber(-15, 15);
 
 		//----------------------------------------------------------------------------------------------------------------------------------//
 		// HARDCODED VERTICES
