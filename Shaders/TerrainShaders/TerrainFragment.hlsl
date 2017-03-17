@@ -44,7 +44,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	float lightIntensity;
 	float3 diffuseLight;
 	float3 specularLight;
-	bool Mcolor = false;
+	
 
 	input.lPos.xy /= input.lPos.w; //light pos in NDC
 
@@ -81,7 +81,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 		ads = Ld2 * (Ka + diffuseLight + specularLight);
 		color = float3(Kd.x,Kd.y,Kd.z);
-		Mcolor = true;
+		
 
 	}
 	else
@@ -91,16 +91,15 @@ float4 PS_main(PS_IN input) : SV_Target
 		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
-	}
-	
 
-	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
-	if (Mcolor == false)
-	{
 		texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
 		color = float4(texColor, 1.0f);
 	}
+	
+
+	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
+	
 	
 	//return float4(color,1);// *shadowCheck;
 	return float4((ads, 1.0f) * color, 1) * shadowCheck;
