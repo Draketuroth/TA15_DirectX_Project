@@ -52,6 +52,7 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	{
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
+		this->BBox.Transform(this->BBox, this->WorldM);
 		this->calculateHalfD();
 	}
 	
@@ -214,14 +215,13 @@ void Quadtree::calculateHalfD()
 	XMVECTOR vecMax = XMLoadFloat3(&maxCoord);
 
 	XMVECTOR h = (vecMax - vecMin) / 2;
-	XMFLOAT3 finalHD;
 	XMStoreFloat3(&this->halfDiag, h);
 
 }
 
 void Quadtree::recursiveIntersect(Camera camera)
 {
-	if (SubDiv != totalSubDiv)
+	if (SubDiv == 0)
 	{
 		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
 		{
@@ -277,12 +277,7 @@ void Quadtree::checkRenderObjects()
 						this->nodes[i]->objects[i]->renderCheck = false;
 					}
 				}
-			}
-			else
-			{
-
-			}
-			
+			}			
 		}
 	}
 

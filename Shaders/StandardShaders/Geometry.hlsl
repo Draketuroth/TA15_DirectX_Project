@@ -106,7 +106,7 @@ struct GS_OUT
 
 	 
 
-	 output.ViewPos = cameraPos - worldPosition;
+	 output.ViewPos = cameraPos.xyz - worldPosition.xyz;
 	 //output.Norm = normal;
 
 	 output.WPos = worldPosition;

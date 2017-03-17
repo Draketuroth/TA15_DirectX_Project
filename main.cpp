@@ -244,17 +244,9 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
-			mCam.CreateFrustum();
-
-			//----------------------------------------------------------------------------------------------------------------------------------//
-			// QUAD TREE FUNCTIONS
-			//----------------------------------------------------------------------------------------------------------------------------------//
-
-			QTree.recursiveIntersect(mCam);//Check for frustum intersection
-
-
-			QTree.checkRenderObjects();
 			
+
+	
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
@@ -311,9 +303,24 @@ int RunApplication() {
 				i = 0;
 			}*/
 
+
+
+
 			// At last we have to reenable GPU access to the vertex buffer data
 
 			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+
+
+
+			 mCam.CreateFrustum();
+			 //----------------------------------------------------------------------------------------------------------------------------------//
+			 // QUAD TREE FUNCTIONS
+			 //----------------------------------------------------------------------------------------------------------------------------------//
+
+			 QTree.recursiveIntersect(mCam);//Check for frustum intersection
+
+
+			 QTree.checkRenderObjects();
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// PARTICLE MOVEMENT

@@ -54,7 +54,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	//pixel depth for shadows
 	float depth = input.lPos.z / input.lPos.w;
 	
-	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.0f : 1.0f;
+	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.25f : 1.0f;
 
 	float nDotL;
 	float3 texColor;
@@ -75,11 +75,11 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	if ( Kd.x > 0.0f || Kd.y > 0.0f || Kd.z > 0.0f)
 	{
-		diffuseLight = Kd * max(dot(s, n), 0.0f);
+		diffuseLight = Kd.xyz * max(dot(s, n), 0.0f);
 
-		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
+		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
-		ads = Ld2 * (Ka + diffuseLight + specularLight);
+		ads = Ld2 * (Ka.xyz + diffuseLight + specularLight);
 		color = float3(Kd.x,Kd.y,Kd.z);
 		Mcolor = true;
 
@@ -88,18 +88,13 @@ float4 PS_main(PS_IN input) : SV_Target
 	{
 		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
 
-		specularLight = Ks * pow(max(dot(r, v), 0.0f), shinyPower);
+		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
-	}
-	
 
-	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
-	if (Mcolor == false)
-	{
 		texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
-		color = float4(texColor, 1.0f);
+		color = texColor;
 	}
 	
 	//return float4(color,1);// *shadowCheck;

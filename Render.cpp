@@ -40,7 +40,6 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING OF THE OBJ/TERRAIN DRAW CALL)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
-	gHandler.gDeviceContext->OMSetDepthStencilState(tHandler.pSmDepthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(0, nullptr, tHandler.pSmDepthView);
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gShadowVS, nullptr, 0);
