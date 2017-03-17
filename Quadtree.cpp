@@ -4,6 +4,7 @@
 Quadtree::Quadtree()
 {
 	this->SubDiv = 0;
+	this->ID = 0;
 	this->totalSubDiv = 4;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
@@ -16,7 +17,7 @@ Quadtree::Quadtree()
 
 }
 
-Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents)
+Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents, int ID)
 {
 	//for (size_t i = 0; i < 4; i++)
 	//{
@@ -27,6 +28,7 @@ Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents)
 	this->BBox.Center = Center;
 	this->BBox.Extents = Extents;
 	this->BBox.Transform(this->BBox, this->WorldM);
+	this->ID = ID;
 	this->intersection = OUTSIDE;
 	for (UINT i = 0; i < 4; i++)
 	{
@@ -82,10 +84,10 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 
 	if (SubDiv != totalSubDiv)
 	{
-		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent);
-		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent);
-		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent);
-		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent);
+		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent, this->ID + 1);
+		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID + 2);
+		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID + 3);
+		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID + 4);
 
 		this->nodes[0]->calculateHalfD();
 		this->nodes[1]->calculateHalfD();
@@ -309,7 +311,7 @@ void Quadtree::checkRenderObjects()
 		{
 			if (this->nodes[i]->objects.size() > 0)
 			{
-				cout << this->nodes[i]->objects.size() << endl;
+				cout << "Size: " << this->nodes[i]->objects.size() << endl << "ID: " << this->nodes[i]->ID << endl;
 				for (size_t j = 0; j < this->nodes[i]->objects.size(); j++)
 				{
 					if (this->nodes[i]->intersection != OUTSIDE)

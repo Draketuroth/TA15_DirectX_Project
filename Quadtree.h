@@ -9,7 +9,7 @@ class Quadtree
 {
 public:
 	Quadtree();
-	Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents);
+	Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents, int ID);
 	virtual ~Quadtree();
 
 	Quadtree* nodes[4];
@@ -21,6 +21,7 @@ public:
 //	int vtxIndex[16] = { 0, 1, 2, 3, 0, 4, 7, 3, 2, 6, 7, 4, 5, 1, 5, 6 };
 	XMFLOAT3 halfDiag;
 	int intersection;
+	int ID;
 	XMMATRIX WorldM = XMMatrixIdentity();
 
 	void calculateHalfD();
