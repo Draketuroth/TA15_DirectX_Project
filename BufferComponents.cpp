@@ -467,11 +467,11 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	
 	}
 
-	if(!CreateRasterizerState(gDevice)){
+	/*if(!CreateRasterizerState(gDevice)){
 	
 		return false;
 	
-	}
+	}*/
 	
 	if(!CreateVertexConstantBuffer(gDevice)){
 	
@@ -737,7 +737,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float fov = PI * 0.45f;		// We recieve the field of view in radians by multiplying with PI
 
-	float aspectRatio = WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
+	float aspectRatio = (float)WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
 
 	float nearPlane = 0.1f;
 
@@ -749,16 +749,16 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
-	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(0, 20, 20, 1));
-	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(0, 0, 0, 0));
-	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(0, 1, 0, 0));
+	XMVECTOR lightPos = XMLoadFloat4(&XMFLOAT4(40, 15, 20, 1));
+	XMVECTOR lightVec = XMLoadFloat4(&XMFLOAT4(40, 0, 20, 0));
+	XMVECTOR upVector = XMLoadFloat4(&XMFLOAT4(1, 0, 0, 0));
 
 	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, lightVec, upVector);
 
 	//Light View matrix
 	float lFov = PI * 0.45f;
 
-	float lAspect = WIDTH / (float)HEIGHT;
+	float lAspect = float(WIDTH) / (float)HEIGHT;
 
 	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
 
@@ -766,8 +766,8 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float lFarPlane = 50.f;
 	
-	//XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect , lNearPlane, lFarPlane);
-	XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
+	XMMATRIX lightProj = XMMatrixPerspectiveFovLH(lFov, lAspect , lNearPlane, lFarPlane);
+	//XMMATRIX lightProj = XMMatrixOrthographicLH(WIDTH, HEIGHT, lNearPlane, lFarPlane);
 	XMMATRIX lightViewProj = XMMatrixMultiply(lightView, lightProj);
 
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -880,6 +880,16 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	rasterizerDesc.FrontCounterClockwise = false;
+
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = 0;
+	rasterizerDesc.SlopeScaledDepthBias = 0;
+	
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.MultisampleEnable = false;
+	rasterizerDesc.AntialiasedLineEnable = false;
 
 	hr = gDevice->CreateRasterizerState(&rasterizerDesc, &gRasteriserState);
 
@@ -1272,7 +1282,7 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 
 		BoundingBox::CreateFromPoints(cubeObjects[i].bbox, 24, boundingPoints, 0);
 
-		cubeObjects[i].bbox.Extents = { 1, 1, 1 };
+		cubeObjects[i].bbox.Extents = { 2, 2, 2 };
 
 		cubeObjects[i].bbox.Transform(cubeObjects[i].bbox, transform);
 

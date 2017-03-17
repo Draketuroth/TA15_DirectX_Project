@@ -79,7 +79,7 @@ struct GS_OUT
 			output.Norm = mul(float4(normalAB, 1.0f), matrixWorld);
 			output.Tex = input[i].Tex;
 
-			output.ViewPos = cameraPos - worldPosition;
+			output.ViewPos = cameraPos.xyz - worldPosition.xyz;
 
 			triStream.Append(output);
 		}

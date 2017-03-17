@@ -40,13 +40,12 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	// SHADOW MAP PIPELINE (FOR SHADOW MAPPING OF THE OBJ/TERRAIN DRAW CALL)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	
-	gHandler.gDeviceContext->OMSetDepthStencilState(tHandler.pSmDepthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(0, nullptr, tHandler.pSmDepthView);
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gShadowVS, nullptr, 0);
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(nullptr, nullptr, 0);
-	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 0, nullptr);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 
@@ -81,7 +80,7 @@ void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHan
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelBoneShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &fbxImporter.gBoneBuffer);
-	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
@@ -122,7 +121,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 		gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); 
 		gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 		gHandler.gDeviceContext->PSSetConstantBuffers(0, 1, &bHandler.gMTLBuffer);
-		gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+		//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 		gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
 		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 		gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.shadowSampler);
@@ -148,7 +147,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
-	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
@@ -245,7 +244,7 @@ void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	gHandler.gDeviceContext->VSSetShader(gHandler.gVertexShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryShader, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelShader, nullptr, 0);
-	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
+	//gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexConstantBuffer);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 

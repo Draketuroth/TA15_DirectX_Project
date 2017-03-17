@@ -34,7 +34,7 @@ VS_OUT VS_main(VS_IN input, uint id : SV_VertexID)
 	VS_OUT output = (VS_OUT)0;
 
 
-	input.Pos += particleMovement[id];
+	input.Pos += particleMovement[id].xyz;
 	output.Pos = input.Pos;
 
 	
