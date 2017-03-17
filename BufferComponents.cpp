@@ -877,6 +877,7 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 	HRESULT hr;
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
 
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
