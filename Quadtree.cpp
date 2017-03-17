@@ -111,10 +111,13 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 			for (int i = 0; i < 4; i++)//loops through children
 			{
 
-				//We want to check the lowest subdiv by checking not the actuall totalsubDiv but the subdiv before the lowest meaning the parent to the lowest subdiv because we check nodies[i](children) therefore the lowest subdiv does not have children, so we just have to check the children of the parent to the lowest subdiv
+				// We want to check the lowest subdiv by checking not the actual totalsubDiv but the subdiv before the lowest meaning the parent to 
+				// the lowest subdiv because we check nodes[i](children) therefore the lowest subdiv does not have children, so we just have to check 
+				// the children of the parent to the lowest subdiv
 		
-				if (this->nodes[i]->BBox.Contains(Object.bbox))//check if children on index I has an object
+				if (this->nodes[i]->BBox.Contains(Object.bbox)) //check if children on index I has an object
 				{
+
 				//if it isn't the deepest level of subdiv we will continue to travel down the subdivision to find the lowest subdiv the object belongs to
 					
 					this->nodes[i]->checkBoundingBox(Object);	
@@ -128,7 +131,6 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 		}
 	}
 }
-
 
 int Quadtree::frustumIntersect(Camera camera)
 {
@@ -246,6 +248,7 @@ void Quadtree::recursiveIntersect(Camera camera)
 		}
 	}
 }
+
 void Quadtree::checkRenderObjects()
 {
 	for (size_t i = 0; i < 4; i++)//Loops through children

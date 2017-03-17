@@ -222,7 +222,7 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 	for (int i = 0; i < CUBECAPACITY; i++){
 
-		if(bHandler.cubeObjects[i].renderCheck == true){
+		if (bHandler.cubeObjects[i].renderCheck == true){
 
 		gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.cubeObjects[i].gCubeVertexBuffer, &vertexSize, &offset);
 

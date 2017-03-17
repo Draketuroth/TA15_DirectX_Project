@@ -166,6 +166,7 @@ int RunApplication() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
+
 	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that needs to be assigned to a node in the quadtree
 	{
 		QTree.checkBoundingBox(bHandler.cubeObjects[i]);
@@ -244,12 +245,21 @@ int RunApplication() {
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
 			mCam.CreateFrustum();
-			
-			HRESULT hr;
+
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// QUAD TREE FUNCTIONS
+			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			QTree.recursiveIntersect(mCam);//Check for frustum intersection
+
+
+			QTree.checkRenderObjects();
 			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			HRESULT hr;
 
 			// Here we disable GPU access to the vertex buffer data so I can change it on the CPU side and update it by sending it back when finished
 
@@ -329,15 +339,6 @@ int RunApplication() {
 			
 				gHandler.gDeviceContext->Unmap(bHandler.gVertexConstantBuffer, 0);
 			}
-
-			//----------------------------------------------------------------------------------------------------------------------------------//
-			// QUAD TREE FUNCTIONS
-			//----------------------------------------------------------------------------------------------------------------------------------//
-
-			QTree.recursiveIntersect(mCam);//Check for frustum intersection
-
-
-			QTree.checkRenderObjects();
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// RENDER
