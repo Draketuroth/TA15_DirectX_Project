@@ -62,10 +62,10 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	float shinyPower = 20.0f;
 
-	float3 Ld2 = float3(0.6f, 0.6f, 0.6f);	// Ld represents the light source intensity
-	float3 Ka2 = float3(0.2f, 0.2f, 0.2f);		// Ka is the hardcoded ambient light
-	float3 Ks2 = float3(0.0f, 0.0f, 0.0f);	// Ks is the hardcoded specular light
-	float3 Kd2 = float3(1.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
+	float3 Ld2 = float3(1.0f, 1.0f, 1.0f);	// Ld represents the light source intensity
+	float3 Ka2 = float3(0.8f, 0.8f, 0.8f);		// Ka is the hardcoded ambient light
+	float3 Ks2 = float3(1.0f, 1.0f, 1.0f);	// Ks is the color of the hardcoded specular light
+	float3 Kd2 = float3(0.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
 	float3 ads;
 
 	float3 n = normalize(input.Norm);	// The n component is self-explanatory, but represents the normal of the surface
@@ -73,36 +73,46 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
 	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
 
-	if ( Kd.x > 0.0f || Kd.y > 0.0f || Kd.z > 0.0f)
+	
+
+
+	// We check if we have information in the .MTL file, if we dont we use hardcoded values.	
+	if (Ka.x > 0.0f || Ka.y > 0.0f || Ka.z > 0.0f)
 	{
-		diffuseLight = Kd.xyz * max(dot(s, n), 0.0f);
 
 		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
-		ads = Ld2 * (Ka.xyz + diffuseLight + specularLight);
-		color = float3(Kd.x,Kd.y,Kd.z);
-		
+		ads = Ld2 * (Ka.xyz + specularLight);
 
-	}
-	else
-	{
-		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
-
-		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
-
-		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
 
 		texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
 		color = texColor;
+
+
 	}
+	else
+	{
+	
+		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
+
+		specularLight = Ks2.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
+
+		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
+
+	}
+
+
+		
+	
 	
 
 	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
 	
 	
 	//return float4(color,1);// *shadowCheck;
-	return float4((ads, 1.0f) * color, 1) * shadowCheck;
+	//return float4((ads, 1.0f) * color, 1) * shadowCheck;
+	return float4(float4(ads, 1.0f) * color, 1) * shadowCheck;
 	//return float4((ads, 1.0f) *color,1) * float4(shadowCheck, 0.0f, 1.0f, 1.0f);
 	//return float4(texColor, 1) * shadowCheck;
 };
