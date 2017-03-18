@@ -64,6 +64,7 @@ void TextureComponents::ReleaseAll() {
 	SAFE_RELEASE(pShadowMap);
 	SAFE_RELEASE(pSmDepthView);
 	SAFE_RELEASE(pSmSRView);
+
 }
 
 DXGI_FORMAT TextureComponents::GetDepthResourceFormat(DXGI_FORMAT depthformat)
@@ -107,6 +108,29 @@ DXGI_FORMAT TextureComponents::GetDepthSRVFormat(DXGI_FORMAT depthformat)
 		break;
 	}
 	return srvformat;
+}
+
+bool TextureComponents::SetupTextures(ID3D11Device* &gDevice, BufferComponents &bHandler) {
+
+	if (!CreateTexture(gDevice, bHandler)) {
+
+		return false;
+	}
+
+	if (!CreateShadowMap(gDevice)) {
+
+		return false;
+	}
+
+
+	if (!InitializeComputeShaderResources(gDevice)) {
+		
+		return false;
+	}
+
+	SetResourceArr();
+
+	return true;
 }
 
 bool TextureComponents::CreateTexture(ID3D11Device* &gDevice,BufferComponents &bHandler) {
@@ -463,5 +487,19 @@ bool TextureComponents::CreateUAVTextureHV(ID3D11Device* &gDevice) {
 	}
 
 	return true;
+}
+
+void TextureComponents::SetResourceArr() {
+
+	// LINNEAS RESOURCES
+
+	terrainResources[0] = grassResource;
+	terrainResources[1] = pSmSRView;
+
+	// JONATHAN AND PHILIP RESOURCES
+
+	resourceArr[0] = terrainResource;
+	resourceArr[1] = pSmSRView;
+
 }
 

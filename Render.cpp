@@ -102,20 +102,9 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	ID3D11ShaderResourceView* resourceArr[2];
-	resourceArr[0] = tHandler.grassResource;
-	resourceArr[1] = tHandler.pSmSRView;
 
 	if (bHandler.fileFound == true)
 	{
-		//Array of resourceviews for shadow map and textures
-		ID3D11ShaderResourceView* resourceArr[2];
-		resourceArr[0] = tHandler.terrainResource;
-		resourceArr[1] = tHandler.pSmSRView;
-		//Array of samplerstates for texture and shadowmap
-		ID3D11SamplerState* samplerArr[2];
-		samplerArr[0] = tHandler.texSampler;
-		samplerArr[1] = tHandler.shadowSampler;
 
 		gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);
 		gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0);
@@ -123,7 +112,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 		gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
 		gHandler.gDeviceContext->PSSetConstantBuffers(0, 1, &bHandler.gMTLBuffer);
 		gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-		gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+		gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.resourceArr);
 		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 		gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.shadowSampler);
 
@@ -147,7 +136,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
 																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
-	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+	gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.terrainResources);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);

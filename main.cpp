@@ -96,27 +96,10 @@ int main() {
 	terrain.BuildQuadPatchVB(gHandler.gDevice);
 	terrain.BuildQuadPatchIB(gHandler.gDevice);
 
-	if (!tHandler.CreateTexture(gHandler.gDevice,bHandler)) {
-
+	if (!tHandler.SetupTextures(gHandler.gDevice, bHandler)) {
 		MessageBox(
 			NULL,
 			L"CRITICAL ERROR: Textures couldn't be initialized\nClosing application...",
-			L"ERROR",
-			MB_OK);
-	}
-	if (!tHandler.CreateShadowMap(gHandler.gDevice)) {
-		MessageBox(
-			NULL,
-			L"CRITICAL ERROR: Shadow map couldn't be initialized\nClosing application...",
-			L"ERROR",
-			MB_OK);
-	}
-
-
-	if (!tHandler.InitializeComputeShaderResources(gHandler.gDevice)) {
-		MessageBox(
-			NULL,
-			L"CRITICAL ERROR: Compute Shader Resources couldn't be initialized\nClosing application...",
 			L"ERROR",
 			MB_OK);
 	}
