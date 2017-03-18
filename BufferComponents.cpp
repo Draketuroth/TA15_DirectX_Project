@@ -737,7 +737,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float fov = PI * 0.45f;		// We recieve the field of view in radians by multiplying with PI
 
-	float aspectRatio = (float)WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
+	float aspectRatio = float(WIDTH) / float(HEIGHT);		// Using the already defined macros for the width and height of the viewport
 
 	float nearPlane = 0.1f;
 
@@ -758,7 +758,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//Light View matrix
 	float lFov = PI * 0.45f;
 
-	float lAspect = float(WIDTH) / (float)HEIGHT;
+	float lAspect = float(WIDTH) / float(HEIGHT);
 
 	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
 
@@ -877,6 +877,7 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 	HRESULT hr;
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
 
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
