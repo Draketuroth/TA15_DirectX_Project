@@ -339,46 +339,52 @@ void Camera::CreateFrustum()
 	
 	this->Frustum[0].Normal.x = -(M._14 + M._11);
 	this->Frustum[0].Normal.y = -(M._24 + M._21);
-	this->Frustum[0].Normal.z = -(M._34 + M._41);
+	this->Frustum[0].Normal.z = -(M._34 + M._31);
 	this->Frustum[0].Distance = -(M._44 + M._41);
 
 	//Right plane
 	this->Frustum[1].Normal.x = -(M._14 + M._11);
 	this->Frustum[1].Normal.y = -(M._24 + M._21);
-	this->Frustum[1].Normal.z = -(M._34 + M._41);
+	this->Frustum[1].Normal.z = -(M._34 + M._31);
 	this->Frustum[1].Distance = -(M._44 + M._41);
 
 	//Top plane
 	this->Frustum[2].Normal.x = -(M._14 - M._12);
 	this->Frustum[2].Normal.y = -(M._24 - M._22);
-	this->Frustum[2].Normal.z = -(M._34 - M._42);
+	this->Frustum[2].Normal.z = -(M._34 - M._32);
 	this->Frustum[2].Distance = -(M._44 - M._42);
 
 	//Bot Plane
 	this->Frustum[3].Normal.x = -(M._14 + M._12);
 	this->Frustum[3].Normal.y = -(M._24 + M._22);
-	this->Frustum[3].Normal.z = -(M._34 + M._42);
+	this->Frustum[3].Normal.z = -(M._34 + M._32);
 	this->Frustum[3].Distance = -(M._44 + M._42);
 
 	//Near Plane
 	this->Frustum[4].Normal.x = -(M._14 + M._13);
 	this->Frustum[4].Normal.y = -(M._24 + M._23);
-	this->Frustum[4].Normal.z = -(M._34 + M._43);
+	this->Frustum[4].Normal.z = -(M._34 + M._33);
 	this->Frustum[4].Distance = -(M._44 + M._43);
-				  
+
+
 	//Far plane
 	this->Frustum[5].Normal.x = -(M._14 - M._13);
 	this->Frustum[5].Normal.y = -(M._24 - M._23);
-	this->Frustum[5].Normal.z = -(M._34 - M._43);
+	this->Frustum[5].Normal.z = -(M._34 - M._33);
 	this->Frustum[5].Distance = -(M._44 - M._43);
 	
 	//Normalize all the planes
 	for (size_t i = 0; i < 6; i++)
 	{
-		XMFLOAT3 pNorm = this->Frustum[i].Normal;
-		XMVECTOR planeNorm = XMLoadFloat3(&pNorm);
-		XMVector3Normalize(planeNorm);
-		XMStoreFloat3(&this->Frustum[i].Normal, planeNorm);
+		float length = sqrt((this->Frustum[i].Normal.x * this->Frustum[i].Normal.x) + (this->Frustum[i].Normal.y * this->Frustum[i].Normal.y) + (this->Frustum[i].Normal.z * this->Frustum[i].Normal.z));
+		this->Frustum[i].Normal.x /= length;
+		this->Frustum[i].Normal.y /= length;
+		this->Frustum[i].Normal.z /= length;
+		this->Frustum[i].Distance /= length;
+		//XMFLOAT3 pNorm = this->Frustum[i].Normal;
+		//XMVECTOR planeNorm = XMLoadFloat3(&pNorm);
+		//XMVector3Normalize(planeNorm);
+		//XMStoreFloat3(&this->Frustum[i].Normal, planeNorm);
 
 	}
 }

@@ -129,7 +129,7 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-
+	QTree.worldMatrixMultiply();
 	return RunApplication();
 }
 
@@ -245,8 +245,8 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
-			mCam.testCreate();
-			//mCam.CreateFrustum();
+			//mCam.testCreate();
+			mCam.CreateFrustum();
 			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
@@ -314,7 +314,7 @@ int RunApplication() {
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
 			 //----------------------------------------------------------------------------------------------------------------------------------//
-
+			 QTree.worldMatrixMultiply();
 			 QTree.recursiveIntersect(mCam);//Check for frustum intersection
 			 QTree.checkRenderObjects();
 
