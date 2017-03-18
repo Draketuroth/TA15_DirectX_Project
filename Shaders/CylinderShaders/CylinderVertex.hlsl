@@ -35,7 +35,6 @@ struct VS_OUT
 	float3 TangentW : TANGENT;
 	float2 Tex : TEXCOORD;
 	float4 EyePosW : POSITION1;
-	float normalFlag : POSITION2;
 };
 
 

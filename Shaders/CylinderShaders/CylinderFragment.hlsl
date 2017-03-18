@@ -89,7 +89,6 @@ struct PS_IN
 	float3 TangentW : TANGENT;
 	float2 Tex : TEXCOORD;
 	float3 EyePosW : POSITION1;
-	float normalFlag : POSITION2;
 };
 
 
@@ -124,17 +123,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	diffuse += D;
 	spec += S;
 
-	if(input.normalFlag == 1){
-
 	return texColor * (ambient + diffuse) + spec;
-
-	}
-
-	else{
-
-	return texColor * (ambient + diffuse) + spec;
-
-	}
 
 };
 
