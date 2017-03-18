@@ -17,7 +17,6 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	float4 cameraPos;
 	float4 cameraUp;
 	matrix worldInvTranspose;
-	float normalMappingFlag;
 };
 
 struct VS_IN
@@ -52,7 +51,6 @@ VS_OUT VS_main(VS_IN input)
 
 	output.Tex = input.Tex;
 	output.EyePosW = cameraPos;
-	output.normalFlag = normalMappingFlag;
 
 	return output;
 }

@@ -276,14 +276,6 @@ int RunApplication() {
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 
-			if (GetAsyncKeyState('N') & 0x8000) {
-
-				normalMapping = !normalMapping;
-				Sleep(200);
-			}
-
-			cBufferPointer->normalMappingFlag = normalMapping;
-
 			//to folow the hightmap
 			if (mCam.Collotion() == true)
 			{
