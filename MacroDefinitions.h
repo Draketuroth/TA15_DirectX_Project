@@ -7,7 +7,7 @@
 #define OUTSIDE 0
 #define INSIDE 1
 #define INTERSECT 2
-#define CUBECAPACITY 50
+#define CUBECAPACITY 20
 
 #define LaunchInWindowedMode TRUE;
 #define SAFE_RELEASE( x ) if( x ) ( x )->Release(), ( x ) = nullptr;
