@@ -70,6 +70,11 @@ struct CubeObjects {
 	bool renderCheck;
 };
 
+struct TOPDOWN_CAMERA {
+
+	XMMATRIX topDownViewTransform;
+};
+
 class BufferComponents {
 	
 public:
@@ -93,6 +98,9 @@ public:
 	wstring OBJTexturePath;
 	
 	XMMATRIX tLightViewProj;
+
+	ID3D11Buffer* topDownCameraBuffer;
+	TOPDOWN_CAMERA topDownCamera;
 
 	vector<Vertex_Bone> fbxVector;
 	
@@ -135,6 +143,8 @@ public:
 	bool CreateCubeIndices(ID3D11Device* &gDevice);
 
 	float RandomNumber(float Minimum, float Maximum);
+
+	bool CreateTopDownCameraBuffer(ID3D11Device* &gDevice);
 
 };
 

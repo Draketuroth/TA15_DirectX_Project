@@ -15,6 +15,7 @@
 
 using namespace DirectX;
 using namespace std;
+
 struct Plane
 {
 	XMFLOAT3 Normal;

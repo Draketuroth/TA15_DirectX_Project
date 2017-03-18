@@ -437,6 +437,8 @@ void BufferComponents::ReleaseAll() {
 
 		SAFE_RELEASE(cubeObjects[i].gCubeVertexBuffer);
 	}
+
+	SAFE_RELEASE(topDownCameraBuffer);
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -487,6 +489,11 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	}
 
 	if (!CreateCubeIndices(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateTopDownCameraBuffer(gDevice)) {
 
 		return false;
 	}
@@ -1373,4 +1380,43 @@ bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
 float BufferComponents::RandomNumber(float Minimum, float Maximum) {
 
 	return ((float(rand()) / float(RAND_MAX)) * (Maximum - Minimum)) + Minimum;
+}
+
+bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	TOPDOWN_CAMERA topDownCamData;
+
+	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
+	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
+	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+	XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
+
+	topDownCamData.topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
+
+	D3D11_BUFFER_DESC constBufferDesc;
+	constBufferDesc.ByteWidth = sizeof(TOPDOWN_CAMERA);
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0;
+	constBufferDesc.StructureByteStride = 0;
+
+	// We set the the subresource data
+
+	D3D11_SUBRESOURCE_DATA constData;
+	constData.pSysMem = &topDownCamData;
+	constData.SysMemPitch = 0;
+	constData.SysMemSlicePitch = 0;
+
+	hr = gDevice->CreateBuffer(&constBufferDesc, &constData, &topDownCameraBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
 }
