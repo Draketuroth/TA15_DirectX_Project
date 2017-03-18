@@ -32,6 +32,7 @@ void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler,
 	gHandler.gDeviceContext->ClearRenderTargetView(tHandler.geometryTextureRTV, clearColor);
 	gHandler.gDeviceContext->ClearDepthStencilView(bHandler.depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);	// Clear the depth stencil view
 	gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);	// Clear the depth stencil view
+
 }
 
 void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
@@ -65,7 +66,7 @@ void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler,
 	// FIRST PASS TO DRAW GEOMETRY (Change render target view to render geometry to a texture that is separate from the back buffer texture)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
+	//gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.geometryTextureRTV, bHandler.depthView);
 }
 
@@ -336,7 +337,7 @@ void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler,
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
-	gHandler.gDeviceContext->Draw(3, 0);
+	gHandler.gDeviceContext->Draw(4, 0);
 
 	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, pSRV);

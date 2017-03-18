@@ -108,7 +108,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	texColor = gDiffuseMap.Sample(samLinear, input.Tex);
 
-	float3 normalMapSample = gNormalMap.Sample(samLinear, input.Tex).rgb;
+	float3 normalMapSample = gNormalMap.Sample(texSampler, input.Tex).rgb;
 	float3 bumpedNormalW = NormalToWorldSpace(normalMapSample, input.NormalW, input.TangentW);
 
 	float4 litColor = texColor;
@@ -126,13 +126,13 @@ float4 PS_main(PS_IN input) : SV_Target
 
 	if(input.normalFlag == 1){
 
-	return texColor*(ambient + diffuse) + spec;
+	return texColor * (ambient + diffuse) + spec;
 
 	}
 
 	else{
 
-	return litColor;
+	return texColor * (ambient + diffuse) + spec;
 
 	}
 
