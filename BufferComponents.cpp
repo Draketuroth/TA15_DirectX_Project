@@ -467,11 +467,11 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	
 	}
 
-	/*if(!CreateRasterizerState(gDevice)){
+	if(!CreateRasterizerState(gDevice)){
 	
 		return false;
 	
-	}*/
+	}
 	
 	if(!CreateVertexConstantBuffer(gDevice)){
 	
