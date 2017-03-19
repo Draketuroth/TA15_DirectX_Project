@@ -1386,8 +1386,6 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	TOPDOWN_CAMERA topDownCamData;
-
 	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
 	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));

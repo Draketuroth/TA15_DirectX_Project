@@ -100,7 +100,7 @@ public:
 	XMMATRIX tLightViewProj;
 
 	ID3D11Buffer* topDownCameraBuffer;
-	TOPDOWN_CAMERA topDownCamera;
+	TOPDOWN_CAMERA topDownCamData;
 
 	vector<Vertex_Bone> fbxVector;
 	

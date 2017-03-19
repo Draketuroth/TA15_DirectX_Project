@@ -247,20 +247,14 @@ int RunApplication() {
 
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
 
-				XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
-				XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 0));
-				XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
-
-				XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
-
-				cameraPointer->topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
+				cameraPointer->topDownViewTransform = bHandler.topDownCamData.topDownViewTransform;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
 
 			else if (topDownViewFlag == 1) {
 
-				//to folow the hightmap
+				//to follow the hightmap
 				if (mCam.Collotion() == true)
 				{
 					XMFLOAT3 camPos = mCam.GetPosition(); 
