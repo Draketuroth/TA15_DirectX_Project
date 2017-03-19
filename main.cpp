@@ -260,6 +260,14 @@ int RunApplication() {
 
 			else if (topDownViewFlag == 1) {
 
+				//to folow the hightmap
+				if (mCam.Collotion() == true)
+				{
+					XMFLOAT3 camPos = mCam.GetPosition(); 
+					float y = terrain.GetHeight(camPos.x, camPos.z); 
+					mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+				}
+
 				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
 
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
@@ -285,14 +293,6 @@ int RunApplication() {
 			cBufferPointer->matrixView = bHandler.tWorldMatrix * tCameraView;
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
-
-			////to folow the hightmap
-			//if (mCam.Collotion() == true)
-			//{
-			//	XMFLOAT3 camPos = mCam.GetPosition(); 
-			//	float y = terrain.GetHeight(camPos.x, camPos.z); 
-			//	mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
-			//}
 			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;

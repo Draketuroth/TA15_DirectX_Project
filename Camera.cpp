@@ -322,6 +322,7 @@ void Camera::OnMouseMove(WPARAM btnState, int x, int y) {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
+
 void Camera::CreateFrustum()
 {
 	XMMATRIX ViewMatrix, ProjMatrix;
