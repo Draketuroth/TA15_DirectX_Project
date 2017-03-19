@@ -246,8 +246,11 @@ int RunApplication() {
 				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
 
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
-
+				
 				cameraPointer->topDownViewTransform = bHandler.topDownCamData.topDownViewTransform;
+				XMMATRIX WVP = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraViewProj);
+				XMMATRIX invWVP = XMMatrixInverse(nullptr, WVP);
+				cameraPointer->projectionInverse = invWVP;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
@@ -255,18 +258,21 @@ int RunApplication() {
 			else if (topDownViewFlag == 1) {
 
 				//to follow the hightmap
-				if (mCam.Collotion() == true)
+				/*if (mCam.Collotion() == true)
 				{
 					XMFLOAT3 camPos = mCam.GetPosition(); 
 					float y = terrain.GetHeight(camPos.x, camPos.z); 
 					mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
-				}
+				}*/
 
 				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
 
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
 
 				cameraPointer->topDownViewTransform = tCameraView;
+				XMMATRIX WVP = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraViewProj);
+				XMMATRIX invWVP = XMMatrixInverse(nullptr, WVP);
+				cameraPointer->projectionInverse = invWVP;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}

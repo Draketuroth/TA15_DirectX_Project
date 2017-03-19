@@ -22,6 +22,7 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 cbuffer TOPDOWN_CAMERA : register(b1) {
 
 	matrix topDownViewTransform;
+	matrix projectionInverse;
 };
 
 struct VS_IN

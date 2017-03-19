@@ -439,6 +439,8 @@ void BufferComponents::ReleaseAll() {
 	}
 
 	SAFE_RELEASE(topDownCameraBuffer);
+	SAFE_RELEASE(gFrustumBuffer);
+	SAFE_RELEASE(gFrustumIndexBuffer);
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -494,6 +496,16 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	}
 
 	if (!CreateTopDownCameraBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateFrustumBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateFrustumIndexBuffer(gDevice)) {
 
 		return false;
 	}
@@ -746,9 +758,9 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float aspectRatio = float(WIDTH) / float(HEIGHT);		// Using the already defined macros for the width and height of the viewport
 
-	float nearPlane = 0.1f;
+	float nearPlane = NEARPLANE;
 
-	float farPlane = 20000.f;
+	float farPlane = FARPLANE;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -1393,6 +1405,7 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
 
 	topDownCamData.topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
+	topDownCamData.projectionInverse = XMMatrixIdentity();
 
 	D3D11_BUFFER_DESC constBufferDesc;
 	constBufferDesc.ByteWidth = sizeof(TOPDOWN_CAMERA);
@@ -1410,6 +1423,78 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	constData.SysMemSlicePitch = 0;
 
 	hr = gDevice->CreateBuffer(&constBufferDesc, &constData, &topDownCameraBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	Vertex_Frustum frustumVertices[8] = {
+
+		-1.0f, 1.0f, FARPLANE,
+		 1.0f, 1.0f, FARPLANE,
+		-1.0f, -1.0f, FARPLANE,
+		 1.0f, -1.0f, FARPLANE,
+
+		-1.0f, 1.0f, NEARPLANE,
+		 1.0f, 1.0f, NEARPLANE,
+		-1.0f, -1.0f, NEARPLANE,
+		 1.0f, -1.0f, NEARPLANE
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(frustumVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = frustumVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gFrustumBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
+}
+
+bool BufferComponents::CreateFrustumIndexBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Create Indices
+	unsigned int pointIndices[24] = 
+	
+	{ 0,1, 0,4, 0,2, 1,5, 1,3, 5,4, 2,3, 2,6, 3,7, 6,7, 4,6, 5,7 };
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC bufferDesc;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(unsigned int) * 24;
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = pointIndices;
+	initData.SysMemPitch = 0;
+	initData.SysMemSlicePitch = 0;
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gFrustumIndexBuffer);
 
 	if (FAILED(hr)) {
 

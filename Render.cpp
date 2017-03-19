@@ -9,6 +9,8 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	SetGeometryTexture(gHandler, bHandler, tHandler);
 
+	//RenderFrustum(gHandler, bHandler, tHandler);
+
 	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
 
 	RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
@@ -68,6 +70,25 @@ void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler,
 
 	//gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.geometryTextureRTV, bHandler.depthView);
+}
+
+void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
+
+	gHandler.gDeviceContext->VSSetShader(gHandler.gFrustumVertexShader, nullptr, 0);
+	gHandler.gDeviceContext->PSSetShader(gHandler.gFrustumPixelShader, nullptr, 0);
+	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->VSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
+	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+
+	UINT32 vertexSize = sizeof(Vertex_Frustum);
+	UINT32 offset = 0;
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gFrustumBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gFrustumIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gFrustumLayout);
+
+	gHandler.gDeviceContext->DrawIndexed(24, 0, 0);
 }
 
 void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter) {

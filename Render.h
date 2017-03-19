@@ -11,6 +11,8 @@ void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 
 void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
 
+void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
+
 void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter);
 
 void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, Terrain &terrain);
