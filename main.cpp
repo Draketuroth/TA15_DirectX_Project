@@ -129,10 +129,12 @@ int RunApplication() {
 	mCam.mLastMousePos.x = 0;
 	mCam.mLastMousePos.y = 0;
 
-	static bool normalMapping = 1;
+	static bool topDownViewFlag = 1;
+	HRESULT hr;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	D3D11_MAPPED_SUBRESOURCE VertexBufferResource;
+	D3D11_MAPPED_SUBRESOURCE topDownBufferResource;
 
 	// Starting angle for the rotation matrix is stored in the angle variable
 	int interval = 0;
@@ -202,6 +204,13 @@ int RunApplication() {
 				mCam.Strafe(speed * deltaTime);
 			}
 
+			if (GetAsyncKeyState('J') & 0x8000) {
+
+				topDownViewFlag = !topDownViewFlag;
+
+				Sleep(200);
+			}
+
 			showFPS(windowHandle, deltaTime, bHandler);
 
 			fbxImporter.animTimePos += deltaTime * 20;
@@ -227,28 +236,46 @@ int RunApplication() {
 			XMMATRIX tCameraViewProj = XMMatrixTranspose(mCam.ViewProj());	// Camera View Projection Matrix
 			XMMATRIX tCameraProjection = XMMatrixTranspose(mCam.Proj());
 			XMMATRIX tCameraView = XMMatrixTranspose(mCam.View());		// Camera View Matrix
-			
 
-	
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// TOP DOWN PERSPECTIVE SWITCH
+			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			if (topDownViewFlag == 0) {
+
+				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
+
+				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
+
+				XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
+				XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 0));
+				XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+				XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
+
+				cameraPointer->topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
+
+				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
+			}
+
+			else if (topDownViewFlag == 1) {
+
+				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
+
+				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
+
+				cameraPointer->topDownViewTransform = tCameraView;
+
+				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
+			}
+			
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// CONSTANT BUFFER UPDATE
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			HRESULT hr;
-
-			// Here we disable GPU access to the vertex buffer data so I can change it on the CPU side and update it by sending it back when finished
-
 			hr = gHandler.gDeviceContext->Map(bHandler.gConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			
-			
-			// We create a pointer to the constant buffer containing the world matrix that requires to be multiplied with the rotation matrix
 
 			GS_CONSTANT_BUFFER* cBufferPointer = (GS_CONSTANT_BUFFER*)mappedResource.pData;
-
-			// Here We access the world matrix and update it. The angle of the rotation matrix is updated for every frame with a rotation matrix 
-			// constructed to rotate the triangles around the y-axis
-
-			// Both matrices must recieve the same treatment from the rotation matrix, no matter if we want to preserve its original space or not
 
 			cBufferPointer->worldViewProj = (bHandler.tWorldMatrix * tCameraViewProj);
 			cBufferPointer->viewProj = tCameraViewProj;
@@ -259,13 +286,13 @@ int RunApplication() {
 			cBufferPointer->matrixProjection = tCameraProjection;
 			cBufferPointer->lightViewProj = bHandler.tLightViewProj;
 
-			//to folow the hightmap
-			if (mCam.Collotion() == true)
-			{
-				XMFLOAT3 camPos = mCam.GetPosition(); 
-				float y = terrain.GetHeight(camPos.x, camPos.z); 
-				mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
-			}
+			////to folow the hightmap
+			//if (mCam.Collotion() == true)
+			//{
+			//	XMFLOAT3 camPos = mCam.GetPosition(); 
+			//	float y = terrain.GetHeight(camPos.x, camPos.z); 
+			//	mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+			//}
 			
 			XMStoreFloat4(&cBufferPointer->cameraPos, mCam.GetPositionXM());
 			cBufferPointer->floorRot = bHandler.tFloorRot;
@@ -278,16 +305,10 @@ int RunApplication() {
 				i = 0;
 			}*/
 
-
-
-
-			// At last we have to reenable GPU access to the vertex buffer data
-
 			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
 
-
-
 			 mCam.CreateFrustum();
+
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
 			 //----------------------------------------------------------------------------------------------------------------------------------//

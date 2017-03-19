@@ -19,6 +19,11 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	matrix worldInvTranspose;
 };
 
+cbuffer TOPDOWN_CAMERA : register(b1) {
+
+	matrix topDownViewTransform;
+};
+
 struct VS_IN
 {
 	float3 Pos : POSITION;
@@ -46,7 +51,9 @@ VS_OUT VS_main(VS_IN input)
 	output.NormalW = mul(input.Normal, (float3x3)worldInvTranspose);
 	output.TangentW = mul(input.Tangent, (float3x3)matrixWorld);
 
-	output.PosH = mul(float4(input.Pos + float3(50.0f, 10.0f, 0.0f), 1.0f), worldViewProj);
+	matrix WVP = mul(topDownViewTransform, matrixProjection);
+	WVP = mul(WVP, matrixWorld);
+	output.PosH = mul(float4(input.Pos + float3(50.0f, 10.0f, 0.0f), 1.0f), WVP);
 
 	output.Tex = input.Tex;
 	output.EyePosW = cameraPos;

@@ -80,6 +80,7 @@ void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHan
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryBoneShader, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelBoneShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &fbxImporter.gBoneBuffer);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
@@ -110,6 +111,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 		gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0);
 		gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); 
 		gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+		gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 		gHandler.gDeviceContext->PSSetConstantBuffers(0, 1, &bHandler.gMTLBuffer);
 		gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 		gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.resourceArr);
@@ -135,7 +137,7 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);	
 	gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.terrainResources);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
@@ -170,6 +172,7 @@ void RenderCylinder(GraphicComponents &gHandler, BufferComponents &bHandler, Tex
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gCylinderVertexShader, nullptr, 0);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->VSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, nullGeometryShader);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gCylinderFragmentShader, nullptr, 0); 
@@ -196,6 +199,7 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gCubeVertexShader, nullptr, 0);	
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); 
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->GSSetShader(gHandler.gCubeGeometryShader, nullptr, 0);
 	
 	gHandler.gDeviceContext->PSSetShader(gHandler.gCubePixelShader, nullptr, 0);
@@ -237,6 +241,7 @@ void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexConstantBuffer);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.fireflyResource);
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);

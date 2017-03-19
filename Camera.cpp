@@ -54,6 +54,7 @@ float Camera::GetZ()const
 	float HZ = mPosition.z;
 	return HZ;
 }
+
 void Camera::SetPosition(float x, float y, float z) {
 
 	mPosition = XMFLOAT3(x, y, z);
