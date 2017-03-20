@@ -423,7 +423,7 @@ void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 	gDeviceContext->Unmap(gBoneBuffer, 0);
 
 }
-// HABIBO
+
 void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext) {
 
 	// Animation has just started, so return the first keyframe
