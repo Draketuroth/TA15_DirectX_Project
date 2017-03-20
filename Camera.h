@@ -99,7 +99,8 @@ public:
 
 	void testCreate();
 	void CreateFrustum();
-
+	void createInverseVP();
+	void updateFrustum();
 private:
 
 	// Camera coordinate system with coordinates relative to World Space
@@ -120,6 +121,8 @@ private:
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
 	XMFLOAT4X4 cWorld;
+	XMFLOAT4X4 inverseVP;
+	XMFLOAT4X4 inverseP;
 };
 
 #endif CAMERA_H

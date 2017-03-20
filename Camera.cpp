@@ -392,6 +392,37 @@ void Camera::testCreate()
 	XMMATRIX tempWorld;
 	tempWorld = XMMatrixIdentity();
 	XMStoreFloat4x4(&this->cWorld, tempWorld);
-	this->testFrust.Transform(this->testFrust, tempWorld);
+	this->createInverseVP();
+	XMMATRIX tempInverseP = XMLoadFloat4x4(&this->inverseP);
+	this->testFrust.Transform(this->testFrust, tempInverseP);
+
+	XMMATRIX translation;
+	XMMATRIX rotation;
+	translation = XMMatrixTranslation(this->mPosition.x, this->mPosition.y, this->mPosition.z);
+	this->testFrust.Transform(this->testFrust, translation);
+	
+
+}
+void Camera::createInverseVP()
+{
+	XMMATRIX viewProjM;
+	viewProjM = this->ViewProj();
+	XMVECTOR det;
+	det = XMMatrixDeterminant(viewProjM);
+	XMMATRIX inViewProj = XMMatrixInverse(&det, viewProjM);
+	XMStoreFloat4x4(&this->inverseVP, inViewProj);
+
+	XMMATRIX ProjM = this->Proj();
+	det = XMMatrixDeterminant(ProjM);
+	XMMATRIX invProj = XMMatrixInverse(&det, ProjM);
+	XMStoreFloat4x4(&this->inverseP, invProj);
+
+}
+void Camera::updateFrustum()
+{
+	XMMATRIX translation;
+	XMMATRIX rotation;
+	translation = XMMatrixTranslation(this->mPosition.x, this->mPosition.y, this->mPosition.z);
+	this->testFrust.Transform(this->testFrust, translation);
 
 }
