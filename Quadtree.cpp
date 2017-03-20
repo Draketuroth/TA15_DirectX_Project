@@ -5,7 +5,7 @@ Quadtree::Quadtree()
 {
 	this->SubDiv = 0;
 	this->ID = 0;
-	this->totalSubDiv = 2;
+	this->totalSubDiv = 1;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
 	this->WorldM = XMMatrixIdentity();
