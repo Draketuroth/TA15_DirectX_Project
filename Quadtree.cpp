@@ -185,7 +185,7 @@ int Quadtree::frustumIntersect(Camera camera)
 			return INSIDE;
 		}
 	}
-	//Commit change
+	//Commit change 2
 	return INTERSECT;
 }
 
