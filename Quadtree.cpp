@@ -5,11 +5,11 @@ Quadtree::Quadtree()
 {
 	this->SubDiv = 0;
 	this->ID = 0;
-	this->totalSubDiv = 4;
+	this->totalSubDiv = 2;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
 	this->WorldM = XMMatrixIdentity();
-	this->BBox.Transform(this->BBox, this->WorldM);
+//	this->BBox.Transform(this->BBox, this->WorldM);
 	this->intersection = OUTSIDE;
 	for (int i = 0; i < 4; i++)
 	{
@@ -25,10 +25,10 @@ Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents, int ID)
 	//	this->Bounding[i] = Bounding[i];
 	//} 
 	this->SubDiv = subDiv;
-	this->totalSubDiv = 4;
+	this->totalSubDiv = 2;
 	this->BBox.Center = Center;
 	this->BBox.Extents = Extents;
-	this->BBox.Transform(this->BBox, this->WorldM);
+	//this->BBox.Transform(this->BBox, this->WorldM);
 	this->ID = ID;
 	this->intersection = OUTSIDE;
 	for (UINT i = 0; i < 4; i++)
@@ -49,16 +49,16 @@ Quadtree::~Quadtree()
 	}
 }
 
-bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
+bool Quadtree::CreateTree(int SubDiv)
 {
 	if (SubDiv == 0)
 	{
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
-		this->BBox.Transform(this->BBox, this->WorldM);
+	//	this->BBox.Transform(this->BBox, this->WorldM);
 		this->calculateHalfD();
 	}
-	if (this->SubDiv == 4)
+	if (this->SubDiv == 2)
 	{
 		this->ID = 1;
 	}
@@ -69,7 +69,7 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 	//Top left center
 	XMFLOAT3 TLCenter = this->BBox.Center;
 	TLCenter.x -= newExtent.x;
-	TLCenter.y += newExtent.y;
+	TLCenter.z += newExtent.z;
 
 	//Top right center
 	XMFLOAT3 TRCenter = this->BBox.Center;
@@ -97,15 +97,11 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 		this->nodes[1]->calculateHalfD();
 		this->nodes[2]->calculateHalfD();
 		this->nodes[3]->calculateHalfD();
-	}
-	for (int i = 0; i < 4; i++)
-	{
-		if (SubDiv != totalSubDiv)
-		{
-			this->nodes[i]->CreateTree(SubDiv + 1, gDevice);
-		}
-	}
-	
+		this->nodes[0]->CreateTree(SubDiv + 1);
+		this->nodes[1]->CreateTree(SubDiv + 1);
+		this->nodes[2]->CreateTree(SubDiv + 1);
+		this->nodes[3]->CreateTree(SubDiv + 1);
+	}	
 	return true;
 }
 
@@ -330,4 +326,29 @@ void Quadtree::checkRenderObjects()
 		}
 	}
 
+}
+void Quadtree::printIntersections()
+{
+	if (this->SubDiv != totalSubDiv - 1)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			this->nodes[i]->printIntersections();
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (this->nodes[i]->intersection != OUTSIDE)
+			{
+				XMFLOAT3 corners[8];
+				this->nodes[i]->BBox.GetCorners(corners);
+				for (size_t j = 0; j < 8; j++)
+				{
+					cout << "X:  " << corners[i].x << "  Y:  " << corners[i].y << "  Z:  " << corners[i].z << endl;
+				}
+			}
+		}
+	}
 }

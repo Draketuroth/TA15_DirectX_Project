@@ -25,12 +25,13 @@ public:
 	XMMATRIX WorldM;
 
 	void calculateHalfD();
-	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
+	bool CreateTree(int SubDiv);
 	//void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
 	void checkBoundingBox(CubeObjects &Object);
 	int frustumIntersect(Camera camera);
 	void recursiveIntersect(Camera camera);
 	void checkRenderObjects();
+	void printIntersections();
 private:
 
 };

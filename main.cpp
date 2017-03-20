@@ -104,7 +104,7 @@ int main() {
 			MB_OK);
 	}
 	
-	if (!QTree.CreateTree(0, gHandler.gDevice))
+	if (!QTree.CreateTree(0))
 	{
 		MessageBox(
 			NULL,
@@ -307,7 +307,7 @@ int RunApplication() {
 
 			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
 
-			 mCam.CreateFrustum();
+			 mCam.testCreate();
 
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
@@ -317,7 +317,7 @@ int RunApplication() {
 
 
 			 QTree.checkRenderObjects();
-
+			// QTree.printIntersections();
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// PARTICLE MOVEMENT
 			//----------------------------------------------------------------------------------------------------------------------------------//
