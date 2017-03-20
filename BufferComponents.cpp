@@ -1311,6 +1311,10 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		//----------------------------------------------------------------------------------------------------------------------------------//
 		
 		cubeObjects[i].renderCheck = false;
+		XMFLOAT3 corners[8];
+		cubeObjects[i].bbox.GetCorners(corners);
+
+		//cout << "X:  " << corners[i].x << "  Y:  " << corners[i].y << "  Z:  " << corners[i].z << endl;
 
 	}
 

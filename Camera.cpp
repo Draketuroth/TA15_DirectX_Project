@@ -388,6 +388,7 @@ void Camera::testCreate()
 {
 	BoundingFrustum tempFrust;
 	tempFrust.CreateFromMatrix(this->testFrust, this->Proj());
+	tempFrust.GetCorners(this->FrustumCorners);
 	XMMATRIX tempWorld;
 	tempWorld = XMMatrixIdentity();
 	XMStoreFloat4x4(&this->cWorld, tempWorld);

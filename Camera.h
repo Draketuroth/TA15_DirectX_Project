@@ -36,6 +36,7 @@ public:
 	//PLane for frustum
 	Plane Frustum[6];
 	BoundingFrustum testFrust;
+	XMFLOAT3 FrustumCorners[8];
 	// Get/Set Camera Properties
 	XMVECTOR GetPositionXM()const;
 	XMFLOAT3 GetPosition()const;
@@ -98,6 +99,7 @@ public:
 
 	void testCreate();
 	void CreateFrustum();
+
 private:
 
 	// Camera coordinate system with coordinates relative to World Space

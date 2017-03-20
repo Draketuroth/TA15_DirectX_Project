@@ -5,7 +5,7 @@ Quadtree::Quadtree()
 {
 	this->SubDiv = 0;
 	this->ID = 0;
-	this->totalSubDiv = 1;
+	this->totalSubDiv = 3;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
 	this->WorldM = XMMatrixIdentity();
@@ -25,7 +25,7 @@ Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents, int ID)
 	//	this->Bounding[i] = Bounding[i];
 	//} 
 	this->SubDiv = subDiv;
-	this->totalSubDiv = 2;
+	this->totalSubDiv = 3;
 	this->BBox.Center = Center;
 	this->BBox.Extents = Extents;
 	//this->BBox.Transform(this->BBox, this->WorldM);
@@ -62,9 +62,10 @@ bool Quadtree::CreateTree(int SubDiv)
 	{
 		this->ID = 1;
 	}
-	XMVECTOR halfExtent = XMLoadFloat3(&this->BBox.Extents) / 2;
-	XMFLOAT3 newExtent;
-	XMStoreFloat3(&newExtent, halfExtent);
+	float halfExtentX = this->BBox.Extents.x / 2;
+	float halfExtentZ = this->BBox.Extents.z / 2;
+
+	XMFLOAT3 newExtent = {halfExtentX, 32, halfExtentZ};
 
 	//Top left center
 	XMFLOAT3 TLCenter = this->BBox.Center;
@@ -88,15 +89,17 @@ bool Quadtree::CreateTree(int SubDiv)
 
 	if (SubDiv != totalSubDiv)
 	{
+		//Creating the children
 		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent, this->ID);
 		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID);
 		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID);
 		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID);
-
+		//Calculate the half distance(diagonal) from the center to each corner
 		this->nodes[0]->calculateHalfD();
 		this->nodes[1]->calculateHalfD();
 		this->nodes[2]->calculateHalfD();
 		this->nodes[3]->calculateHalfD();
+		//Going into each children to create their children
 		this->nodes[0]->CreateTree(SubDiv + 1);
 		this->nodes[1]->CreateTree(SubDiv + 1);
 		this->nodes[2]->CreateTree(SubDiv + 1);
