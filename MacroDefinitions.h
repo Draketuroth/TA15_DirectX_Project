@@ -7,7 +7,7 @@
 #define OUTSIDE 0
 #define INSIDE 1
 #define INTERSECT 2
-#define CUBECAPACITY 50
+#define CUBECAPACITY 30
 
 #define NEARPLANE 0.1f
 #define FARPLANE 2000.0f

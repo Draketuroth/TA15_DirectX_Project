@@ -1184,7 +1184,7 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 	float zOffsetValue = 0.0f;
 	float spacing = 0.0f;
 
-	srand(time(NULL));
+	//srand(time(NULL));
 
 	for(int i = 0; i < CUBECAPACITY; i++){
 
@@ -1192,10 +1192,10 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		xOffsetValue = RandomNumber(-30, 30);
+		xOffsetValue = RandomNumber(-20, 20);
 		yOffsetValue = RandomNumber(5, 30);
-		zOffsetValue = RandomNumber(-30, 30);
-		spacing = RandomNumber(-25, 25);
+		zOffsetValue = RandomNumber(-20, 20);
+		spacing = RandomNumber(-20, 20);
 
 		//----------------------------------------------------------------------------------------------------------------------------------//
 		// HARDCODED VERTICES
