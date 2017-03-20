@@ -14,8 +14,6 @@ public:
 
 	Quadtree* nodes[4];
 	BoundingBox BBox;
-	XMFLOAT3 min;
-	XMFLOAT3 max;
 	vector<CubeObjects*> objects;
 	int SubDiv;
 	int totalSubDiv;
@@ -26,13 +24,11 @@ public:
 	int ID;
 	XMMATRIX WorldM;
 
-	void worldMatrixMultiply();
 	void calculateHalfD();
 	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
 	//void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
 	void checkBoundingBox(CubeObjects &Object);
 	int frustumIntersect(Camera camera);
-	//void frustumIntersect(Camera camera);
 	void recursiveIntersect(Camera camera);
 	void checkRenderObjects();
 private:

@@ -166,12 +166,11 @@ int Quadtree::frustumIntersect(Camera camera)
 		XMVECTOR cn = XMVector3Dot(c, n); // dot product between C and N
 		XMFLOAT3 cnFloat;
 		XMStoreFloat3(&cnFloat, cn);
-		//Calculations down below is a formula that can be referenced to the RTR book P. 756
+		//Calculations down below is a formula that can be referenced to the RTR book
 		s = cnFloat.x + camera.Frustum[i].Distance;
 		if (s - e > 0)//is outside the plane
 		{
 			outCounter++;
-			return OUTSIDE;
 		}
 		if (s - e > 0 && outCounter == 5)
 		{
@@ -230,10 +229,8 @@ void Quadtree::calculateHalfD()
 	}
 
 	XMFLOAT3 minCoord = { minX, minY, minZ };
-	this->min = minCoord;
 	XMVECTOR vecMin = XMLoadFloat3(&minCoord);
 	XMFLOAT3 maxCoord = { maxX, maxY, maxZ };
-	this->max = maxCoord;
 	XMVECTOR vecMax = XMLoadFloat3(&maxCoord);
 
 	XMVECTOR h = (vecMax - vecMin) / 2;
@@ -241,69 +238,69 @@ void Quadtree::calculateHalfD()
 
 }
 
-void Quadtree::recursiveIntersect(Camera camera)
-{
-	if (SubDiv == 0)
-	{
-		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
-		{
-			this->intersection = INSIDE;
-		}
-		else
-		{
-			this->intersection = OUTSIDE;
-		}
-	}
-	for (size_t i = 0; i < 4; i++)
-	{
-		if (SubDiv != totalSubDiv)
-		{
-			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
-			{
-				this->nodes[i]->intersection = INSIDE;
-				this->nodes[i]->recursiveIntersect(camera);
-			}
-			else
-			{
-				this->nodes[i]->intersection = OUTSIDE;
-			}
-		}
-	}
-}
-
 //void Quadtree::recursiveIntersect(Camera camera)
 //{
-//	if (this->SubDiv == 0)
+//	if (SubDiv == 0)
 //	{
-//		if (camera.testFrust.Intersects(this->BBox))
+//		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
 //		{
-//			this->intersection = INTERSECT;
+//			this->intersection = INSIDE;
 //		}
 //		else
 //		{
 //			this->intersection = OUTSIDE;
 //		}
 //	}
-//	if (this->intersection != OUTSIDE)
+//	for (size_t i = 0; i < 4; i++)
 //	{
-//		if (this->SubDiv != totalSubDiv)
+//		if (SubDiv != totalSubDiv)
 //		{
-//			for (size_t i = 0; i < 4; i++)
+//			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
 //			{
-//		
-//				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
-//				{
-//					this->nodes[i]->intersection = INTERSECT;
-//					this->nodes[i]->recursiveIntersect(camera);
-//				}
-//				else
-//				{
-//					this->nodes[i]->intersection = OUTSIDE;
-//				}
+//				this->nodes[i]->intersection = INSIDE;
+//				this->nodes[i]->recursiveIntersect(camera);
+//			}
+//			else
+//			{
+//				this->nodes[i]->intersection = OUTSIDE;
 //			}
 //		}
 //	}
 //}
+
+void Quadtree::recursiveIntersect(Camera camera)
+{
+	if (this->SubDiv == 0)
+	{
+		if (camera.testFrust.Intersects(this->BBox))
+		{
+			this->intersection = INTERSECT;
+		}
+		else
+		{
+			this->intersection = OUTSIDE;
+		}
+	}
+	if (this->intersection != OUTSIDE)
+	{
+		if (this->SubDiv != totalSubDiv)
+		{
+			for (size_t i = 0; i < 4; i++)
+			{
+		
+				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
+				{
+					this->nodes[i]->intersection = INTERSECT;
+					this->nodes[i]->recursiveIntersect(camera);
+				}
+				else
+				{
+					this->nodes[i]->intersection = OUTSIDE;
+				}
+			}
+		}
+	}
+}
 void Quadtree::checkRenderObjects()
 {
 	for (size_t i = 0; i < 4; i++)//Loops through children
@@ -334,71 +331,3 @@ void Quadtree::checkRenderObjects()
 	}
 
 }
-void Quadtree::worldMatrixMultiply()
-{
-	if (this->SubDiv == 0)
-	{
-		this->BBox.Transform(this->BBox, this->WorldM);
-	}
-	if (this->SubDiv != SubDiv)
-	{
-		for (size_t i = 0; i < 4; i++)
-		{
-			this->nodes[i]->BBox.Transform(this->nodes[i]->BBox, this->WorldM);
-			this->nodes[i]->worldMatrixMultiply();
-		}
-	}
-
-
-}
-//void Quadtree::frustumIntersect(Camera camera)
-//{
-//
-//	for (int planeID = 0; planeID < 6; planeID++)
-//	{
-//		XMFLOAT3 axisVert;//Get the Bounding box from the tree that is furthest away from the direction of the plane(normal)
-//		XMVECTOR planeNormal = XMVectorSet(camera.Frustum[planeID].Normal.x, camera.Frustum[planeID].Normal.y, camera.Frustum[planeID].Normal.z, 0.0f);
-//		float planeConstant = camera.Frustum[planeID].Distance;
-//		if (camera.Frustum[planeID].Normal.x < 0.0f)
-//		{
-//			axisVert.x = this->min.x;
-//		}
-//		else
-//		{
-//			axisVert.x = this->max.x;
-//		}
-//		if (camera.Frustum[planeID].Normal.y < 0.0f)
-//		{
-//			axisVert.y = this->min.y;
-//		}
-//		else
-//		{
-//			axisVert.y = this->max.y;
-//		}
-//		if (camera.Frustum[planeID].Normal.z < 0.0f)
-//		{
-//			axisVert.z = this->min.z;
-//		}
-//		else
-//		{
-//			axisVert.z = this->max.z;
-//		}
-//		if (XMVectorGetX(XMVector3Dot(planeNormal, XMLoadFloat3(&axisVert))) + planeConstant < 0.0f)
-//		{
-//			this->intersection = OUTSIDE;
-//			
-//		}
-//		else
-//		{
-//			this->intersection = INTERSECT;
-//			//break;
-//		}
-//	}
-//	if (this->SubDiv != totalSubDiv)
-//	{
-//		for (size_t i = 0; i < 4; i++)
-//		{
-//			this->nodes[i]->frustumIntersect(camera);
-//		}
-//	}
-//}
