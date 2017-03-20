@@ -17,7 +17,12 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	float4 cameraPos;
 	float4 cameraUp;
 	matrix worldInvTranspose;
-	float normalMappingFlag;
+};
+
+cbuffer TOPDOWN_CAMERA : register(b1) {
+
+	matrix topDownViewTransform;
+	matrix projectionInverse;
 };
 
 struct GS_IN
@@ -75,12 +80,15 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 			output.WPos = worldPosition;
 
 			// To store and calculate the WorldViewProj, the input position must be multiplied with the WorldViewProj matrix
-
-			output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), worldViewProj);
+			matrix WVP = mul(topDownViewTransform, matrixProjection);
+			WVP = mul(WVP, matrixWorld);
+			output.Pos = mul(float4(input[i].Pos.xyz, 1.0f), WVP);
 
 			output.lPos = mul(float4(input[i].Pos.xyz, 1.0f), mul(matrixWorld, lightViewProj));
 
 			// For the normal to properly work and to later be used correctly when creating the basic diffuse shading, it's required to be computed in world coordinates
+
+			
 
 			output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
 

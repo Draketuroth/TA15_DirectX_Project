@@ -437,6 +437,10 @@ void BufferComponents::ReleaseAll() {
 
 		SAFE_RELEASE(cubeObjects[i].gCubeVertexBuffer);
 	}
+
+	SAFE_RELEASE(topDownCameraBuffer);
+	SAFE_RELEASE(gFrustumBuffer);
+	SAFE_RELEASE(gFrustumIndexBuffer);
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -487,6 +491,21 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 	}
 
 	if (!CreateCubeIndices(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateTopDownCameraBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateFrustumBuffer(gDevice)) {
+
+		return false;
+	}
+
+	if (!CreateFrustumIndexBuffer(gDevice)) {
 
 		return false;
 	}
@@ -737,11 +756,11 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	float fov = PI * 0.45f;		// We recieve the field of view in radians by multiplying with PI
 
-	float aspectRatio = (float)WIDTH / (float)HEIGHT;		// Using the already defined macros for the width and height of the viewport
+	float aspectRatio = float(WIDTH) / float(HEIGHT);		// Using the already defined macros for the width and height of the viewport
 
-	float nearPlane = 0.1f;
+	float nearPlane = NEARPLANE;
 
-	float farPlane = 100.f;
+	float farPlane = FARPLANE;
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
@@ -758,7 +777,7 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 	//Light View matrix
 	float lFov = PI * 0.45f;
 
-	float lAspect = float(WIDTH) / (float)HEIGHT;
+	float lAspect = float(WIDTH) / float(HEIGHT);
 
 	// The far plane and near plane should be tight together in order to increase precision of the shadow mapping
 
@@ -877,6 +896,7 @@ bool BufferComponents::CreateRasterizerState(ID3D11Device* &gDevice) {
 	HRESULT hr;
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
 
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
@@ -1164,7 +1184,7 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 	float zOffsetValue = 0.0f;
 	float spacing = 0.0f;
 
-	//srand(time(NULL));
+	srand(time(NULL));
 
 	for(int i = 0; i < CUBECAPACITY; i++){
 
@@ -1172,10 +1192,10 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		xOffsetValue = RandomNumber(-15, 15);
-		yOffsetValue = RandomNumber(5, 15);
-		zOffsetValue = RandomNumber(-15, 15);
-		spacing = RandomNumber(-15, 15);
+		xOffsetValue = RandomNumber(-30, 30);
+		yOffsetValue = RandomNumber(5, 30);
+		zOffsetValue = RandomNumber(-30, 30);
+		spacing = RandomNumber(-25, 25);
 
 		//----------------------------------------------------------------------------------------------------------------------------------//
 		// HARDCODED VERTICES
@@ -1372,4 +1392,114 @@ bool BufferComponents::CreateCubeIndices(ID3D11Device* &gDevice) {
 float BufferComponents::RandomNumber(float Minimum, float Maximum) {
 
 	return ((float(rand()) / float(RAND_MAX)) * (Maximum - Minimum)) + Minimum;
+}
+
+bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
+	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
+	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
+
+	XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
+
+	topDownCamData.topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
+	topDownCamData.projectionInverse = XMMatrixIdentity();
+
+	D3D11_BUFFER_DESC constBufferDesc;
+	constBufferDesc.ByteWidth = sizeof(TOPDOWN_CAMERA);
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0;
+	constBufferDesc.StructureByteStride = 0;
+
+	// We set the the subresource data
+
+	D3D11_SUBRESOURCE_DATA constData;
+	constData.pSysMem = &topDownCamData;
+	constData.SysMemPitch = 0;
+	constData.SysMemSlicePitch = 0;
+
+	hr = gDevice->CreateBuffer(&constBufferDesc, &constData, &topDownCameraBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+}
+
+bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	Vertex_Frustum frustumVertices[8] = {
+
+		-1.0f, 1.0f, FARPLANE,
+		 1.0f, 1.0f, FARPLANE,
+		-1.0f, -1.0f, FARPLANE,
+		 1.0f, -1.0f, FARPLANE,
+
+		-1.0f, 1.0f, NEARPLANE,
+		 1.0f, 1.0f, NEARPLANE,
+		-1.0f, -1.0f, NEARPLANE,
+		 1.0f, -1.0f, NEARPLANE
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(frustumVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = frustumVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gFrustumBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
+}
+
+bool BufferComponents::CreateFrustumIndexBuffer(ID3D11Device* &gDevice) {
+
+	HRESULT hr;
+
+	// Create Indices
+	unsigned int pointIndices[24] = 
+	
+	{ 0,1, 0,4, 0,2, 1,5, 1,3, 5,4, 2,3, 2,6, 3,7, 6,7, 4,6, 5,7 };
+
+	// Create the buffer description
+	D3D11_BUFFER_DESC bufferDesc;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(unsigned int) * 24;
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	// Set the subresource data
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = pointIndices;
+	initData.SysMemPitch = 0;
+	initData.SysMemSlicePitch = 0;
+
+	// Create the buffer
+
+	hr = gDevice->CreateBuffer(&bufferDesc, &initData, &gFrustumIndexBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
 }

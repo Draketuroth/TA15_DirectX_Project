@@ -9,5 +9,8 @@
 #define INTERSECT 2
 #define CUBECAPACITY 50
 
-#define LaunchInWindowedMode FALSE;
+#define NEARPLANE 0.1f
+#define FARPLANE 2000.0f
+
+#define LaunchInWindowedMode TRUE;
 #define SAFE_RELEASE( x ) if( x ) ( x )->Release(), ( x ) = nullptr;

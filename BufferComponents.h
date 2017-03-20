@@ -32,8 +32,6 @@ struct GS_CONSTANT_BUFFER {
 	XMFLOAT4 cameraPos;
 	XMFLOAT4 cameraUp;
 	XMMATRIX worldInvTranspose;
-	float normalMappingFlag;
-	
 	
 
 };
@@ -72,6 +70,12 @@ struct CubeObjects {
 	bool renderCheck;
 };
 
+struct TOPDOWN_CAMERA {
+
+	XMMATRIX topDownViewTransform;
+	XMMATRIX projectionInverse;
+};
+
 class BufferComponents {
 	
 public:
@@ -96,6 +100,9 @@ public:
 	
 	XMMATRIX tLightViewProj;
 
+	ID3D11Buffer* topDownCameraBuffer;
+	TOPDOWN_CAMERA topDownCamData;
+
 	vector<Vertex_Bone> fbxVector;
 	
 	CubeObjects cubeObjects[CUBECAPACITY];
@@ -117,6 +124,9 @@ public:
 
 	ID3D11Buffer* gCubeIndexBuffer;
 
+	ID3D11Buffer* gFrustumBuffer;
+	ID3D11Buffer* gFrustumIndexBuffer;
+
 	bool SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
 	bool CreateTerrainBuffer(ID3D11Device* &gDevice);
 
@@ -137,6 +147,11 @@ public:
 	bool CreateCubeIndices(ID3D11Device* &gDevice);
 
 	float RandomNumber(float Minimum, float Maximum);
+
+	bool CreateTopDownCameraBuffer(ID3D11Device* &gDevice);
+	
+	bool CreateFrustumBuffer(ID3D11Device* &gDevice);
+	bool CreateFrustumIndexBuffer(ID3D11Device* &gDevice);
 
 };
 

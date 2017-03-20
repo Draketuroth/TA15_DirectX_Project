@@ -1,7 +1,6 @@
 # This file uses centimeters as units for non-parametric coordinates.
 
 mtllib cube.mtl
-g default
 v 43.484707 5.356000 18.377394
 v 44.484707 5.356000 18.377394
 v 43.484707 6.356000 18.377394

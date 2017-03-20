@@ -54,6 +54,7 @@ float Camera::GetZ()const
 	float HZ = mPosition.z;
 	return HZ;
 }
+
 void Camera::SetPosition(float x, float y, float z) {
 
 	mPosition = XMFLOAT3(x, y, z);
@@ -321,6 +322,7 @@ void Camera::OnMouseMove(WPARAM btnState, int x, int y) {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
+
 void Camera::CreateFrustum()
 {
 	XMMATRIX ViewMatrix, ProjMatrix;
