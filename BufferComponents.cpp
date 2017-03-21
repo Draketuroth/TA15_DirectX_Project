@@ -441,6 +441,7 @@ void BufferComponents::ReleaseAll() {
 	SAFE_RELEASE(topDownCameraBuffer);
 	SAFE_RELEASE(gFrustumBuffer);
 	SAFE_RELEASE(gFrustumIndexBuffer);
+	SAFE_RELEASE(gArrowBuffer);
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -500,10 +501,10 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 		return false;
 	}
 
-	/*if (!CreateFrustumBuffer(gDevice)) {
+	if (!CreateFrustumBuffer(gDevice)) {
 
 		return false;
-	}*/
+	}
 
 	if (!CreateFrustumIndexBuffer(gDevice)) {
 
@@ -1401,7 +1402,7 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
+	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 50, 2));
 	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 
@@ -1435,21 +1436,14 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	return true;
 }
 
-bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8], Camera &mCam) {
+bool BufferComponents::CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam) {
 
 	HRESULT hr;
-	
-	Vertex_Frustum frustumVertices[8] = {
 
-		 FrustumCorners[0].x + mCam.GetPosition().x, FrustumCorners[0].y + mCam.GetPosition().y, FrustumCorners[0].z + mCam.GetPosition().z,
-		 FrustumCorners[1].x + mCam.GetPosition().x, FrustumCorners[1].y + mCam.GetPosition().y, FrustumCorners[1].z + mCam.GetPosition().z,
-		 FrustumCorners[2].x + mCam.GetPosition().x, FrustumCorners[2].y + mCam.GetPosition().y, FrustumCorners[2].z + mCam.GetPosition().z,
-		 FrustumCorners[3].x + mCam.GetPosition().x, FrustumCorners[3].y + mCam.GetPosition().y, FrustumCorners[3].z + mCam.GetPosition().z,
+	Vertex_Frustum frustumVertices[2] = {
 
-		 FrustumCorners[4].x + mCam.GetPosition().x, FrustumCorners[4].y + mCam.GetPosition().y, FrustumCorners[4].z + mCam.GetPosition().z,
-		 FrustumCorners[5].x + mCam.GetPosition().x, FrustumCorners[5].y + mCam.GetPosition().y, FrustumCorners[5].z + mCam.GetPosition().z,
-		 FrustumCorners[6].x + mCam.GetPosition().x, FrustumCorners[6].y + mCam.GetPosition().y, FrustumCorners[6].z + mCam.GetPosition().z,
-		 FrustumCorners[7].x + mCam.GetPosition().x, FrustumCorners[7].y + mCam.GetPosition().y, FrustumCorners[7].z + mCam.GetPosition().z,
+		0.0f, 0.0f, 0.0f,
+		mCam.GetLook().x, mCam.GetLook().y, mCam.GetLook().z
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -1460,7 +1454,7 @@ bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 Frus
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = frustumVertices;
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gFrustumBuffer);
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gArrowBuffer);
 
 	if (FAILED(hr)) {
 

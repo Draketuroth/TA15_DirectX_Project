@@ -9,7 +9,11 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	SetGeometryTexture(gHandler, bHandler, tHandler);
 
+	if (ENABLE_FRUSTUM_DEBUG == true){
+
 	RenderFrustum(gHandler, bHandler, tHandler);
+
+	}
 
 	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
 
@@ -82,6 +86,13 @@ void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, Text
 
 	UINT32 vertexSize = sizeof(Vertex_Frustum);
 	UINT32 offset = 0;
+
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gArrowBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gFrustumLayout);
+	gHandler.gDeviceContext->Draw(2, 0);
+
+
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gFrustumBuffer, &vertexSize, &offset);
 	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gFrustumIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 

@@ -333,9 +333,11 @@ int RunApplication() {
 			// UPDATE FRUSTUM BUFFER
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			 XMFLOAT3 FrustumCorners[8];
-			 mCam.testFrust.GetCorners(FrustumCorners);
-			 bHandler.CreateFrustumBuffer(gHandler.gDevice, FrustumCorners, mCam);
+			 if(ENABLE_FRUSTUM_DEBUG){
+
+			 bHandler.CreateArrowBuffer(gHandler.gDevice, mCam);
+
+			 }
 
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// PARTICLE MOVEMENT

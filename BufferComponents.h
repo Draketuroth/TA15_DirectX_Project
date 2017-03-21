@@ -125,6 +125,7 @@ public:
 	ID3D11Buffer* gCubeIndexBuffer;
 
 	ID3D11Buffer* gFrustumBuffer;
+	ID3D11Buffer* gArrowBuffer;
 	ID3D11Buffer* gFrustumIndexBuffer;
 
 	bool SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter);
@@ -150,7 +151,7 @@ public:
 
 	bool CreateTopDownCameraBuffer(ID3D11Device* &gDevice);
 	
-	bool CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8], Camera &mCam);
+	bool CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam);
 	bool CreateFrustumBuffer(ID3D11Device* &gDevice);
 	bool CreateFrustumIndexBuffer(ID3D11Device* &gDevice);
 
