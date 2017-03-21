@@ -441,6 +441,7 @@ void BufferComponents::ReleaseAll() {
 	SAFE_RELEASE(topDownCameraBuffer);
 	SAFE_RELEASE(gFrustumBuffer);
 	SAFE_RELEASE(gFrustumIndexBuffer);
+	SAFE_RELEASE(gArrowBuffer);
 }
 
 bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImport &fbxImporter) {
@@ -764,7 +765,6 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
-
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
@@ -1402,7 +1402,7 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
+	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 50, 2));
 	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 
@@ -1436,21 +1436,50 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	return true;
 }
 
+bool BufferComponents::CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam) {
+
+	HRESULT hr;
+
+	Vertex_Frustum frustumVertices[2] = {
+
+		0.0f, 0.0f, 0.0f,
+		mCam.GetLook().x, mCam.GetLook().y, mCam.GetLook().z
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(frustumVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = frustumVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gArrowBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
+}
+
 bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
 	Vertex_Frustum frustumVertices[8] = {
 
-		-1.0f, 1.0f, FARPLANE,
-		 1.0f, 1.0f, FARPLANE,
-		-1.0f, -1.0f, FARPLANE,
-		 1.0f, -1.0f, FARPLANE,
+		-1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f,
 
-		-1.0f, 1.0f, NEARPLANE,
-		 1.0f, 1.0f, NEARPLANE,
-		-1.0f, -1.0f, NEARPLANE,
-		 1.0f, -1.0f, NEARPLANE
+		-1.0f, 1.0f, -1.0f,
+		 1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;

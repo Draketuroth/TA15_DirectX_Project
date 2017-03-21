@@ -12,5 +12,7 @@
 #define NEARPLANE 0.1f
 #define FARPLANE 150.0f
 
+#define ENABLE_FRUSTUM_DEBUG true
+
 #define LaunchInWindowedMode TRUE;
 #define SAFE_RELEASE( x ) if( x ) ( x )->Release(), ( x ) = nullptr;
