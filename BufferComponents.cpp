@@ -500,10 +500,10 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 		return false;
 	}
 
-	if (!CreateFrustumBuffer(gDevice)) {
+	/*if (!CreateFrustumBuffer(gDevice)) {
 
 		return false;
-	}
+	}*/
 
 	if (!CreateFrustumIndexBuffer(gDevice)) {
 
@@ -764,7 +764,6 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	mCam.SetLens(fov, aspectRatio, nearPlane, farPlane);
-
 
 	//Matrices for the light, worldViewProjection, to use it for shadowmapping
 
@@ -1436,21 +1435,57 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	return true;
 }
 
+bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8], Camera &mCam) {
+
+	HRESULT hr;
+	
+	Vertex_Frustum frustumVertices[8] = {
+
+		 FrustumCorners[0].x + mCam.GetPosition().x, FrustumCorners[0].y + mCam.GetPosition().y, FrustumCorners[0].z + mCam.GetPosition().z,
+		 FrustumCorners[1].x + mCam.GetPosition().x, FrustumCorners[1].y + mCam.GetPosition().y, FrustumCorners[1].z + mCam.GetPosition().z,
+		 FrustumCorners[2].x + mCam.GetPosition().x, FrustumCorners[2].y + mCam.GetPosition().y, FrustumCorners[2].z + mCam.GetPosition().z,
+		 FrustumCorners[3].x + mCam.GetPosition().x, FrustumCorners[3].y + mCam.GetPosition().y, FrustumCorners[3].z + mCam.GetPosition().z,
+
+		 FrustumCorners[4].x + mCam.GetPosition().x, FrustumCorners[4].y + mCam.GetPosition().y, FrustumCorners[4].z + mCam.GetPosition().z,
+		 FrustumCorners[5].x + mCam.GetPosition().x, FrustumCorners[5].y + mCam.GetPosition().y, FrustumCorners[5].z + mCam.GetPosition().z,
+		 FrustumCorners[6].x + mCam.GetPosition().x, FrustumCorners[6].y + mCam.GetPosition().y, FrustumCorners[6].z + mCam.GetPosition().z,
+		 FrustumCorners[7].x + mCam.GetPosition().x, FrustumCorners[7].y + mCam.GetPosition().y, FrustumCorners[7].z + mCam.GetPosition().z,
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(frustumVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = frustumVertices;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gFrustumBuffer);
+
+	if (FAILED(hr)) {
+
+		return false;
+	}
+
+	return true;
+
+}
+
 bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
 	Vertex_Frustum frustumVertices[8] = {
 
-		-1.0f, 1.0f, FARPLANE,
-		 1.0f, 1.0f, FARPLANE,
-		-1.0f, -1.0f, FARPLANE,
-		 1.0f, -1.0f, FARPLANE,
+		-1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f,
 
-		-1.0f, 1.0f, NEARPLANE,
-		 1.0f, 1.0f, NEARPLANE,
-		-1.0f, -1.0f, NEARPLANE,
-		 1.0f, -1.0f, NEARPLANE
+		-1.0f, 1.0f, -1.0f,
+		 1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;

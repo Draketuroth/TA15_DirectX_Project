@@ -248,9 +248,14 @@ int RunApplication() {
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
 				
 				cameraPointer->topDownViewTransform = bHandler.topDownCamData.topDownViewTransform;
-				XMMATRIX WVP = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraViewProj);
-				XMMATRIX invWVP = XMMatrixInverse(nullptr, WVP);
-				cameraPointer->projectionInverse = invWVP;
+				
+				XMMATRIX P = tCameraProjection;
+				XMMATRIX MV = XMMatrixMultiply(bHandler.tWorldMatrix, bHandler.topDownCamData.topDownViewTransform);
+				XMMATRIX temp = P * MV;
+				XMMATRIX inv = XMMatrixInverse(nullptr, temp);
+
+				XMMATRIX WVP = XMMatrixInverse(nullptr, inv);
+				cameraPointer->projectionInverse = WVP;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
@@ -270,9 +275,14 @@ int RunApplication() {
 				TOPDOWN_CAMERA* cameraPointer = (TOPDOWN_CAMERA*)topDownBufferResource.pData;
 
 				cameraPointer->topDownViewTransform = tCameraView;
-				XMMATRIX WVP = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraViewProj);
-				XMMATRIX invWVP = XMMatrixInverse(nullptr, WVP);
-				cameraPointer->projectionInverse = invWVP;
+				
+				XMMATRIX P = tCameraProjection;
+				XMMATRIX MV = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraView);
+				XMMATRIX temp = P * MV;
+				XMMATRIX inv = XMMatrixInverse(nullptr, temp);
+
+				XMMATRIX WVP = XMMatrixInverse(nullptr, inv);
+				cameraPointer->projectionInverse = WVP;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
@@ -318,6 +328,15 @@ int RunApplication() {
 
 			 QTree.checkRenderObjects();
 			// QTree.printIntersections();
+
+			//----------------------------------------------------------------------------------------------------------------------------------//
+			// UPDATE FRUSTUM BUFFER
+			//----------------------------------------------------------------------------------------------------------------------------------//
+
+			 XMFLOAT3 FrustumCorners[8];
+			 mCam.testFrust.GetCorners(FrustumCorners);
+			 bHandler.CreateFrustumBuffer(gHandler.gDevice, FrustumCorners, mCam);
+
 			//----------------------------------------------------------------------------------------------------------------------------------//
 			// PARTICLE MOVEMENT
 			//----------------------------------------------------------------------------------------------------------------------------------//

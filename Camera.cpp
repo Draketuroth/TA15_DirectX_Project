@@ -384,6 +384,7 @@ void Camera::CreateFrustum()
 
 	}
 }
+
 void Camera::testCreate()
 {
 	BoundingFrustum tempFrust;

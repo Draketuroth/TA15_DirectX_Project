@@ -9,7 +9,7 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	SetGeometryTexture(gHandler, bHandler, tHandler);
 
-	//RenderFrustum(gHandler, bHandler, tHandler);
+	RenderFrustum(gHandler, bHandler, tHandler);
 
 	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
 

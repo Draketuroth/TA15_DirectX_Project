@@ -150,6 +150,7 @@ public:
 
 	bool CreateTopDownCameraBuffer(ID3D11Device* &gDevice);
 	
+	bool CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8], Camera &mCam);
 	bool CreateFrustumBuffer(ID3D11Device* &gDevice);
 	bool CreateFrustumIndexBuffer(ID3D11Device* &gDevice);
 

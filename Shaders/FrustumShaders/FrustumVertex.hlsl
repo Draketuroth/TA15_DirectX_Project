@@ -33,10 +33,8 @@ VS_OUT VS_main( VS_IN input)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	//matrix WVP = mul(matrixWorld, projectionInverse);
-	
-	float4 inverseNDC = mul(float4(input.Pos.xyz, 1.0f), projectionInverse);
-	output.Pos = inverseNDC;
+	output.Pos = mul(float4(input.Pos.xyz, 1.0f), projectionInverse);
+
 
 	return output;
 }
