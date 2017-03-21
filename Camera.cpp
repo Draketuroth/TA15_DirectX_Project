@@ -382,17 +382,17 @@ void Camera::CreateFrustum()
 		XMVector3Normalize(planeNorm);
 		XMStoreFloat3(&this->Frustum[i].Normal, planeNorm);
 	}
-	for (size_t i = 0; i < 6; i++)
-	{
-		XMVECTOR vecNorm = XMLoadFloat3(&this->Frustum[i].Normal);
-		XMVECTOR vecDistance = { this->Frustum[i].Distance };
-		XMMATRIX inverseVPM = XMLoadFloat4x4(&this->inverseVP);
-		//XMVector3Transform(vecNorm, inverseVPM);
-		XMVector3Transform(vecDistance, inverseVPM);
-		XMVector2Transform(vecNorm, inverseVPM);
-		XMStoreFloat3(&this->Frustum[i].Normal, vecNorm);
-		XMStoreFloat(&this->Frustum[i].Distance, vecDistance);
-	}
+	//for (size_t i = 0; i < 6; i++)
+	//{
+	//	XMVECTOR vecNorm = XMLoadFloat3(&this->Frustum[i].Normal);
+	//	XMVECTOR vecDistance = { this->Frustum[i].Distance };
+	//	XMMATRIX inverseVPM = XMLoadFloat4x4(&this->inverseVP);
+	//	//XMVector3Transform(vecNorm, inverseVPM);
+	//	XMVector3Transform(vecDistance, inverseVPM);
+	//	XMVector2Transform(vecNorm, inverseVPM);
+	//	XMStoreFloat3(&this->Frustum[i].Normal, vecNorm);
+	//	XMStoreFloat(&this->Frustum[i].Distance, vecDistance);
+	//}
 }
 void Camera::BoundingFrustumCreate(float mouseX, float mouseY)
 {
@@ -407,16 +407,19 @@ void Camera::BoundingFrustumCreate(float mouseX, float mouseY)
 	this->testFrust.Transform(this->testFrust, tempInverseP);
 
 
+	float XAngle = XMConvertToRadians(0.25f * static_cast<float>(mouseX - mLastMousePos.x));
+	float YAngle = XMConvertToRadians(0.25f * static_cast<float>(mouseY - mLastMousePos.y));
 
-
-
+	XMFLOAT3 rotFloat = { XAngle, YAngle, 0};
+	XMVECTOR rotVec = XMLoadFloat3(&rotFloat);
 	XMMATRIX translation;
-	XMVECTOR transVec = XMLoadFloat3(&this->mPosition);
+	XMFLOAT3 mPos3 = { this->mPosition.x, this->mPosition.y, this->mPosition.z};
+	XMVECTOR transVec = XMLoadFloat3(&mPos3);
 	XMMATRIX rotation = this->createRotationMatrix();
 	XMMATRIX finalM = XMMatrixMultiply(translation, rotation);
 	translation = XMMatrixTranslation(this->mPosition.x, this->mPosition.y, this->mPosition.z);
+	//this->testFrust.Transform(this->testFrust, 1.0f, rotVec, transVec);
 	this->testFrust.Transform(this->testFrust, translation);
-	//this->testFrust.Transform(this->testFrust, finalM);
 
 
 }

@@ -239,69 +239,69 @@ void Quadtree::calculateHalfD()
 
 }
 
-//void Quadtree::recursiveIntersect(Camera camera)
-//{
-//	if (SubDiv == 0)
-//	{
-//		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
-//		{
-//			this->intersection = INSIDE;
-//		}
-//		else
-//		{
-//			this->intersection = OUTSIDE;
-//		}
-//	}
-//	for (size_t i = 0; i < 4; i++)
-//	{
-//		if (SubDiv != totalSubDiv)
-//		{
-//			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
-//			{
-//				this->nodes[i]->intersection = INSIDE;
-//				this->nodes[i]->recursiveIntersect(camera);
-//			}
-//			else
-//			{
-//				this->nodes[i]->intersection = OUTSIDE;
-//			}
-//		}
-//	}
-//}
-
 void Quadtree::recursiveIntersect(Camera camera)
 {
-	if (this->SubDiv == 0)
+	if (SubDiv == 0)
 	{
-		if (camera.testFrust.Intersects(this->BBox))
+		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
 		{
-			this->intersection = INTERSECT;
+			this->intersection = INSIDE;
 		}
 		else
 		{
 			this->intersection = OUTSIDE;
 		}
 	}
-	if (this->intersection != OUTSIDE)
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (this->SubDiv != totalSubDiv)
+		if (SubDiv != totalSubDiv)
 		{
-			for (size_t i = 0; i < 4; i++)
+			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
 			{
-		
-				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
-				{
-					this->nodes[i]->intersection = INTERSECT;
-					this->nodes[i]->recursiveIntersect(camera);
-				}
-				else
-				{
-					this->nodes[i]->intersection = OUTSIDE;
-				}
+				this->nodes[i]->intersection = INSIDE;
+				this->nodes[i]->recursiveIntersect(camera);
+			}
+			else
+			{
+				this->nodes[i]->intersection = OUTSIDE;
 			}
 		}
 	}
 }
+
+//void Quadtree::recursiveIntersect(Camera camera)
+//{
+//	if (this->SubDiv == 0)
+//	{
+//		if (camera.testFrust.Intersects(this->BBox))
+//		{
+//			this->intersection = INTERSECT;
+//		}
+//		else
+//		{
+//			this->intersection = OUTSIDE;
+//		}
+//	}
+//	if (this->intersection != OUTSIDE)
+//	{
+//		if (this->SubDiv != totalSubDiv)
+//		{
+//			for (size_t i = 0; i < 4; i++)
+//			{
+//		
+//				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
+//				{
+//					this->nodes[i]->intersection = INTERSECT;
+//					this->nodes[i]->recursiveIntersect(camera);
+//				}
+//				else
+//				{
+//					this->nodes[i]->intersection = OUTSIDE;
+//				}
+//			}
+//		}
+//	}
+//}
 void Quadtree::checkRenderObjects()
 {
 	for (size_t i = 0; i < 4; i++)//Loops through children

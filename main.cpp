@@ -316,9 +316,9 @@ int RunApplication() {
 			}*/
 
 			gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
-			//mCam.CreateFrustum();
+			mCam.CreateFrustum();
 			//mCam.updateFrustum();
-			mCam.BoundingFrustumCreate(p.x, p.y);
+			//mCam.BoundingFrustumCreate(p.x, p.y);
 			
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS
