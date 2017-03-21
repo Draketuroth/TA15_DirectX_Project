@@ -57,18 +57,6 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 	FbxScene* pFbxScene = FbxScene::Create(gFbxSdkManager, "");
 
-	/* // FbxAxisSystem Conversion might work in some cases, but not this one. ConvertScene only converts parent and not its children
-
-	FbxAxisSystem SceneAxisSystem = pFbxScene->GetGlobalSettings().GetAxisSystem();
-	FbxAxisSystem LeftAxisSystem(FbxAxisSystem::DirectX);
-
-	if (SceneAxisSystem != LeftAxisSystem) {
-
-		SceneAxisSystem.ConvertScene(pFbxScene);
-	}
-
-	*/
-
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// LOG FILE: FBX HEADER
 	//----------------------------------------------------------------------------------------------------------------------------------//
