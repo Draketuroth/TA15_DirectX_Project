@@ -26,3 +26,5 @@ void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 void ComputeBlur(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
 
 void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
+
+void DrawQuadTree(GraphicComponents &gHandler, BufferComponents &bHandler);

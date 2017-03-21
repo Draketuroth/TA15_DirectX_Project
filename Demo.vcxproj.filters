@@ -82,6 +82,9 @@
     <Filter Include="Source Files\HLSL\FrustumShaders">
       <UniqueIdentifier>{b93b6588-92bf-42dc-a3fb-008010a08214}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HLSL\QuadTreeShaders">
+      <UniqueIdentifier>{167ef859-3df4-4ac2-9f8a-e915f2256ed6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -181,6 +184,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\FrustumShaders\FrustumVertex.hlsl">
       <Filter>Source Files\HLSL\FrustumShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadTreeShaders\QuadTreePixel.hlsl">
+      <Filter>Source Files\HLSL\QuadTreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadTreeShaders\QuadTreeVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadTreeShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

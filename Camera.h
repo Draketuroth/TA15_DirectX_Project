@@ -97,11 +97,11 @@ public:
 	float GetX()const; 
 	float GetZ()const; 
 
-	void BoundingFrustumCreate(float mouseX, float mouseY);
-	void CreateFrustum();
-	void createInverseVP();
-	void updateFrustum();
-	XMMATRIX createRotationMatrix();
+	void BoundingFrustumCreate();
+	//void CreateFrustum();
+	void createInverseView();
+
+
 private:
 
 	// Camera coordinate system with coordinates relative to World Space
@@ -121,10 +121,8 @@ private:
 	// Cache View/Proj Matrices 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
-	XMFLOAT4X4 cWorld;
-	XMFLOAT4X4 inverseVP;
-	XMFLOAT4X4 inverseP;
-	XMVECTOR rotVec;
+	XMFLOAT4X4 inverseView;
+
 };
 
 #endif CAMERA_H
