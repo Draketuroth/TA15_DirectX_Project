@@ -104,7 +104,7 @@ int main() {
 			MB_OK);
 	}
 	
-	if (!QTree.CreateTree(0))
+	if (!QTree.CreateTree(0, gHandler.gDevice))
 	{
 		MessageBox(
 			NULL,
@@ -311,9 +311,10 @@ int RunApplication() {
 				i = 0;
 			}*/
 
-			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+			gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
 			//mCam.CreateFrustum();
-			 mCam.testCreate();
+			//mCam.updateFrustum();
+			mCam.BoundingFrustumCreate();
 			
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS

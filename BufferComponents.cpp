@@ -1187,9 +1187,9 @@ bool BufferComponents::CreateCubeVertices(ID3D11Device* &gDevice) {
 		// RANDOMIZE NEW OFFSET VALUES FOR EACH CUBE
 		//----------------------------------------------------------------------------------------------------------------------------------//
 
-		xOffsetValue = RandomNumber(-20, 20);
-		yOffsetValue = RandomNumber(5, 30);
-		zOffsetValue = RandomNumber(-20, 20);
+		xOffsetValue = RandomNumber(-15, 15);
+		yOffsetValue = RandomNumber(5, 15);
+		zOffsetValue = RandomNumber(-15, 15);
 		spacing = RandomNumber(-20, 20);
 
 		//----------------------------------------------------------------------------------------------------------------------------------//

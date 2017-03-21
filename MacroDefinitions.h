@@ -7,10 +7,10 @@
 #define OUTSIDE 0
 #define INSIDE 1
 #define INTERSECT 2
-#define CUBECAPACITY 30
+#define CUBECAPACITY 10
 
 #define NEARPLANE 0.1f
-#define FARPLANE 2000.0f
+#define FARPLANE 150.0f
 
 #define ENABLE_FRUSTUM_DEBUG true
 

@@ -97,8 +97,10 @@ public:
 	float GetX()const; 
 	float GetZ()const; 
 
-	void testCreate();
-	void CreateFrustum();
+	void BoundingFrustumCreate();
+	//void CreateFrustum();
+	void createInverseView();
+
 
 private:
 
@@ -119,7 +121,8 @@ private:
 	// Cache View/Proj Matrices 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
-	XMFLOAT4X4 cWorld;
+	XMFLOAT4X4 inverseView;
+
 };
 
 #endif CAMERA_H
