@@ -501,11 +501,6 @@ bool BufferComponents::SetupScene(ID3D11Device* &gDevice, Camera &mCam, FbxImpor
 		return false;
 	}
 
-	if (!CreateFrustumBuffer(gDevice)) {
-
-		return false;
-	}
-
 	if (!CreateFrustumIndexBuffer(gDevice)) {
 
 		return false;
@@ -1402,14 +1397,14 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 
 	HRESULT hr;
 
-	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 50, 2));
+	XMVECTOR eyePos = DirectX::XMLoadFloat3(&XMFLOAT3(0, 100, 2));
 	XMVECTOR lookAt = DirectX::XMLoadFloat3(&XMFLOAT3(0, 0, 1));
 	XMVECTOR up = DirectX::XMLoadFloat3(&XMFLOAT3(0, 1, 0));
 
 	XMMATRIX topDownViewMatrix = XMMatrixLookAtLH(eyePos, lookAt, up);
 
 	topDownCamData.topDownViewTransform = XMMatrixTranspose(topDownViewMatrix);
-	topDownCamData.projectionInverse = XMMatrixIdentity();
+	topDownCamData.viewInverse = XMMatrixIdentity();
 
 	D3D11_BUFFER_DESC constBufferDesc;
 	constBufferDesc.ByteWidth = sizeof(TOPDOWN_CAMERA);
@@ -1436,14 +1431,22 @@ bool BufferComponents::CreateTopDownCameraBuffer(ID3D11Device* &gDevice) {
 	return true;
 }
 
-bool BufferComponents::CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam) {
+bool BufferComponents::CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8]) {
 
 	HRESULT hr;
 
-	Vertex_Frustum frustumVertices[2] = {
+	Vertex_Frustum frustumVertices[8] = {
 
-		0.0f, 0.0f, 0.0f,
-		mCam.GetLook().x, mCam.GetLook().y, mCam.GetLook().z
+		FrustumCorners[0].x, FrustumCorners[0].y, FrustumCorners[0].z,
+		FrustumCorners[1].x, FrustumCorners[1].y, FrustumCorners[1].z,
+		FrustumCorners[2].x, FrustumCorners[2].y, FrustumCorners[2].z,
+		FrustumCorners[3].x, FrustumCorners[3].y, FrustumCorners[3].z,
+
+		FrustumCorners[4].x, FrustumCorners[4].y, FrustumCorners[4].z,
+		FrustumCorners[5].x, FrustumCorners[5].y, FrustumCorners[5].z,
+		FrustumCorners[6].x, FrustumCorners[6].y, FrustumCorners[6].z,
+		FrustumCorners[7].x, FrustumCorners[7].y, FrustumCorners[7].z,
+
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -1454,7 +1457,7 @@ bool BufferComponents::CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam) {
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = frustumVertices;
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gArrowBuffer);
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gFrustumBuffer);
 
 	if (FAILED(hr)) {
 
@@ -1508,7 +1511,7 @@ bool BufferComponents::CreateFrustumIndexBuffer(ID3D11Device* &gDevice) {
 	// Create Indices
 	unsigned int pointIndices[24] = 
 	
-	{ 0,1, 0,4, 0,2, 1,5, 1,3, 5,4, 2,3, 2,6, 3,7, 6,7, 4,6, 5,7 };
+	{ 4,5, 4,7, 4,0, 5,1, 0,1, 0,3, 5,6, 1,2, 7,6, 7,3, 6,2, 3,2};
 
 	// Create the buffer description
 	D3D11_BUFFER_DESC bufferDesc;

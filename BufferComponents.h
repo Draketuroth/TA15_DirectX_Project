@@ -73,7 +73,7 @@ struct CubeObjects {
 struct TOPDOWN_CAMERA {
 
 	XMMATRIX topDownViewTransform;
-	XMMATRIX projectionInverse;
+	XMMATRIX viewInverse;
 };
 
 class BufferComponents {
@@ -151,7 +151,7 @@ public:
 
 	bool CreateTopDownCameraBuffer(ID3D11Device* &gDevice);
 	
-	bool CreateArrowBuffer(ID3D11Device* &gDevice, Camera &mCam);
+	bool CreateFrustumBuffer(ID3D11Device* &gDevice, XMFLOAT3 FrustumCorners[8]);
 	bool CreateFrustumBuffer(ID3D11Device* &gDevice);
 	bool CreateFrustumIndexBuffer(ID3D11Device* &gDevice);
 

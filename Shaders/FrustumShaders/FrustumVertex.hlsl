@@ -26,15 +26,14 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 cbuffer TOPDOWN_CAMERA : register(b1) {
 
 	matrix topDownViewTransform;
-	matrix projectionInverse;
+	matrix viewInverse;
 };
 
 VS_OUT VS_main( VS_IN input)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	output.Pos = mul(float4(input.Pos.xyz + cameraPos.xyz, 1.0f), projectionInverse);
-
+	output.Pos = mul(float4(input.Pos.xyz, 1.0f), viewInverse);
 
 	return output;
 }

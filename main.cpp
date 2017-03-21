@@ -249,13 +249,11 @@ int RunApplication() {
 				
 				cameraPointer->topDownViewTransform = bHandler.topDownCamData.topDownViewTransform;
 				
-				XMMATRIX P = tCameraProjection;
-				XMMATRIX MV = XMMatrixMultiply(bHandler.tWorldMatrix, bHandler.topDownCamData.topDownViewTransform);
-				XMMATRIX temp = P * MV;
-				XMMATRIX inv = XMMatrixInverse(nullptr, temp);
-
-				XMMATRIX WVP = XMMatrixInverse(nullptr, inv);
-				cameraPointer->projectionInverse = WVP;
+				XMVECTOR det;
+				det = XMMatrixDeterminant(mCam.View());
+				XMMATRIX inverseView = XMMatrixInverse(&det, mCam.View());
+		
+				cameraPointer->viewInverse = inverseView;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
@@ -276,13 +274,11 @@ int RunApplication() {
 
 				cameraPointer->topDownViewTransform = tCameraView;
 				
-				XMMATRIX P = tCameraProjection;
-				XMMATRIX MV = XMMatrixMultiply(bHandler.tWorldMatrix, tCameraView);
-				XMMATRIX temp = P * MV;
-				XMMATRIX inv = XMMatrixInverse(nullptr, temp);
+				XMVECTOR det;
+				det = XMMatrixDeterminant(mCam.View());
+				XMMATRIX inverseView = XMMatrixInverse(&det, mCam.View());
 
-				XMMATRIX WVP = XMMatrixInverse(nullptr, inv);
-				cameraPointer->projectionInverse = WVP;
+				cameraPointer->viewInverse = inverseView;
 
 				gHandler.gDeviceContext->Unmap(bHandler.topDownCameraBuffer, 0);
 			}
@@ -335,7 +331,9 @@ int RunApplication() {
 
 			 if(ENABLE_FRUSTUM_DEBUG){
 
-			 bHandler.CreateArrowBuffer(gHandler.gDevice, mCam);
+				 XMFLOAT3 FrustumCorners[8];
+				 mCam.testFrust.GetCorners(FrustumCorners);
+			     bHandler.CreateFrustumBuffer(gHandler.gDevice, FrustumCorners);
 
 			 }
 
