@@ -23,18 +23,18 @@ public:
 	int intersection;
 	int ID;
 	XMMATRIX WorldM;
-	ID3D11Buffer* treeVertexBuffer;
+
 
 	void calculateHalfD();
-	bool CreateTree(int SubDiv, ID3D11Device* &gDevice);
+	bool CreateTree(int SubDiv);
 	//void render(ID3D11DeviceContext* &gDeviceContext, GraphicComponents &gHandler);
 	void checkBoundingBox(CubeObjects &Object);
 	int frustumIntersect(Camera camera);
 	void recursiveIntersect(Camera camera);
 	void checkRenderObjects();
 	void printIntersections();
-	bool createBuffer(ID3D11Device* &gDevice);
-	void renderTree(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext);
+	//bool createBuffer(ID3D11Device* &gDevice);
+
 private:
 
 };

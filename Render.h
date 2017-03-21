@@ -27,4 +27,3 @@ void ComputeBlur(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler);
 
-void DrawQuadTree(GraphicComponents &gHandler, BufferComponents &bHandler);

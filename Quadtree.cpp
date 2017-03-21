@@ -49,15 +49,14 @@ Quadtree::~Quadtree()
 	}
 }
 
-bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
+bool Quadtree::CreateTree(int SubDiv)
 {
 	if (SubDiv == 0)
 	{
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
-	//	this->BBox.Transform(this->BBox, this->WorldM);
 		this->calculateHalfD();
-		this->createBuffer(gDevice);
+		
 
 	}
 	if (this->SubDiv == 2)
@@ -96,20 +95,17 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID);
 		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID);
 		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID);
-		for (size_t i = 0; i < 4; i++)
-		{
-			this->nodes[i]->createBuffer(gDevice);
-		}
+
 		//Calculate the half distance(diagonal) from the center to each corner
 		this->nodes[0]->calculateHalfD();
 		this->nodes[1]->calculateHalfD();
 		this->nodes[2]->calculateHalfD();
 		this->nodes[3]->calculateHalfD();
 		//Going into each children to create their children
-		this->nodes[0]->CreateTree(SubDiv + 1, gDevice);
-		this->nodes[1]->CreateTree(SubDiv + 1, gDevice);
-		this->nodes[2]->CreateTree(SubDiv + 1, gDevice);
-		this->nodes[3]->CreateTree(SubDiv + 1, gDevice);
+		this->nodes[0]->CreateTree(SubDiv + 1);
+		this->nodes[1]->CreateTree(SubDiv + 1);
+		this->nodes[2]->CreateTree(SubDiv + 1);
+		this->nodes[3]->CreateTree(SubDiv + 1);
 	}	
 	return true;
 }
@@ -362,40 +358,36 @@ void Quadtree::printIntersections()
 		}
 	}
 }
-bool Quadtree::createBuffer(ID3D11Device* &gDevice)
-{
-	HRESULT hr;
-	XMFLOAT3 corners[8];
-	this->BBox.GetCorners(corners);
-	Vertex_Frustum treeVerts[8] = {
-
-		corners[0].x, corners[0].y, corners[0].z,
-		corners[1].x, corners[1].y, corners[1].z,
-		corners[2].x, corners[2].y, corners[2].z,
-		corners[3].x, corners[3].y, corners[3].z,
-		corners[4].x, corners[4].y, corners[4].z,
-		corners[5].x, corners[5].y, corners[5].z,
-		corners[6].x, corners[6].y, corners[6].z,
-		corners[7].x, corners[7].y, corners[7].z,
-	};
-
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(treeVerts);
-
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = treeVerts;
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &this->treeVertexBuffer);
-
-	if (FAILED(hr)) {
-
-		return false;
-	}
-	return true;
-}
-void Quadtree::renderTree(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext)
-{
-
-}
+//bool Quadtree::createBuffer(ID3D11Device* &gDevice)
+//{
+//	HRESULT hr;
+//	XMFLOAT3 corners[8];
+//	this->BBox.GetCorners(corners);
+//	Vertex_Frustum treeVerts[8] = {
+//
+//		corners[0].x, corners[0].y, corners[0].z,
+//		corners[1].x, corners[1].y, corners[1].z,
+//		corners[2].x, corners[2].y, corners[2].z,
+//		corners[3].x, corners[3].y, corners[3].z,
+//		corners[4].x, corners[4].y, corners[4].z,
+//		corners[5].x, corners[5].y, corners[5].z,
+//		corners[6].x, corners[6].y, corners[6].z,
+//		corners[7].x, corners[7].y, corners[7].z,
+//	};
+//
+//	D3D11_BUFFER_DESC bufferDesc;
+//	memset(&bufferDesc, 0, sizeof(bufferDesc));
+//	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+//	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+//	bufferDesc.ByteWidth = sizeof(treeVerts);
+//
+//	D3D11_SUBRESOURCE_DATA data;
+//	data.pSysMem = treeVerts;
+//	hr = gDevice->CreateBuffer(&bufferDesc, &data, &this->treeVertexBuffer);
+//
+//	if (FAILED(hr)) {
+//
+//		return false;
+//	}
+//	return true;
+//}

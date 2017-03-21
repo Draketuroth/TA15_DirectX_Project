@@ -104,7 +104,7 @@ int main() {
 			MB_OK);
 	}
 	
-	if (!QTree.CreateTree(0, gHandler.gDevice))
+	if (!QTree.CreateTree(0))
 	{
 		MessageBox(
 			NULL,

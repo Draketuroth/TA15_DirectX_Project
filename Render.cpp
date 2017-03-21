@@ -370,8 +370,5 @@ void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler,
 	gHandler.gDeviceContext->PSSetShaderResources(1, 1, pSRV);
 
 }
-void DrawQuadTree(GraphicComponents &gHandler, BufferComponents &bHandler)
-{
 
-}
 
