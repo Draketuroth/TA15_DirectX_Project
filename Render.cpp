@@ -92,6 +92,7 @@ void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, Text
 	gHandler.gDeviceContext->IASetInputLayout(gHandler.gFrustumLayout);
 	gHandler.gDeviceContext->Draw(2, 0);
 
+	SAFE_RELEASE(bHandler.gArrowBuffer);
 
 	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gFrustumBuffer, &vertexSize, &offset);
 	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gFrustumIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

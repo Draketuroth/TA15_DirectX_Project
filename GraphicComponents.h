@@ -82,7 +82,6 @@ public:
 	bool CreateCubeShaders();
 
 	bool CreateFrustumShaders();
-	bool CreateQuadTreeShaders();
 	bool CreateDepthStencil(BufferComponents &bHandler);
 	void SetViewport();		// Functions to define the properties of our viewport
 
