@@ -22,8 +22,12 @@ cbuffer cbImmutable
 Texture2D InputTex : register (t0);
 RWTexture2D<float4> OutputTex : register (u0);
 
+// Fixed number of threads per group
 #define NUMBER_OF_THREADS_Y 256
 #define CACHE_SIZE_Y (NUMBER_OF_THREADS_Y + 2 * gBlurRadius)
+
+// Group shared memory to store texels in order to not read them multiple of times
+// Each thread can store a texel value and store it in the shared memory
 groupshared float4 gCacheY[CACHE_SIZE_Y];
 
 [numthreads(1, NUMBER_OF_THREADS_Y, 1)]
