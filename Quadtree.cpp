@@ -170,14 +170,16 @@ int Quadtree::frustumIntersect(Camera camera)
 		if (s - e > 0)//is outside the plane
 		{
 			outCounter++;
-		}
-		if (s - e > 0 && outCounter == 5)
-		{
 			return OUTSIDE;
 		}
+		//if (s - e > 0 && outCounter == 5)
+		//{
+		//	return OUTSIDE;
+		//}
 		if (s + e < 0)//inside the plane
 		{
 			inCounter++;
+			return INSIDE;
 		}
 		if (s + e < 0 && inCounter == 5)
 		{

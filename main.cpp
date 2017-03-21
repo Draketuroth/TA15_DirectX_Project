@@ -112,7 +112,7 @@ int main() {
 			L"ERROR",
 			MB_OK);
 	}
-	
+
 	return RunApplication();
 }
 
@@ -305,10 +305,10 @@ int RunApplication() {
 				i = 0;
 			}*/
 
-			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
+			gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
 			//mCam.CreateFrustum();
-			 mCam.testCreate();
-	
+			//mCam.updateFrustum();
+			mCam.BoundingFrustumCreate(p.x, p.y);
 			
 			 //----------------------------------------------------------------------------------------------------------------------------------//
 			 // QUAD TREE FUNCTIONS

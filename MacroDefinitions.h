@@ -10,7 +10,7 @@
 #define CUBECAPACITY 30
 
 #define NEARPLANE 0.1f
-#define FARPLANE 2000.0f
+#define FARPLANE 150.0f
 
 #define LaunchInWindowedMode TRUE;
 #define SAFE_RELEASE( x ) if( x ) ( x )->Release(), ( x ) = nullptr;
