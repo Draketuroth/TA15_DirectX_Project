@@ -256,15 +256,10 @@ void FbxImport::CreateVertexData(FbxNode* pFbxRootNode, vector<Vertex_Bone>* pOu
 
 						vertex.boneIndices[i] = currentControlPoint->BlendingInfo[i].BlendIndex;
 						vertex.weights[i] = currentControlPoint->BlendingInfo[i].BlendWeight;
-					
-						vertexBlend.VertexBlendingInfoList.push_back(currentBlendingInfo);
 
 					}
 
 					logFile << "\n";
-
-					// Alternatively, the weights should be sorted by weight but this affects compilation time. Use optimized search sort for this type of operation
-					//vertexBlend.SortBlendingInfoByWeight();
 
 					vertices.push_back(vertex);	// Store all vertices in a separate vector
 

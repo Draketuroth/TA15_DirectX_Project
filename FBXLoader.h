@@ -117,37 +117,6 @@ struct Skeleton { // Stores every joint in the skeleton hierarchy from the loade
 
 };
 
-struct Blend { // Temporary struct containing a VertexBlendInfo vector for debugging purposes
-
-	vector<VertexBlendInfo> VertexBlendingInfoList;
-
-	void SortBlendingInfoByWeight() {
-
-		sort(VertexBlendingInfoList.begin(), VertexBlendingInfoList.end());
-	}
-
-	bool operator==(const Blend& other) {
-
-		bool sameBlendingInfo = true;
-
-		// We only have to compare the blending information of another vertex if there is any blending information in that vertex
-		if (!(VertexBlendingInfoList.empty() && other.VertexBlendingInfoList.empty())) {
-
-			// Each vertex should only hold 4 index-weight blending info pairs
-			for (unsigned int i = 0; i < 4; i++) {
-
-				if (VertexBlendingInfoList[i].BlendingIndex != other.VertexBlendingInfoList[i].BlendingIndex ||
-					abs(VertexBlendingInfoList[i].BlendingWeight - other.VertexBlendingInfoList[i].BlendingWeight) > 0.001) {
-
-					sameBlendingInfo = false;
-					break;
-				}
-			}
-		}
-
-	}
-};
-
 class FbxImport { // Handler Class to store FBX data and manage the Skeletal Animation System
 
 public:
@@ -225,7 +194,6 @@ private:
 
 private:
 
-	Blend vertexBlend;
 	unordered_map<unsigned int, ControlPoint*>controlPoints;
 	FbxMesh* currentMesh;
 	vector<int>indices;
