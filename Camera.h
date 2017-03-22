@@ -34,9 +34,10 @@ public:
 	POINT mLastMousePos;
 
 	//PLane for frustum
-	Plane Frustum[6];
+	//Plane Frustum[6];
 	BoundingFrustum testFrust;
 	XMFLOAT3 FrustumCorners[8];
+
 	// Get/Set Camera Properties
 	XMVECTOR GetPositionXM()const;
 	XMFLOAT3 GetPosition()const;

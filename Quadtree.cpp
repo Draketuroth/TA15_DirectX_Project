@@ -8,7 +8,7 @@ Quadtree::Quadtree()
 	this->totalSubDiv = 1;
 	this->BBox.Center = { 0, 0, 0 };
 	this->BBox.Extents = { 32, 32, 32 };
-	this->WorldM = XMMatrixIdentity();
+	//this->WorldM = XMMatrixIdentity();
 //	this->BBox.Transform(this->BBox, this->WorldM);
 	this->intersection = OUTSIDE;
 	for (int i = 0; i < 4; i++)
@@ -55,9 +55,7 @@ bool Quadtree::CreateTree(int SubDiv)
 	{
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
-		this->calculateHalfD();
-		
-
+		//this->calculateHalfD();
 	}
 	if (this->SubDiv == 2)
 	{
@@ -96,11 +94,8 @@ bool Quadtree::CreateTree(int SubDiv)
 		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID);
 		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID);
 
-		//Calculate the half distance(diagonal) from the center to each corner
-		this->nodes[0]->calculateHalfD();
-		this->nodes[1]->calculateHalfD();
-		this->nodes[2]->calculateHalfD();
-		this->nodes[3]->calculateHalfD();
+
+
 		//Going into each children to create their children
 		this->nodes[0]->CreateTree(SubDiv + 1);
 		this->nodes[1]->CreateTree(SubDiv + 1);
@@ -153,93 +148,93 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 	}
 }
 
-int Quadtree::frustumIntersect(Camera camera)
-{
-	float e = 0;
-	float s = 0;
-	int outCounter = 0;
-	int inCounter = 0;
-	for (size_t i = 0; i < 6; i++)
-	{
-		e = (this->halfDiag.x * abs(camera.Frustum[i].Normal.x)) + (this->halfDiag.y * abs(camera.Frustum[i].Normal.y)) + (this->halfDiag.z * abs(camera.Frustum[i].Normal.z));
-		XMVECTOR c = XMLoadFloat3(&this->BBox.Center);//Center for BBox
-		XMVECTOR n = XMLoadFloat3(&camera.Frustum[i].Normal); //normal for the frustum plane
-		XMVECTOR cn = XMVector3Dot(c, n); // dot product between C and N
-		XMFLOAT3 cnFloat;
-		XMStoreFloat3(&cnFloat, cn);
-		//Calculations down below is a formula that can be referenced to the RTR book
-		s = cnFloat.x + camera.Frustum[i].Distance;
-		if (s - e > 0)//is outside the plane
-		{
-			outCounter++;
-			return OUTSIDE;
-		}
-		//if (s - e > 0 && outCounter == 5)
-		//{
-		//	return OUTSIDE;
-		//}
-		if (s + e < 0)//inside the plane
-		{
-			inCounter++;
-			return INSIDE;
-		}
-		if (s + e < 0 && inCounter == 5)
-		{
-			return INSIDE;
-		}
-	}
-	//Commit change 2
-	return INTERSECT;
-}
+//int Quadtree::frustumIntersect(Camera camera)
+//{
+//	float e = 0;
+//	float s = 0;
+//	int outCounter = 0;
+//	int inCounter = 0;
+//	for (size_t i = 0; i < 6; i++)
+//	{
+//		e = (this->halfDiag.x * abs(camera.Frustum[i].Normal.x)) + (this->halfDiag.y * abs(camera.Frustum[i].Normal.y)) + (this->halfDiag.z * abs(camera.Frustum[i].Normal.z));
+//		XMVECTOR c = XMLoadFloat3(&this->BBox.Center);//Center for BBox
+//		XMVECTOR n = XMLoadFloat3(&camera.Frustum[i].Normal); //normal for the frustum plane
+//		XMVECTOR cn = XMVector3Dot(c, n); // dot product between C and N
+//		XMFLOAT3 cnFloat;
+//		XMStoreFloat3(&cnFloat, cn);
+//		//Calculations down below is a formula that can be referenced to the RTR book
+//		s = cnFloat.x + camera.Frustum[i].Distance;
+//		if (s - e > 0)//is outside the plane
+//		{
+//			outCounter++;
+//			return OUTSIDE;
+//		}
+//		//if (s - e > 0 && outCounter == 5)
+//		//{
+//		//	return OUTSIDE;
+//		//}
+//		if (s + e < 0)//inside the plane
+//		{
+//			inCounter++;
+//			return INSIDE;
+//		}
+//		if (s + e < 0 && inCounter == 5)
+//		{
+//			return INSIDE;
+//		}
+//	}
+//	//Commit change 2
+//	return INTERSECT;
+//}
 
-void Quadtree::calculateHalfD()
-{
-	
-	XMFLOAT3 corners[8];
-	float minX = 0;
-	float minY = 0;
-	float minZ = 0;
-	float maxX = 0;
-	float maxY = 0;
-	float maxZ = 0;
-	this->BBox.GetCorners(corners);
-	for (size_t i = 0; i < 8; i++)
-	{
-		if (minX > corners[i].x)
-		{
-			minX = corners[i].x;
-		}
-		if (minY > corners[i].y)
-		{
-			minY = corners[i].y;
-		}
-		if (minZ > corners[i].z)
-		{
-			minZ = corners[i].z;
-		}
-		if (maxX < corners[i].x)
-		{
-			maxX = corners[i].x;
-		}
-		if (maxY < corners[i].y)
-		{
-			maxY = corners[i].y;
-		}
-		if (maxZ < corners[i].z)
-		{
-			maxZ = corners[i].z;
-		}
-	}
-
-	XMFLOAT3 minCoord = { minX, minY, minZ };
-	XMVECTOR vecMin = XMLoadFloat3(&minCoord);
-	XMFLOAT3 maxCoord = { maxX, maxY, maxZ };
-	XMVECTOR vecMax = XMLoadFloat3(&maxCoord);
-
-	XMVECTOR h = (vecMax - vecMin) / 2;
-	XMStoreFloat3(&this->halfDiag, h);
-
-}
+//void Quadtree::calculateHalfD()
+//{
+//	
+//	XMFLOAT3 corners[8];
+//	float minX = 0;
+//	float minY = 0;
+//	float minZ = 0;
+//	float maxX = 0;
+//	float maxY = 0;
+//	float maxZ = 0;
+//	this->BBox.GetCorners(corners);
+//	for (size_t i = 0; i < 8; i++)
+//	{
+//		if (minX > corners[i].x)
+//		{
+//			minX = corners[i].x;
+//		}
+//		if (minY > corners[i].y)
+//		{
+//			minY = corners[i].y;
+//		}
+//		if (minZ > corners[i].z)
+//		{
+//			minZ = corners[i].z;
+//		}
+//		if (maxX < corners[i].x)
+//		{
+//			maxX = corners[i].x;
+//		}
+//		if (maxY < corners[i].y)
+//		{
+//			maxY = corners[i].y;
+//		}
+//		if (maxZ < corners[i].z)
+//		{
+//			maxZ = corners[i].z;
+//		}
+//	}
+//
+//	XMFLOAT3 minCoord = { minX, minY, minZ };
+//	XMVECTOR vecMin = XMLoadFloat3(&minCoord);
+//	XMFLOAT3 maxCoord = { maxX, maxY, maxZ };
+//	XMVECTOR vecMax = XMLoadFloat3(&maxCoord);
+//
+//	XMVECTOR h = (vecMax - vecMin) / 2;
+//	XMStoreFloat3(&this->halfDiag, h);
+//
+//}
 
 //void Quadtree::recursiveIntersect(Camera camera)
 //{
@@ -331,33 +326,32 @@ void Quadtree::checkRenderObjects()
 			}			
 		}
 	}
-
 }
-void Quadtree::printIntersections()
-{
-	if (this->SubDiv != totalSubDiv - 1)
-	{
-		for (size_t i = 0; i < 4; i++)
-		{
-			this->nodes[i]->printIntersections();
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < 4; i++)
-		{
-			if (this->nodes[i]->intersection != OUTSIDE)
-			{
-				XMFLOAT3 corners[8];
-				this->nodes[i]->BBox.GetCorners(corners);
-				for (size_t j = 0; j < 8; j++)
-				{
-					cout << "X:  " << corners[i].x << "  Y:  " << corners[i].y << "  Z:  " << corners[i].z << endl;
-				}
-			}
-		}
-	}
-}
+//void Quadtree::printIntersections()
+//{
+//	if (this->SubDiv != totalSubDiv - 1)
+//	{
+//		for (size_t i = 0; i < 4; i++)
+//		{
+//			this->nodes[i]->printIntersections();
+//		}
+//	}
+//	else
+//	{
+//		for (size_t i = 0; i < 4; i++)
+//		{
+//			if (this->nodes[i]->intersection != OUTSIDE)
+//			{
+//				XMFLOAT3 corners[8];
+//				this->nodes[i]->BBox.GetCorners(corners);
+//				for (size_t j = 0; j < 8; j++)
+//				{
+//					cout << "X:  " << corners[i].x << "  Y:  " << corners[i].y << "  Z:  " << corners[i].z << endl;
+//				}
+//			}
+//		}
+//	}
+//}
 //bool Quadtree::createBuffer(ID3D11Device* &gDevice)
 //{
 //	HRESULT hr;

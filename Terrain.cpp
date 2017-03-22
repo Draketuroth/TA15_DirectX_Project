@@ -1,6 +1,5 @@
 #include "Terrain.h"
 #include <iostream>
-//Test test
 
 Terrain::Terrain()
 {
@@ -101,7 +100,6 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 			y = heightMap[i*NumPatchVertCols + j];
 			z = halfDepth - i;
 
-			//cout << heightMap[i] << endl;
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);
 
 			//sträcka texturen över griden
@@ -123,7 +121,6 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 	D3D11_SUBRESOURCE_DATA vinitData; 
 	vinitData.pSysMem = &patchVertices[0]; 
 	HRESULT(device->CreateBuffer(&vbd, &vinitData, &mQuadPatchVB)); 
-
 }
 
 void Terrain::BuildQuadPatchIB(ID3D11Device* device)
