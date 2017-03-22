@@ -296,16 +296,7 @@ int RunApplication() {
 			cBufferPointer->floorRot = bHandler.tFloorRot;
 			XMStoreFloat4(&cBufferPointer->cameraUp,mCam.GetUpXM());
 			
-			/*i++;
-			if (i < 20000000000)
-			{
-				cout << mCam.GetPosition().x << " " << mCam.GetPosition().y << " " << mCam.GetPosition().z << endl;
-				i = 0;
-			}*/
-
-
-
-
+	
 			// At last we have to reenable GPU access to the vertex buffer data
 
 			 gHandler.gDeviceContext->Unmap(bHandler.gConstantBuffer, 0);
