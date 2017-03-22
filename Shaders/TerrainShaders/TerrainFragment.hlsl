@@ -45,16 +45,17 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 diffuseLight;
 	float3 specularLight;
 	
-
+	//Manually have to divide all the elements of lPos by W since it is not passed as a SV_POSITION
 	input.lPos.xy /= input.lPos.w; //light pos in NDC
 
 	//getting the light pos from [-1, 1] to [0, 1]
 	float2 smTexture = float2(0.5f * input.lPos.x + 0.5f, -0.5f * input.lPos.y + 0.5f);
 
 	//pixel depth for shadows
-	float depth = input.lPos.z / input.lPos.w;
+	float depth = input.lPos.z / input.lPos.w;//The depth from the point in the light coordinate system(not the point sampled from the shadow map)
 	
-	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.25f : 1.0f;
+	float shadowCheck = (shadowMap.Sample(shadowSampler, smTexture).r + 0.0001f < depth) ? 0.25f : 1.0f;//this returns either 0.25 or 1 depending on if the distance from the sampled point(shadow map)
+	//is less than the distance from the vertex point of the geometry (that is being handled in the current pixel) to the light position, if that is true, it means that it is in shadow
 
 	float nDotL;
 	float3 texColor;

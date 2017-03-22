@@ -33,7 +33,7 @@ public:
 
 	ID3D11InputLayout* gShadowVsLayout;
 	ID3D11VertexShader* gShadowVS;
-	ID3D11PixelShader* gShadowPS;
+
 
 	ID3D11InputLayout* gVertexTerrainLayout;	
 	ID3D11VertexShader* gVertexTerrainShader;	
@@ -61,9 +61,6 @@ public:
 	ID3D11VertexShader* gFrustumVertexShader;
 	ID3D11PixelShader* gFrustumPixelShader;
 
-	ID3D11InputLayout* gQuadTreeLayout;
-	ID3D11VertexShader* gQuadTreeVertexShader;
-	ID3D11PixelShader* gQuadTreePixelShader;
 
 	bool InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler);	// Function called to initalize the necessary components, as listen below
 	bool CreateRenderTargetView(BufferComponents &bHandler);	// We require a render target view for rendering and we create this by taking the back buffer from the swap chain
@@ -82,7 +79,6 @@ public:
 	bool CreateCubeShaders();
 
 	bool CreateFrustumShaders();
-	bool CreateQuadTreeShaders();
 	bool CreateDepthStencil(BufferComponents &bHandler);
 	void SetViewport();		// Functions to define the properties of our viewport
 
