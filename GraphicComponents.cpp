@@ -91,6 +91,10 @@ void GraphicComponents::ReleaseAll() {
 	SAFE_RELEASE(gCubePixelShader);
 	SAFE_RELEASE(gCubeGeometryShader);
 
+	SAFE_RELEASE(gFrustumLayout);
+	SAFE_RELEASE(gFrustumVertexShader);
+	SAFE_RELEASE(gFrustumPixelShader);
+
 }
 
 bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferComponents &bHandler) {
@@ -147,6 +151,11 @@ bool GraphicComponents::InitalizeDirect3DContext(HWND &windowHandle, BufferCompo
 	}
 
 	if (!CreateCubeShaders()) {
+
+		return false;
+	}
+
+	if (!CreateFrustumShaders()) {
 
 		return false;
 	}
@@ -1235,6 +1244,105 @@ bool GraphicComponents::CreateCubeShaders() {
 	}
 
 	gsBlob->Release();
+
+	return true;
+}
+
+bool GraphicComponents::CreateFrustumShaders() {
+
+	HRESULT hr;
+
+	ID3DBlob* vsBlob = nullptr;
+	ID3DBlob* vsErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\FrustumShaders\\FrustumVertex.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&vsBlob,
+		&vsErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Frustum Vertex Shader Error: Cube Vertex Shader could not be compiled or loaded from file" << endl;
+
+		if (vsErrorBlob) {
+
+			OutputDebugStringA((char*)vsErrorBlob->GetBufferPointer());
+			vsErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+
+	hr = gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &gFrustumVertexShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Frustum Vertex Shader Error: Cube Vertex Shader could not be created" << endl;
+		return false;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC vertexInputDesc[] = {
+
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+
+	int inputLayoutSize = sizeof(vertexInputDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	gDevice->CreateInputLayout(vertexInputDesc, inputLayoutSize, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &gFrustumLayout);
+
+	if (FAILED(hr)) {
+
+		cout << "Frustum Vertex Shader Error: Cube Shader Input Layout could not be created" << endl;
+	}
+
+	vsBlob->Release();
+
+
+	ID3DBlob* psBlob = nullptr;
+	ID3DBlob* psErrorBlob = nullptr;
+
+	hr = D3DCompileFromFile(
+		L"Shaders\\FrustumShaders\\FrustumFragment.hlsl",
+		nullptr,
+		nullptr,
+		"PS_main",
+		"ps_5_0",
+		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG,
+		0,
+		&psBlob,
+		&psErrorBlob
+	);
+
+	if (FAILED(hr)) {
+
+		cout << "Frustum Fragment Shader Error: Cube Fragment Shader could not be compiled or loaded from file" << endl;
+
+		if (psErrorBlob) {
+
+			OutputDebugStringA((char*)psErrorBlob->GetBufferPointer());
+			psErrorBlob->Release();
+		}
+
+		return false;
+	}
+
+	hr = gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &gFrustumPixelShader);
+
+	if (FAILED(hr)) {
+
+		cout << "Frustum Pixel Shader Error: Pixel Shader could not be created" << endl;
+		return false;
+	}
+
+	psBlob->Release();
 
 	return true;
 }

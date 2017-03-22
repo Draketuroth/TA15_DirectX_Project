@@ -4,10 +4,12 @@
 Quadtree::Quadtree()
 {
 	this->SubDiv = 0;
-	this->totalSubDiv = 4;
+	this->ID = 0;
+	this->totalSubDiv = 1;
 	this->BBox.Center = { 0, 0, 0 };
-	this->BBox.Extents = { 0, 0, 0 };
-	this->BBox.Transform(this->BBox, this->WorldM);
+	this->BBox.Extents = { 32, 32, 32 };
+	this->WorldM = XMMatrixIdentity();
+//	this->BBox.Transform(this->BBox, this->WorldM);
 	this->intersection = OUTSIDE;
 	for (int i = 0; i < 4; i++)
 	{
@@ -16,17 +18,18 @@ Quadtree::Quadtree()
 
 }
 
-Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents)
+Quadtree::Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents, int ID)
 {
 	//for (size_t i = 0; i < 4; i++)
 	//{
 	//	this->Bounding[i] = Bounding[i];
 	//} 
 	this->SubDiv = subDiv;
-	this->totalSubDiv = 4;
+	this->totalSubDiv = 1;
 	this->BBox.Center = Center;
 	this->BBox.Extents = Extents;
-	this->BBox.Transform(this->BBox, this->WorldM);
+	//this->BBox.Transform(this->BBox, this->WorldM);
+	this->ID = ID;
 	this->intersection = OUTSIDE;
 	for (UINT i = 0; i < 4; i++)
 	{
@@ -46,24 +49,29 @@ Quadtree::~Quadtree()
 	}
 }
 
-bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
+bool Quadtree::CreateTree(int SubDiv)
 {
 	if (SubDiv == 0)
 	{
 		this->BBox.Center = { 0, 0, 0 };
 		this->BBox.Extents = { 32, 32, 32 };
-		this->BBox.Transform(this->BBox, this->WorldM);
 		this->calculateHalfD();
+		
+
 	}
-	
-	XMVECTOR halfExtent = XMLoadFloat3(&this->BBox.Extents) / 2;
-	XMFLOAT3 newExtent;
-	XMStoreFloat3(&newExtent, halfExtent);
+	if (this->SubDiv == 2)
+	{
+		this->ID = 1;
+	}
+	float halfExtentX = this->BBox.Extents.x / 2;
+	float halfExtentZ = this->BBox.Extents.z / 2;
+
+	XMFLOAT3 newExtent = {halfExtentX, 32, halfExtentZ};
 
 	//Top left center
 	XMFLOAT3 TLCenter = this->BBox.Center;
 	TLCenter.x -= newExtent.x;
-	TLCenter.y += newExtent.y;
+	TLCenter.z += newExtent.z;
 
 	//Top right center
 	XMFLOAT3 TRCenter = this->BBox.Center;
@@ -82,32 +90,32 @@ bool Quadtree::CreateTree(int SubDiv, ID3D11Device* &gDevice)
 
 	if (SubDiv != totalSubDiv)
 	{
-		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent);
-		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent);
-		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent);
-		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent);
+		//Creating the children
+		this->nodes[0] = new Quadtree(SubDiv + 1, TLCenter, newExtent, this->ID);
+		this->nodes[1] = new Quadtree(SubDiv + 1, TRCenter, newExtent, this->ID);
+		this->nodes[2] = new Quadtree(SubDiv + 1, BLCenter, newExtent, this->ID);
+		this->nodes[3] = new Quadtree(SubDiv + 1, BRCenter, newExtent, this->ID);
 
+		//Calculate the half distance(diagonal) from the center to each corner
 		this->nodes[0]->calculateHalfD();
 		this->nodes[1]->calculateHalfD();
 		this->nodes[2]->calculateHalfD();
 		this->nodes[3]->calculateHalfD();
-	}
-	for (int i = 0; i < 4; i++)
-	{
-		if (SubDiv != totalSubDiv)
-		{
-			this->nodes[i]->CreateTree(SubDiv + 1, gDevice);
-		}
-	}
-	
+		//Going into each children to create their children
+		this->nodes[0]->CreateTree(SubDiv + 1);
+		this->nodes[1]->CreateTree(SubDiv + 1);
+		this->nodes[2]->CreateTree(SubDiv + 1);
+		this->nodes[3]->CreateTree(SubDiv + 1);
+	}	
 	return true;
 }
 
 void Quadtree::checkBoundingBox(CubeObjects &Object)
 {
+
 	if (this->BBox.Contains(Object.bbox))//Check if the current node has an object
 	{
-		if (this->SubDiv != totalSubDiv)
+		if (this->SubDiv != totalSubDiv - 1)
 		{
 			for (int i = 0; i < 4; i++)//loops through children
 			{
@@ -128,7 +136,19 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 		}
 		else
 		{
-			this->objects.push_back(&Object);//Put the object thats in the lowest subdiv in the list of objects for this node
+			for (size_t i = 0; i < 4; i++)
+			{
+				if (this->nodes[i]->BBox.Contains(Object.bbox))
+				{
+					this->nodes[i]->objects.push_back(&Object);//Put the object thats in the lowest subdiv in the list of objects for this node
+					//if (this->nodes[i]->objects.size() > 0)
+					//{
+
+					//	//cout << this->nodes[i]->SubDiv << endl << this->nodes[i]->objects.size() << endl;
+					//}
+				}
+
+			}
 		}
 	}
 }
@@ -152,21 +172,23 @@ int Quadtree::frustumIntersect(Camera camera)
 		if (s - e > 0)//is outside the plane
 		{
 			outCounter++;
-		}
-		if (s - e > 0 && outCounter == 5)
-		{
 			return OUTSIDE;
 		}
+		//if (s - e > 0 && outCounter == 5)
+		//{
+		//	return OUTSIDE;
+		//}
 		if (s + e < 0)//inside the plane
 		{
 			inCounter++;
+			return INSIDE;
 		}
 		if (s + e < 0 && inCounter == 5)
 		{
 			return INSIDE;
 		}
 	}
-
+	//Commit change 2
 	return INTERSECT;
 }
 
@@ -219,66 +241,153 @@ void Quadtree::calculateHalfD()
 
 }
 
+//void Quadtree::recursiveIntersect(Camera camera)
+//{
+//	if (SubDiv == 0)
+//	{
+//		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
+//		{
+//			this->intersection = INSIDE;
+//		}
+//		else
+//		{
+//			this->intersection = OUTSIDE;
+//		}
+//	}
+//	for (size_t i = 0; i < 4; i++)
+//	{
+//		if (SubDiv != totalSubDiv)
+//		{
+//			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
+//			{
+//				this->nodes[i]->intersection = INSIDE;
+//				this->nodes[i]->recursiveIntersect(camera);
+//			}
+//			else
+//			{
+//				this->nodes[i]->intersection = OUTSIDE;
+//			}
+//		}
+//	}
+//}
+
 void Quadtree::recursiveIntersect(Camera camera)
 {
-	if (SubDiv == 0)
+	if (this->SubDiv == 0)
 	{
-		if (this->frustumIntersect(camera) == INTERSECT || this->frustumIntersect(camera) == INSIDE)
+		if (camera.testFrust.Intersects(this->BBox))
 		{
-			this->intersection = INSIDE;
+			this->intersection = INTERSECT;
 		}
 		else
 		{
 			this->intersection = OUTSIDE;
 		}
 	}
-	for (size_t i = 0; i < 4; i++)
+	if (this->intersection != OUTSIDE)
 	{
-		if (SubDiv != totalSubDiv)
+		if (this->SubDiv != totalSubDiv)
 		{
-			if (this->nodes[i]->frustumIntersect(camera) == INSIDE || this->nodes[i]->frustumIntersect(camera) == INTERSECT)
+			for (size_t i = 0; i < 4; i++)
 			{
-				this->nodes[i]->intersection = INSIDE;
-				this->nodes[i]->recursiveIntersect(camera);
-			}
-			else
-			{
-				this->intersection = OUTSIDE;
+				if (camera.testFrust.Intersects(this->nodes[i]->BBox))
+				{
+					this->nodes[i]->intersection = INTERSECT;
+					this->nodes[i]->recursiveIntersect(camera);
+				}
+				else
+				{
+					this->nodes[i]->intersection = OUTSIDE;
+				}
 			}
 		}
 	}
 }
-
 void Quadtree::checkRenderObjects()
 {
 	for (size_t i = 0; i < 4; i++)//Loops through children
 	{
-		if (this->SubDiv != totalSubDiv - 1)//do not stop until the lowest subdiv
+		if (this->SubDiv != totalSubDiv - 1)//do not stop until the second lowest subdiv
 		{
 		//if the node is inside the frustum we will continue to check for objects inside the node
-			
-			this->nodes[i]->checkRenderObjects();
-			
+			this->nodes[i]->checkRenderObjects();		
 		}
-		else//here we will stop at the second lowest subdiv, because we check the second lowest subdiv Quadtrees children, which in this case is the lowes subdiv
+		else//here we will stop at the second lowest subdiv, because we check the second lowest subdiv Quadtrees children, which is the lowes subdiv
 		{
 			if (this->nodes[i]->objects.size() > 0)
 			{
-				cout << this->objects.size() << endl;
-
-				for (size_t i = 0; i < this->nodes[i]->objects.size(); i++)
+				//cout << "Size: " << this->nodes[i]->objects.size() << endl << "ID: " << this->nodes[i]->ID << endl;
+				for (size_t j = 0; j < this->nodes[i]->objects.size(); j++)
 				{
 					if (this->nodes[i]->intersection != OUTSIDE)
 					{
-						this->nodes[i]->objects[i]->renderCheck = true;
+						this->nodes[i]->objects[j]->renderCheck = true;
 					}
 					else
 					{
-						this->nodes[i]->objects[i]->renderCheck = false;
+						this->nodes[i]->objects[j]->renderCheck = false;
 					}
-				}
+				}	
 			}			
 		}
 	}
 
 }
+void Quadtree::printIntersections()
+{
+	if (this->SubDiv != totalSubDiv - 1)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			this->nodes[i]->printIntersections();
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (this->nodes[i]->intersection != OUTSIDE)
+			{
+				XMFLOAT3 corners[8];
+				this->nodes[i]->BBox.GetCorners(corners);
+				for (size_t j = 0; j < 8; j++)
+				{
+					cout << "X:  " << corners[i].x << "  Y:  " << corners[i].y << "  Z:  " << corners[i].z << endl;
+				}
+			}
+		}
+	}
+}
+//bool Quadtree::createBuffer(ID3D11Device* &gDevice)
+//{
+//	HRESULT hr;
+//	XMFLOAT3 corners[8];
+//	this->BBox.GetCorners(corners);
+//	Vertex_Frustum treeVerts[8] = {
+//
+//		corners[0].x, corners[0].y, corners[0].z,
+//		corners[1].x, corners[1].y, corners[1].z,
+//		corners[2].x, corners[2].y, corners[2].z,
+//		corners[3].x, corners[3].y, corners[3].z,
+//		corners[4].x, corners[4].y, corners[4].z,
+//		corners[5].x, corners[5].y, corners[5].z,
+//		corners[6].x, corners[6].y, corners[6].z,
+//		corners[7].x, corners[7].y, corners[7].z,
+//	};
+//
+//	D3D11_BUFFER_DESC bufferDesc;
+//	memset(&bufferDesc, 0, sizeof(bufferDesc));
+//	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+//	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+//	bufferDesc.ByteWidth = sizeof(treeVerts);
+//
+//	D3D11_SUBRESOURCE_DATA data;
+//	data.pSysMem = treeVerts;
+//	hr = gDevice->CreateBuffer(&bufferDesc, &data, &this->treeVertexBuffer);
+//
+//	if (FAILED(hr)) {
+//
+//		return false;
+//	}
+//	return true;
+//}

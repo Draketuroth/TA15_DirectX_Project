@@ -67,9 +67,6 @@
     <Filter Include="Source Files\HLSL\ShadowShaders">
       <UniqueIdentifier>{45d4cfad-9abf-4088-86ae-28ba89d91683}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\HLSL\QuadtreeShaders">
-      <UniqueIdentifier>{b93b6588-92bf-42dc-a3fb-008010a08214}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\HLSL\CylinderShaders">
       <UniqueIdentifier>{faa9312f-c326-4954-af7f-34cbfa52ee26}</UniqueIdentifier>
     </Filter>
@@ -81,6 +78,12 @@
     </Filter>
     <Filter Include="Source Files\HLSL\QuadShaders">
       <UniqueIdentifier>{b51ee67a-6f75-4050-add0-aa52dd17847a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HLSL\FrustumShaders">
+      <UniqueIdentifier>{b93b6588-92bf-42dc-a3fb-008010a08214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HLSL\QuadTreeShaders">
+      <UniqueIdentifier>{167ef859-3df4-4ac2-9f8a-e915f2256ed6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -155,12 +158,6 @@
     <FxCompile Include="Shaders\CylinderShaders\CylinderVertex.hlsl">
       <Filter>Source Files\HLSL\CylinderShaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\QuadtreeShaders\QuadTreeFragment.hlsl">
-      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\QuadtreeShaders\QuadTreeVertex.hlsl">
-      <Filter>Source Files\HLSL\QuadtreeShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\StandardShaders\ComputeShaderHB.hlsl">
       <Filter>Source Files\HLSL\ComputeShaders</Filter>
     </FxCompile>
@@ -181,6 +178,18 @@
     </FxCompile>
     <FxCompile Include="Shaders\QuadShaders\QuadVertex.hlsl">
       <Filter>Source Files\HLSL\QuadShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FrustumShaders\FrustumFragment.hlsl">
+      <Filter>Source Files\HLSL\FrustumShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FrustumShaders\FrustumVertex.hlsl">
+      <Filter>Source Files\HLSL\FrustumShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadTreeShaders\QuadTreePixel.hlsl">
+      <Filter>Source Files\HLSL\QuadTreeShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\QuadTreeShaders\QuadTreeVertex.hlsl">
+      <Filter>Source Files\HLSL\QuadTreeShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

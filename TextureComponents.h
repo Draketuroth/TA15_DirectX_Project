@@ -47,16 +47,21 @@ public:
 
 	ID3D11DepthStencilView* pSmDepthView;
 	ID3D11ShaderResourceView* pSmSRView;
+
+	ID3D11ShaderResourceView* terrainResources[2];
+	ID3D11ShaderResourceView* resourceArr[2];
 	
 	DXGI_FORMAT GetDepthResourceFormat(DXGI_FORMAT depthformat);
 	DXGI_FORMAT GetDepthSRVFormat(DXGI_FORMAT depthformat);
 
+	bool SetupTextures(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateTexture(ID3D11Device* &gDevice, BufferComponents &bHandler);
 	bool CreateShadowMap(ID3D11Device* &gDevice);
 	bool InitializeComputeShaderResources(ID3D11Device* &gDevice);
 	bool CreateRenderTargetViewTexture(ID3D11Device* &gDevice); // For first pass
 	bool CreateUAVTextureHB(ID3D11Device* &gDevice); // For second pass
 	bool CreateUAVTextureHV(ID3D11Device* &gDevice); // For second pass
+	void SetResourceArr();
 
 };
 

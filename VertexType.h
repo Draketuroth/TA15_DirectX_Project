@@ -60,6 +60,11 @@ struct Vertex_Cube {
 	float u, v;
 };
 
+struct Vertex_Frustum {
+
+	float x, y, z;
+};
+
 struct OBJStruct
 {
 	XMFLOAT3 Varr;

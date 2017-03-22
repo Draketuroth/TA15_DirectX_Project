@@ -21,9 +21,14 @@ cbuffer GS_CONSTANT_BUFFER : register(b0) {
 	float4 cameraPos;
 	float4 cameraUp;
 	matrix worldInvTranspose;
-	float normalMappingFlag;
 
 	
+};
+
+cbuffer TOPDOWN_CAMERA : register(b1) {
+
+	matrix topDownViewTransform;
+	matrix projectionInverse;
 };
 
 struct GS_IN
@@ -111,11 +116,12 @@ struct GS_OUT
 
 	 output.WPos = worldPosition;
 
-	
-	 float4 position = mul(v, worldViewProj);
-	 float4 position2 = mul(v2, worldViewProj);
-	 float4 position3 = mul(v3, worldViewProj);
-	 float4 position4 = mul(v4, worldViewProj);
+	 matrix WVP = mul(topDownViewTransform, matrixProjection);
+	 WVP = mul(WVP, matrixWorld);
+	 float4 position = mul(v, WVP);
+	 float4 position2 = mul(v2, WVP);
+	 float4 position3 = mul(v3, WVP);
+	 float4 position4 = mul(v4, WVP);
 
 
 

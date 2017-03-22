@@ -4,7 +4,7 @@
 
 // Constructor and destructor
 Camera::Camera() {
-
+	
 }
 
 Camera::~Camera() {
@@ -54,6 +54,7 @@ float Camera::GetZ()const
 	float HZ = mPosition.z;
 	return HZ;
 }
+
 void Camera::SetPosition(float x, float y, float z) {
 
 	mPosition = XMFLOAT3(x, y, z);
@@ -321,64 +322,82 @@ void Camera::OnMouseMove(WPARAM btnState, int x, int y) {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
-void Camera::CreateFrustum()
+//void Camera::CreateFrustum()
+//{
+//	XMMATRIX ViewMatrix, ProjMatrix;
+//	XMFLOAT4X4 M;
+//	ViewMatrix = this->View();
+//	ProjMatrix = this->Proj();
+//	XMMATRIX VP = XMMatrixMultiply(ViewMatrix, ProjMatrix);
+//	XMVECTOR vecTest;
+//	
+//	XMStoreFloat4x4(&M, VP);
+//	
+//	XMVECTORF32 tempVec = { 0.0f, 0.0f, 0.0f, 0.0f };
+//
+//
+//	//Left plane
+//	
+//	this->Frustum[0].Normal.x = -(M._14 + M._11);
+//	this->Frustum[0].Normal.y = -(M._24 + M._21);
+//	this->Frustum[0].Normal.z = -(M._34 + M._31);
+//	this->Frustum[0].Distance = -(M._44 + M._41);
+//
+//	//Right plane
+//	this->Frustum[1].Normal.x = -(M._14 + M._11);
+//	this->Frustum[1].Normal.y = -(M._24 + M._21);
+//	this->Frustum[1].Normal.z = -(M._34 + M._31);
+//	this->Frustum[1].Distance = -(M._44 + M._41);
+//
+//	//Top plane
+//	this->Frustum[2].Normal.x = -(M._14 - M._12);
+//	this->Frustum[2].Normal.y = -(M._24 - M._22);
+//	this->Frustum[2].Normal.z = -(M._34 - M._32);
+//	this->Frustum[2].Distance = -(M._44 - M._42);
+//
+//	//Bot Plane
+//	this->Frustum[3].Normal.x = -(M._14 + M._12);
+//	this->Frustum[3].Normal.y = -(M._24 + M._22);
+//	this->Frustum[3].Normal.z = -(M._34 + M._32);
+//	this->Frustum[3].Distance = -(M._44 + M._42);
+//
+//	//Near Plane
+//	this->Frustum[4].Normal.x = -(M._14 + M._13);
+//	this->Frustum[4].Normal.y = -(M._24 + M._23);
+//	this->Frustum[4].Normal.z = -(M._34 + M._33);
+//	this->Frustum[4].Distance = -(M._44 + M._43);
+//				  
+//	//Far plane
+//	this->Frustum[5].Normal.x = -(M._14 - M._13);
+//	this->Frustum[5].Normal.y = -(M._24 - M._23);
+//	this->Frustum[5].Normal.z = -(M._34 - M._33);
+//	this->Frustum[5].Distance = -(M._44 - M._43);
+//	
+//	//Normalize all the planes
+//	for (size_t i = 0; i < 6; i++)
+//	{
+//		XMFLOAT3 pNorm = this->Frustum[i].Normal;
+//		XMVECTOR planeNorm = XMLoadFloat3(&pNorm);
+//		XMVector3Normalize(planeNorm);
+//		XMStoreFloat3(&this->Frustum[i].Normal, planeNorm);
+//	}
+//}
+void Camera::BoundingFrustumCreate()
 {
-	XMMATRIX ViewMatrix, ProjMatrix;
-	XMFLOAT4X4 M;
-	ViewMatrix = this->View();
-	ProjMatrix = this->Proj();
-	XMMATRIX VP = XMMatrixMultiply(ViewMatrix, ProjMatrix);
-	XMVECTOR vecTest;
-	
-	XMStoreFloat4x4(&M, VP);
-	
-	XMVECTORF32 tempVec = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-
-	//Left plane
-	
-	this->Frustum[0].Normal.x = -(M._14 + M._11);
-	this->Frustum[0].Normal.y = -(M._24 + M._21);
-	this->Frustum[0].Normal.z = -(M._34 + M._41);
-	this->Frustum[0].Distance = -(M._44 + M._41);
-
-	//Right plane
-	this->Frustum[1].Normal.x = -(M._14 + M._11);
-	this->Frustum[1].Normal.y = -(M._24 + M._21);
-	this->Frustum[1].Normal.z = -(M._34 + M._41);
-	this->Frustum[1].Distance = -(M._44 + M._41);
-
-	//Top plane
-	this->Frustum[2].Normal.x = -(M._14 - M._12);
-	this->Frustum[2].Normal.y = -(M._24 - M._22);
-	this->Frustum[2].Normal.z = -(M._34 - M._42);
-	this->Frustum[2].Distance = -(M._44 - M._42);
-
-	//Bot Plane
-	this->Frustum[3].Normal.x = -(M._14 + M._12);
-	this->Frustum[3].Normal.y = -(M._24 + M._22);
-	this->Frustum[3].Normal.z = -(M._34 + M._42);
-	this->Frustum[3].Distance = -(M._44 + M._42);
-
-	//Near Plane
-	this->Frustum[4].Normal.x = -(M._14 + M._13);
-	this->Frustum[4].Normal.y = -(M._24 + M._23);
-	this->Frustum[4].Normal.z = -(M._34 + M._43);
-	this->Frustum[4].Distance = -(M._44 + M._43);
-				  
-	//Far plane
-	this->Frustum[5].Normal.x = -(M._14 - M._13);
-	this->Frustum[5].Normal.y = -(M._24 - M._23);
-	this->Frustum[5].Normal.z = -(M._34 - M._43);
-	this->Frustum[5].Distance = -(M._44 - M._43);
-	
-	//Normalize all the planes
-	for (size_t i = 0; i < 6; i++)
-	{
-		XMFLOAT3 pNorm = this->Frustum[i].Normal;
-		XMVECTOR planeNorm = XMLoadFloat3(&pNorm);
-		XMVector3Normalize(planeNorm);
-		XMStoreFloat3(&this->Frustum[i].Normal, planeNorm);
-
-	}
+	BoundingFrustum tempFrust;
+	tempFrust.CreateFromMatrix(this->testFrust, this->Proj());
+	tempFrust.GetCorners(this->FrustumCorners);
+	this->createInverseView();
+	XMMATRIX tempInverseView = XMLoadFloat4x4(&this->inverseView);
+	this->testFrust.Transform(this->testFrust, tempInverseView);
 }
+void Camera::createInverseView()
+{
+	XMMATRIX viewM;
+	viewM = this->View();
+	XMVECTOR det;
+	det = XMMatrixDeterminant(viewM);
+	XMMATRIX inView = XMMatrixInverse(&det, viewM);
+	XMStoreFloat4x4(&this->inverseView, inView);
+}
+

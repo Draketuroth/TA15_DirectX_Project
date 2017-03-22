@@ -9,6 +9,12 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	SetGeometryTexture(gHandler, bHandler, tHandler);
 
+	if (ENABLE_FRUSTUM_DEBUG == true){
+
+	RenderFrustum(gHandler, bHandler, tHandler);
+
+	}
+
 	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
 
 	RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
@@ -32,6 +38,7 @@ void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler,
 	gHandler.gDeviceContext->ClearRenderTargetView(tHandler.geometryTextureRTV, clearColor);
 	gHandler.gDeviceContext->ClearDepthStencilView(bHandler.depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);	// Clear the depth stencil view
 	gHandler.gDeviceContext->ClearDepthStencilView(tHandler.pSmDepthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);	// Clear the depth stencil view
+
 }
 
 void RenderShadowMap(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
@@ -65,8 +72,35 @@ void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler,
 	// FIRST PASS TO DRAW GEOMETRY (Change render target view to render geometry to a texture that is separate from the back buffer texture)
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
+	//gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
 	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.geometryTextureRTV, bHandler.depthView);
+}
+
+void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
+
+	gHandler.gDeviceContext->VSSetShader(gHandler.gFrustumVertexShader, nullptr, 0);
+	gHandler.gDeviceContext->PSSetShader(gHandler.gFrustumPixelShader, nullptr, 0);
+	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->VSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
+	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+
+	UINT32 vertexSize = sizeof(Vertex_Frustum);
+	UINT32 offset = 0;
+
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gArrowBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gFrustumLayout);
+	gHandler.gDeviceContext->Draw(2, 0);
+
+	SAFE_RELEASE(bHandler.gArrowBuffer);
+
+	gHandler.gDeviceContext->IASetVertexBuffers(0, 1, &bHandler.gFrustumBuffer, &vertexSize, &offset);
+	gHandler.gDeviceContext->IASetIndexBuffer(bHandler.gFrustumIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	gHandler.gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	gHandler.gDeviceContext->IASetInputLayout(gHandler.gFrustumLayout);
+
+	gHandler.gDeviceContext->DrawIndexed(24, 0, 0);
 }
 
 void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler, FbxImport &fbxImporter) {
@@ -79,6 +113,7 @@ void RenderSkeletalAnimation(GraphicComponents &gHandler, BufferComponents &bHan
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryBoneShader, nullptr, 0);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelBoneShader, nullptr, 0);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &fbxImporter.gBoneBuffer);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.boneResource);
@@ -101,28 +136,18 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// OBJ PARSER PIPELINE
 	//----------------------------------------------------------------------------------------------------------------------------------//
-	ID3D11ShaderResourceView* resourceArr[2];
-	resourceArr[0] = tHandler.grassResource;
-	resourceArr[1] = tHandler.pSmSRView;
 
 	if (bHandler.fileFound == true)
 	{
-		//Array of resourceviews for shadow map and textures
-		ID3D11ShaderResourceView* resourceArr[2];
-		resourceArr[0] = tHandler.terrainResource;
-		resourceArr[1] = tHandler.pSmSRView;
-		//Array of samplerstates for texture and shadowmap
-		ID3D11SamplerState* samplerArr[2];
-		samplerArr[0] = tHandler.texSampler;
-		samplerArr[1] = tHandler.shadowSampler;
 
 		gHandler.gDeviceContext->VSSetShader(gHandler.gVertexTerrainShader, nullptr, 0);
 		gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0);
 		gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); 
 		gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+		gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 		gHandler.gDeviceContext->PSSetConstantBuffers(0, 1, &bHandler.gMTLBuffer);
 		gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
-		gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+		gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.resourceArr);
 		gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 		gHandler.gDeviceContext->PSSetSamplers(1, 1, &tHandler.shadowSampler);
 
@@ -145,8 +170,8 @@ void RenderObjTerrain(GraphicComponents &gHandler, BufferComponents &bHandler, T
 	gHandler.gDeviceContext->GSSetShader(gHandler.gGeometryTerrainShader, nullptr, 0); // Setting the Geometry Shader 
 	gHandler.gDeviceContext->PSSetShader(gHandler.gPixelTerrainShader, nullptr, 0); // Setting the Pixel Shader 
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); // Setting the Constant Buffer for the Vertex Shader
-																					//gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, );
-	gHandler.gDeviceContext->PSSetShaderResources(0, 2, resourceArr);
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);	
+	gHandler.gDeviceContext->PSSetShaderResources(0, 2, tHandler.terrainResources);
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
@@ -180,6 +205,7 @@ void RenderCylinder(GraphicComponents &gHandler, BufferComponents &bHandler, Tex
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gCylinderVertexShader, nullptr, 0);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->VSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, nullGeometryShader);
 	gHandler.gDeviceContext->PSSetShader(gHandler.gCylinderFragmentShader, nullptr, 0); 
@@ -206,6 +232,7 @@ void RenderCubes(GraphicComponents &gHandler, BufferComponents &bHandler, Textur
 
 	gHandler.gDeviceContext->VSSetShader(gHandler.gCubeVertexShader, nullptr, 0);	
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer); 
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 	gHandler.gDeviceContext->GSSetShader(gHandler.gCubeGeometryShader, nullptr, 0);
 	
 	gHandler.gDeviceContext->PSSetShader(gHandler.gCubePixelShader, nullptr, 0);
@@ -247,6 +274,7 @@ void RenderParticles(GraphicComponents &gHandler, BufferComponents &bHandler, Te
 	gHandler.gDeviceContext->RSSetState(bHandler.gRasteriserState);
 	gHandler.gDeviceContext->VSSetConstantBuffers(0, 1, &bHandler.gVertexConstantBuffer);
 	gHandler.gDeviceContext->GSSetConstantBuffers(0, 1, &bHandler.gConstantBuffer);
+	gHandler.gDeviceContext->GSSetConstantBuffers(1, 1, &bHandler.topDownCameraBuffer);
 
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, &tHandler.fireflyResource);
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
@@ -336,7 +364,7 @@ void DrawFullScreenQuad(GraphicComponents &gHandler, BufferComponents &bHandler,
 
 	gHandler.gDeviceContext->PSSetSamplers(0, 1, &tHandler.texSampler);
 
-	gHandler.gDeviceContext->Draw(3, 0);
+	gHandler.gDeviceContext->Draw(4, 0);
 
 	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
 	gHandler.gDeviceContext->PSSetShaderResources(0, 1, pSRV);

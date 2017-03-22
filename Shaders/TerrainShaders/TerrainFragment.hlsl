@@ -89,6 +89,7 @@ float4 PS_main(PS_IN input) : SV_Target
 
 		color = texColor;
 
+		return float4(ads, 1.0f) * float4(color, 1.0f) * shadowCheck;
 
 	}
 	else
@@ -100,19 +101,8 @@ float4 PS_main(PS_IN input) : SV_Target
 
 		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
 
+		return float4(ads, 1.0f) * shadowCheck;
 	}
 
 
-		
-	
-	
-
-	// Now the Sample state will sample the color output from the texture file so that we can return the correct color
-	
-	
-	//return float4(color,1);// *shadowCheck;
-	//return float4((ads, 1.0f) * color, 1) * shadowCheck;
-	return float4(float4(ads, 1.0f) * color, 1) * shadowCheck;
-	//return float4((ads, 1.0f) *color,1) * float4(shadowCheck, 0.0f, 1.0f, 1.0f);
-	//return float4(texColor, 1) * shadowCheck;
 };

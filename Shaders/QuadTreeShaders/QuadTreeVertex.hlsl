@@ -5,11 +5,13 @@ struct VS_IN
 struct VS_OUT
 {
 	float4 Pos : SV_POSITION;
-
 };
-VS_OUT VS_main( VS_IN input)
+
+VS_OUT VS_main(VS_IN input)
 {
-	VS_OUT output = (VS_OUT)0;
+	VS_OUT output;
+
 	output.Pos = float4(input.Pos, 1.0f);
+
 	return output;
 }

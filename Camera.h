@@ -7,6 +7,7 @@
 #include <d3dcompiler.h>	// We also need the D3DCompiler header to compile shaders
 #include <DirectXMath.h>
 #include <iostream>
+#include <DirectXCollision.h>
 
 // Necessary lib files kan be linked here, but also be added by going to:
 // Properties->Linker->Input->Additional Dependencies
@@ -15,6 +16,7 @@
 
 using namespace DirectX;
 using namespace std;
+
 struct Plane
 {
 	XMFLOAT3 Normal;
@@ -33,7 +35,8 @@ public:
 
 	//PLane for frustum
 	Plane Frustum[6];
-
+	BoundingFrustum testFrust;
+	XMFLOAT3 FrustumCorners[8];
 	// Get/Set Camera Properties
 	XMVECTOR GetPositionXM()const;
 	XMFLOAT3 GetPosition()const;
@@ -94,8 +97,11 @@ public:
 	float GetX()const; 
 	float GetZ()const; 
 
+	void BoundingFrustumCreate();
+	//void CreateFrustum();
+	void createInverseView();
 
-	void CreateFrustum();
+
 private:
 
 	// Camera coordinate system with coordinates relative to World Space
@@ -115,6 +121,7 @@ private:
 	// Cache View/Proj Matrices 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
+	XMFLOAT4X4 inverseView;
 
 };
 
