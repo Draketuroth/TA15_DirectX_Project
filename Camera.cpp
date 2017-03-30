@@ -11,7 +11,7 @@ Camera::~Camera() {
 
 	
 }
-
+//kollar om vi befinner oss på terrängen
 bool Camera::Collotion()
 {
 	bool collition = false; 

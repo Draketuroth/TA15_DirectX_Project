@@ -10,6 +10,7 @@ Terrain::Terrain()
 
 	//längden mellan varje vertis
 	terrainInfo.quadSize = 1;
+	//maxhöjd
 	terrainInfo.HeightScale = 15; 
 
 	NumPatchVertRows = terrainInfo.HMapHeight;
@@ -59,6 +60,7 @@ void Terrain::LoadRAW()
 	heightMap.resize(terrainInfo.HMapHeight * terrainInfo.HMapWidth, 0);
 	for (UINT i = 0; i < terrainInfo.HMapHeight * terrainInfo.HMapWidth; i++)
 	{
+		//här sparar vi höjdvärdena, och delar med 255
 		heightMap[i] = (in[i]/255.0f)*terrainInfo.HeightScale;
 	}
 }
@@ -79,15 +81,17 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 	//antal vertiser
 	vector<OBJStruct> patchVertices(NumPatchVertRows*NumPatchVertCols); 
 
+	//använder halv längderna för att få origo i mitten av terrengen
 	float halfWidth = 0.5f*GetWidth(); 
 	float halfDepth = 0.5f*GetDepth(); 
-
+	//var ruta/cells storlek
 	float patchWidth = GetWidth() / (NumPatchVertCols - 1); 
 	float patchDepth = GetDepth() / (NumPatchVertRows - 1); 
-
+	//uv till texturen
 	float du = 1.0f / (NumPatchVertCols - 1); 
 	float dv = 1.0f / (NumPatchVertRows - 1); 
 
+	//ger varje vertex positionsvärden
 	int k = 0; 
 	for (UINT i = 0; i < NumPatchVertRows; ++i)
 	{
@@ -98,10 +102,10 @@ void Terrain::BuildQuadPatchVB(ID3D11Device* device)
 			float y = 0;
 			
 			x = -halfDepth +j ;
+			//här ger man vertisen sin höjd
 			y = heightMap[i*NumPatchVertCols + j];
 			z = halfDepth - i;
 
-			//cout << heightMap[i] << endl;
 			patchVertices[i*NumPatchVertCols + j].Varr = XMFLOAT3(x, y, z);
 
 			//sträcka texturen över griden
@@ -132,7 +136,8 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 	int k = 0; 
 
 	VertPos.resize(NumPatchVertices * 6); 
-
+	//här betättar vi vilken ordning vi skriver ut vertiserna
+	//ger en Triangel list
 	for (unsigned int i = 0; i < NumPatchVertRows -1; i++)
 	{
 		for (unsigned int j = 0; j < NumPatchVertCols -1; j++)
@@ -173,20 +178,24 @@ void Terrain::BuildQuadPatchIB(ID3D11Device* device)
 
 float Terrain::GetHeight(float x, float z)const
 {
+	//första basbyttet med en skalning och translation, gör cellerna relativa till varandra
+	//c och d är postionen från camran i nya basen
 	float c = (x + 0.5f*GetWidth()) / terrainInfo.quadSize;
 	float d = (z - 0.5f*GetDepth()) / -terrainInfo.quadSize;
 
 	int row = (int)floorf(d); 
 	int col = (int)floorf(c); 
 
+	// ABCD är hörnen på en quad
 	float A = heightMap[(row*terrainInfo.HMapWidth) + col]; 
 	float B = heightMap[row*terrainInfo.HMapWidth + col + 1]; 
 	float C = heightMap[(row + 1)*terrainInfo.HMapWidth + col]; 
 	float D = heightMap[(row + 1)* terrainInfo.HMapWidth + col + 1]; 
 
+	//nästa basbyte, nu är s och t camrans postion. Och vi är inne på den specefica cellen vi står på
 	float s = c - (float)col; 
 	float t = d - (float)row; 
-
+	//kollar vilken del av quaden vi är i och retunerar interpolerad höjd
 	if (s + t <= 1.0f)
 	{
 		float uy = B - A; 
@@ -199,4 +208,5 @@ float Terrain::GetHeight(float x, float z)const
 		float vy = B - D; 
 		return D + (1.0f - s)*uy + (1.0f - t)*vy; 
 	}
+	//sedan använder vi denna funkionen i main 
 }

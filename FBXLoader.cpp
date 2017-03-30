@@ -366,7 +366,7 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 			meshSkeleton.hierarchy[currentJointIndex].Animation.resize(animationLength);
 			
-			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= endTime.GetFrameCount(FbxTime::eFrames24); i++) {
+			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= animationLength - 1; i++) {
 
 				
 				FbxTime currentTime;

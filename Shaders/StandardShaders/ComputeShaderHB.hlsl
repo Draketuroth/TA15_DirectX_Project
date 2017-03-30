@@ -33,14 +33,16 @@ void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_D
 	// have 2 * BlurRadius threads sample an extra pixel.
 	if (groupThreadID.x < gBlurRadius)
 	{
-		// Clamp out of bound samples that occur at image borders.
+		// Clamp out of bound samples that occur at left image borders.
+		// GroupThreadID is the index of the thread within a thread group
 		int x = max(dispatchThreadID.x - gBlurRadius, 0);
 		gCacheX[groupThreadID.x] = InputTex[int2(x, dispatchThreadID.y)];
 	}
 
 	if (groupThreadID.x >= NUMBER_OF_THREADS_X - gBlurRadius)
 	{
-		// Clamp out of bound samples that occur at image borders.
+		// Clamp out of bound samples that occur at right image borders.
+		// GroupThreadID is the index of the thread within a thread group
 		int x = min(dispatchThreadID.x + gBlurRadius, InputTex.Length.x - 1);
 		gCacheX[groupThreadID.x + 2 * gBlurRadius] = InputTex[int2(x, dispatchThreadID.y)];
 	}
@@ -55,15 +57,20 @@ void CS_main(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_D
 
 	float4 blurColor = float4(0, 0, 0, 0);
 
+	// Used when working with for, while and do-while loops. Unrolling will cause the compiler to simulate the code inside the loop,
+	// and basically duplicate the code for however many times the loop executes. In short terms, it's a form of optimization
 	[unroll]
 	for (int i = -gBlurRadius; i <= gBlurRadius; ++i)
 	{
+		// Check up current thread in the group to be filtered
 		int k = groupThreadID.x + gBlurRadius + i;
 
+		// Apply the coresponding weight to the current texel being processed in the row and add it to the blurcolor that
+		// will be assigned to the pixel of interest
 		blurColor += gWeights[i + gBlurRadius] * gCacheX[k];
 	}
 
+	// Output pixel of interest to the new texture
 	OutputTex[dispatchThreadID.xy] = blurColor;
-
 
 }
