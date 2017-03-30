@@ -20,6 +20,7 @@ using namespace DirectX::PackedVector;
 class Terrain
 {
 public:
+	//struct som håller infomation om highmapen
 	struct InitInfo
 	{
 		//RAW file
@@ -38,12 +39,14 @@ public:
 	~Terrain();
 	void ReleaseAll();
 
+	//hämta rawfilen och hämta höjdvärdena till var vertis
 	void LoadRAW();
 
+	//retunerar djup och brädd
 	float GetWidth()const; 
 	float GetDepth()const;
-	//vector<int> GetHight()const;
 
+	//ta kamrans x och z värden och retunera höjden. 
 	float GetHeight(float x, float z)const; 
 
 	//vertex buffer
