@@ -4,6 +4,10 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP ONE: INITIALIZING VARIABLES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 	struct String3
 	{
 		string x, y, z;
@@ -13,6 +17,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	initialize.x = "";
 	initialize.y = "";
 	initialize.z = "";
+
 	string* Farr;
 	vector<XMFLOAT3> VertexArr;
 	vector<XMFLOAT2> VertexTarr;
@@ -30,27 +35,18 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	Filler.VTarr.x = 0;
 	Filler.VTarr.y = 0;
 
-
 	int FarrSize = 50;
-
 	int Vsize = 0;
 	int VTsize = 0;
 	int VNsize = 0;
 	int Fsize = 0;
-
-
 
 	XMFLOAT3 initializeFloat3;
 	initializeFloat3.x = 0;
 	initializeFloat3.y = 0;
 	initializeFloat3.z = 0;
 
-
 	string delimiter = "/";
-
-
-
-
 
 	Farr = new string[FarrSize];
 
@@ -63,8 +59,6 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	null1.x = 0;
 	null1.y = 0;
 
-
-
 	string::size_type sz;
 	string check;
 	string check2;
@@ -72,31 +66,31 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	string check4;
 
 
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP TWO: PARSING VERTICES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 	if (ParserSwitch == 0)
 	{
 		fstream file("OBJfiles//test//cube.obj", ios::in | ios::ate);
+
 		if (!file.is_open())
 		{
 			fileFound = false;
 			return;
 		}
+
 		fileFound = true;
 		string line;
-
 
 		file.seekg(0, file.end);
 		int size = file.tellg();
 		file.seekg(0, file.beg);
 
-
-	
-
-
 		//----------------------------------------------------------------------------------//
 		while (!file.eof())
 		{
 			line.clear();
-
 
 			getline(file, line);
 			istringstream stringParse(line);
@@ -121,7 +115,9 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			{
 				stringParse >> check2;
 				stringParse >> check3;
+
 				VertexTarr.push_back(null1);
+
 				VertexTarr[VTsize].x = stod(check2, &sz);
 				VertexTarr[VTsize].y = stod(check3, &sz);
 				VTsize++;
@@ -132,7 +128,9 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				stringParse >> check2;
 				stringParse >> check3;
 				stringParse >> check4;
+
 				VertexNarr.push_back(null);
+
 				VertexNarr[VNsize].x = stod(check2, &sz);
 				VertexNarr[VNsize].y = stod(check3, &sz);
 				VertexNarr[VNsize].z = stod(check4, &sz);
@@ -144,7 +142,6 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				stringParse >> check;
 				stringParse >> check2;
 				stringParse >> check3;
-				//stringParse >> check4;
 
 				Farr[Fsize] = check;
 				Fsize++;
@@ -152,17 +149,14 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Fsize++;
 				Farr[Fsize] = check3;
 				Fsize++;
-				/*Farr[Fsize] = check4;
-				Fsize++;*/
+				
 			}
 
 			if (FarrSize - Fsize < 4)
 			{
 				FarrSize += 50;
 
-
 				string* temp = new string[FarrSize];
-
 
 				for (size_t i = 0; i < Fsize; i++)
 				{
@@ -187,12 +181,17 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		for (int i = 0; i < Fsize; i++)
 		{
 			FaceList.push_back(initialize);
+
 			pos = Farr[i].find(delimiter);
+
 			FaceList[i].x = Farr[i].substr(0, pos);
+
 			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
 
 			pos = Farr[i].find(delimiter);
+
 			FaceList[i].y = Farr[i].substr(0, pos);
+
 			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
 
 			FaceList[i].z = Farr[i];
@@ -204,6 +203,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		for (int u = 0; u < Fsize; u++)
 		{
 			converter.push_back(initializeFloat3);
+
 			converter[u].x = stof(FaceList[u].x, &typer);
 			converter[u].y = stof(FaceList[u].y, &typer);
 			converter[u].z = stof(FaceList[u].z, &typer);
@@ -211,7 +211,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			converter[u].y -= 1;
 			converter[u].z -= 1;
 
-			//cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+			
 		}
 
 	
@@ -231,12 +231,11 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			ImportStruct[i].VNarr.y = VertexNarr[converter[i].z].y;
 			ImportStruct[i].VNarr.z = VertexNarr[converter[i].z].z;
 
-
-
-
-			
 		}
 	}
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP THREE: PARSING MATERIAL ATTRIBUTES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	if (ParserSwitch == 1)
 	{
@@ -246,11 +245,13 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		string temp = "OBJfiles//test//";
 		wstring temp2;
 		OBJTexturePath = (L"OBJfiles//test//");
+
 		if (!mtl_File.is_open())
 		{
 			fileFound = false;
 			return;
 		}
+
 		fileFound = true;
 		string mtl_Line;
 	
@@ -259,9 +260,6 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		int mtl_Size = mtl_File.tellg();
 		mtl_File.seekg(0, mtl_File.beg);
 	
-	
-	
-		//string material;
 		float illum;
 		XMFLOAT3 Kd;
 		XMFLOAT3 Ka;
@@ -279,15 +277,13 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			istringstream mtl_StringParse(mtl_Line);
 	
 			mtl_StringParse >> check;
-			/*if (check == "newmtl")
-			{
-				mtl_StringParse >> material;
-			}*/
+			
 			if (check == "illum")
 			{
 				mtl_StringParse >>check;
 				illum = stof(check,&sz);
 			}
+
 			else if (check == "Kd")
 			{
 				mtl_StringParse >> check2;
@@ -299,6 +295,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Kd.z = stof(check4,&sz);
 	
 			}
+
 			else if (check == "Ka")
 			{
 				mtl_StringParse >> check2;
@@ -309,6 +306,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Ka.y = stof(check3,&sz);
 				Ka.z = stof(check4,&sz);
 			}
+
 			else if (check == "Tf")
 			{
 				mtl_StringParse >> check2;
@@ -319,12 +317,14 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Tf.y = stof(check3,&sz);
 				Tf.z = stof(check4,&sz);
 			}
+
 			else if (check == "Ni")
 			{
 				mtl_StringParse >> check;
 	
 				Ni = stof(check,&sz);
 			}
+
 			else if (check == "Ks")
 			{
 				mtl_StringParse >> check;
@@ -335,6 +335,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Ks.y = stof(check2, &sz);
 				Ks.z = stof(check3, &sz);
 			}
+
 			else if (check == "map_Kd")
 			{
 				mtl_StringParse >> check;
@@ -344,6 +345,8 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			}
 	
 		}
+
+
 
 		//--------- MTLCONSTANT DATA ASSIGNMENTS ---------------//
 		MTLConstandData.Illum = illum;
@@ -361,30 +364,12 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		MTLConstandData.Ks.y = Ks.y;
 		MTLConstandData.Ks.z = Ks.z;
 		
-	//-----------------------------------------------------------------//
-		//cout << "material: " << material << endl;
-		/*cout << "illum: " << illum << endl;
-		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
-		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
-		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
-		cout << "Ni: " << Ni << endl;
-		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;*/
+	
 	}
 
 	
 
 	delete[] Farr;
-
-
-	//----------------------------------------------------------------------------------//
-
-
-
-
-
-	
-
-
 
 }
 
@@ -595,6 +580,10 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
 bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PARTICLE POINT CREATION.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 	HRESULT hr;
 	XMFLOAT3 max = { 100,100,100 };
 	XMFLOAT3 min = { -100,0,-100 };
@@ -630,6 +619,11 @@ bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 		
 	}
 	
+
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PARTICLE CONSTANT BUFFER.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
@@ -846,24 +840,19 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 {
+
+
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// LOAD MTL CONSTANT BUFFER.
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
 	HRESULT hr;
 
 	
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	// Here we supply the constant buffer data
-
-	
-
 	importer(ImportStruct,MTLConstantData,1,fileFound,OBJTexturePath);
 
-	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
-
-
-	
-	
 	D3D11_BUFFER_DESC MTLBufferDesc;
 	MTLBufferDesc.ByteWidth = sizeof(MTL_STRUCT);
 	MTLBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
