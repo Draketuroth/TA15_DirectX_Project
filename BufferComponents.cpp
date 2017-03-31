@@ -653,16 +653,16 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 
 	HRESULT hr;
 
-	fbxImporter.LoadFBX(&fbxVector);
+	fbxImporter.LoadFBX(&fbxVector); //load mesh vertices
 
-	VS_SKINNED_DATA skinData;
+	VS_SKINNED_DATA skinData; // constant buffer struct for inverse bindpose matrices.
 
 	for (unsigned int i = 0; i < fbxImporter.meshSkeleton.hierarchy.size(); i++) {
 
-		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
+		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i); // converts from float4x4 too xmmatrix
 
 		skinData.gBoneTransform[i] = inversedBindPose;
-		fbxImporter.invertedBindPose[i] = inversedBindPose;
+		fbxImporter.invertedBindPose[i] = inversedBindPose; // copy on the cpu
 
 	}
 
@@ -719,6 +719,8 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	return true;
+
+	// now go to main and search for fbxImporter.animtimepos
 }
 
 bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam) {	// Function to create the constant buffer

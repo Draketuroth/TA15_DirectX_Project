@@ -226,6 +226,8 @@ int RunApplication() {
 
 			fbxImporter.UpdateAnimation(gHandler.gDeviceContext);
 
+			// now onto FBXLoader.cpp->UpdateAnimation
+
 			POINT p;
 			GetCursorPos(&p);
 
