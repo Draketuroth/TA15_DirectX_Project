@@ -90,7 +90,9 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 
 			
 
-			output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
+			//output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
+
+			output.Norm = mul(float4(normal, 1.0f), matrixWorld);
 
 			output.Tex = input[i].Tex;
 

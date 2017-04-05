@@ -39,7 +39,7 @@ struct PS_IN
 float4 PS_main(PS_IN input) : SV_Target
 {
 
-	float3 lightSource = float3(0.0f, 20.0f, 20.0f);	// Light source in the form of a point light
+	float3 lightSource = float3(0.0f, 20.0f, 0.0f);	// Light source in the form of a point light
 	float3 lightVector;
 	float lightIntensity;
 	float3 diffuseLight;
@@ -61,10 +61,10 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 texColor;
 	float3 color;
 
-	float shinyPower = 20.0f;
+	float shinyPower = 50.0f;
 
 	float3 Ld2 = float3(1.0f, 1.0f, 1.0f);	// Ld represents the light source intensity
-	float3 Ka2 = float3(0.8f, 0.8f, 0.8f);		// Ka is the hardcoded ambient light
+	float3 Ka2 = float3(0.2f, 0.2f, 0.2f);		// Ka is the hardcoded ambient light
 	float3 Ks2 = float3(1.0f, 1.0f, 1.0f);	// Ks is the color of the hardcoded specular light
 	float3 Kd2 = float3(0.0f, 1.0f, 1.0f);	// Kd represents the diffuse reflectivity cofficient
 	float3 ads;
@@ -80,17 +80,29 @@ float4 PS_main(PS_IN input) : SV_Target
 	// We check if we have information in the .MTL file, if we dont we use hardcoded values.	
 	if (Ka.x > 0.0f || Ka.y > 0.0f || Ka.z > 0.0f)
 	{
+	
+		diffuseLight = max(dot(n, s), 0.0f);
 
-		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
+		//specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
-		ads = Ld2 * (Ka.xyz + specularLight);
+		ads = specularLight * diffuseLight;
+		
 
 
 		texColor = tex0.Sample(texSampler, input.Tex).xyz;
 
-		color = texColor;
+		color = texColor *diffuseLight;
 
-		return float4(ads, 1.0f) * float4(color, 1.0f) * shadowCheck;
+		color *= shadowCheck;
+
+		
+		if (color.x < Ka.x && color.y < Ka.y && color.z < Ka.z)
+		{
+			color.xyz = Ka.xyz * texColor;
+		}
+	
+		return  float4(color, 1.0f);// +float4(ads, 1.0f);
+		
 
 	}
 	else
