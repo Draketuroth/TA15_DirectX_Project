@@ -35,7 +35,7 @@ struct GS_IN
 
 struct GS_OUT
 {
-	float4 Norm: NORMAL;
+	float3 Norm: NORMAL;
 	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
@@ -54,23 +54,32 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 	
 	GS_OUT output;
 
-	float3 normal, viewVector;
+	float3 normal, viewVector, Wnormal;
 
 	// Calculate the normal to determine the direction for the new triangle to be created ( closer to the camera )
+	// THIS SECTION IS FOR BACKFACE CULLING
+	float3 Wposition = mul(float4(input[0].Pos, 1.0f), worldViewProj).xyz;
+	float3 Wposition2 = mul(float4(input[1].Pos, 1.0f), worldViewProj).xyz;
+	float3 Wposition3 = mul(float4(input[2].Pos, 1.0f), worldViewProj).xyz;
 
-	float3 position = mul(float4(input[0].Pos, 1.0f), worldViewProj).xyz;
-	float3 position2 = mul(float4(input[1].Pos, 1.0f), worldViewProj).xyz;
-	float3 position3 = mul(float4(input[2].Pos, 1.0f), worldViewProj).xyz;
+	float3 WtriangleSideA = (Wposition - Wposition2).xyz;
+	float3 WtriangleSideB = (Wposition - Wposition3).xyz;
+
+	Wnormal = normalize(cross(WtriangleSideA, WtriangleSideB));
+
+	//THIS SECTION IS FOR LIGHTNING NORMALS
+	float3 position = input[0].Pos;
+	float3 position2 = input[1].Pos;
+	float3 position3 = input[2].Pos;
 
 	float3 triangleSideA = (position - position2).xyz;
 	float3 triangleSideB = (position - position3).xyz;
 
 	normal = normalize(cross(triangleSideA, triangleSideB));
-
 	// UINT is an unsigned INT. The range is 0 through 4294967295 decimals
 	uint i;
 
-	if (dot(normal.xyz, -position.xyz) > 0.0f) {
+	if (dot(Wnormal.xyz, -Wposition.xyz) > 0.0f) {
 
 		for (i = 0; i < 3; i++) {
 
@@ -90,9 +99,9 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> triStream){
 
 			
 
-			//output.Norm = mul(float4(input[i].Norm, 1.0f), matrixWorld);
+			
 
-			output.Norm = mul(float4(normal, 1.0f), matrixWorld);
+			output.Norm = mul(float4(normal, 1.0f), (float3x3)matrixWorld);
 
 			output.Tex = input[i].Tex;
 

@@ -40,8 +40,7 @@ float4 PS_main(PS_IN input) : SV_Target
 {
 
 	float3 lightSource = float3(0.0f, 20.0f, 0.0f);	// Light source in the form of a point light
-	float3 lightVector;
-	float lightIntensity;
+	
 	float3 diffuseLight;
 	float3 specularLight;
 	
@@ -72,7 +71,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	float3 n = normalize(input.Norm);	// The n component is self-explanatory, but represents the normal of the surface
 	float3 s = normalize(lightSource - input.WPos);	// The s component represents the direction from the surface to light source in world coordinates
 	float3 v = normalize(input.ViewPos).xyz;	// The v component represents the viewer position in world coordinates
-	float3 r = reflect(-s.xyz, n);	// The r component represent the reflection of the light direction vector with the the normal n
+	float3 r = reflect(-s, n);	// The r component represent the reflection of the light direction vector with the the normal n
 
 	
 
@@ -83,7 +82,7 @@ float4 PS_main(PS_IN input) : SV_Target
 	
 		diffuseLight = max(dot(n, s), 0.0f);
 
-		//specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
+		specularLight = Ks.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
 		ads = specularLight * diffuseLight;
 		
@@ -101,20 +100,28 @@ float4 PS_main(PS_IN input) : SV_Target
 			color.xyz = Ka.xyz * texColor;
 		}
 	
-		return  float4(color, 1.0f);// +float4(ads, 1.0f);
+		return  float4(color, 1.0f) + float4(ads, 1.0f);
 		
 
 	}
 	else
 	{
 	
-		diffuseLight = Kd2 * max(dot(s, n), 0.0f);
+		diffuseLight = max(dot(s, n), 0.0f);
 
 		specularLight = Ks2.xyz * pow(max(dot(r, v), 0.0f), shinyPower);
 
-		ads = Ld2 * (Ka2 + diffuseLight + specularLight);
+		ads = diffuseLight * specularLight;
 
-		return float4(ads, 1.0f) * shadowCheck;
+		color = Kd2 * diffuseLight;
+
+		color *= shadowCheck;
+
+		if (color.x < Ka2.x && color.y < Ka2.y && color.z < Ka2.z)
+		{
+			color.xyz = Ka2.xyz * Kd2.xyz;
+		}
+		return float4(color, 1.0f) + float4(ads, 1.0f);
 	}
 
 
