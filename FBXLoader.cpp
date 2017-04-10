@@ -140,6 +140,20 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 		}
 
+		if (i == 2) {
+
+			currentFilePath = "FbxModel\\stagger.fbx";
+			hr = LoadAnimation(currentFilePath, gFbxSdkManager, pImporter, pFbxScene);
+
+			if (FAILED(hr)) {
+
+				cout << currentFilePath << " wasn't found" << endl;
+			}
+
+			pFbxRootNode = pFbxScene->GetRootNode();
+
+		}
+
 		GatherAnimationData(pFbxRootNode, pFbxScene, i);
 
 	}
@@ -399,10 +413,9 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene, int animInde
 			FbxTime startTime = takeInformation->mLocalTimeSpan.GetStart();	// Retrieve start time for the animation (either 0 or the user-specified beginning in the time-line)
 			FbxTime endTime = takeInformation->mLocalTimeSpan.GetStop();	// Retrieve end time for the animation (often user specified or default )
 
-			animationLength = endTime.GetFrameCount(FbxTime::eFrames24) - startTime.GetFrameCount(FbxTime::eFrames24) + 1;	// To receive the total animation length, just subtract the start time frame with end time frame
+			FbxLongLong animationLength = meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Length = endTime.GetFrameCount(FbxTime::eFrames24) - startTime.GetFrameCount(FbxTime::eFrames24) + 1;	// To receive the total animation length, just subtract the start time frame with end time frame
 
 			meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence.resize(animationLength);
-			//meshSkeleton.hierarchy[currentJointIndex].Animations
 			
 			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= animationLength - 1; i++) {
 
@@ -448,16 +461,14 @@ void FbxImport::SetGlobalTransform() {
 	}
 }
 
-void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
+void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext, int animIndex) {
 
 	gDeviceContext->Map(gBoneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMappedResource);
 	VS_SKINNED_DATA* boneBufferPointer = (VS_SKINNED_DATA*)boneMappedResource.pData;
 
-	int anim = 1;
-
 	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
 
-		Interpolate(boneBufferPointer,i, gDeviceContext, anim); // check Interpolate function.
+		Interpolate(boneBufferPointer,i, gDeviceContext, animIndex); // check Interpolate function.
 	}
 
 	gDeviceContext->Unmap(gBoneBuffer, 0);
@@ -467,6 +478,8 @@ void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext, int animIndex) {
 
 	// Animation has just started, so return the first keyframe
+
+	FbxLongLong animationLength = meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Length;
 
 	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[0].TimePos) //first keyframe
 	{

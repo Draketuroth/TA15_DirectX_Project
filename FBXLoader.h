@@ -77,7 +77,7 @@ struct Joint { // Stores the attributes of a joint node
 	FbxAMatrix GlobalBindposeInverse;
 	FbxAMatrix TransformMatrix;
 	FbxAMatrix TransformLinkMatrix;
-	Animation Animations[2];
+	Animation Animations[3];
 
 	FbxNode* Node;
 
@@ -183,7 +183,7 @@ public:
 
 	XMMATRIX Load4X4JointTransformations(Joint joint, int transformIndex);
 	XMMATRIX Load4X4Transformations(FbxAMatrix fbxMatrix);
-	void UpdateAnimation(ID3D11DeviceContext* gDevice);
+	void UpdateAnimation(ID3D11DeviceContext* gDevice, int animIndex);
 	void Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDevice, int animIndex);
 	void InitializeAnimation();
 	
@@ -194,7 +194,6 @@ public:
 	XMMATRIX invertedBindPose[16];	// Bind pose matrix
 
 	vector<Vertex_Bone>vertices;	// Extra copy of vertices
-	FbxLongLong animationLength;
 
 private:
 

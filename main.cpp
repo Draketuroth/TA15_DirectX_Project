@@ -134,6 +134,7 @@ int RunApplication() {
 	mCam.mLastMousePos.y = 0;
 
 	static bool topDownViewFlag = 1;
+	int currentAnimIndex = 0;
 	HRESULT hr;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -229,12 +230,34 @@ int RunApplication() {
 
 			fbxImporter.animTimePos += deltaTime * 20;
 
-			if (fbxImporter.animTimePos >= fbxImporter.animationLength){
+			if (GetAsyncKeyState(VK_UP) & 0x8000) {
+			
+				if (currentAnimIndex < ANIMATIONCOUNT - 1) {
+					
+					currentAnimIndex++;
+					fbxImporter.animTimePos = 0.0f;
+					Sleep(200);
+
+				}
+			}
+
+			if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+
+				if (currentAnimIndex > 0){
+				
+					currentAnimIndex--;
+					fbxImporter.animTimePos = 0.0f;
+					Sleep(200);
+
+				}
+			}
+
+			if (fbxImporter.animTimePos >= fbxImporter.meshSkeleton.hierarchy[0].Animations[currentAnimIndex].Length){
 					
 				fbxImporter.animTimePos = 0.0f;
 			}
 
-			fbxImporter.UpdateAnimation(gHandler.gDeviceContext);
+			fbxImporter.UpdateAnimation(gHandler.gDeviceContext, currentAnimIndex);
 
 			// now onto FBXLoader.cpp->UpdateAnimation
 
