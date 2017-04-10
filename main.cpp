@@ -141,6 +141,8 @@ int RunApplication() {
 	float angle = 0.05f;
 	fbxImporter.animTimePos = 0.0f;
 
+
+
 	// Storing the counts per second
 	__int64 countsPerSecond = 0;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
@@ -149,8 +151,16 @@ int RunApplication() {
 	// Initialize the previous time
 	__int64 previousTime = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&previousTime);
+
+
+
+
 	float time = 0;
 	XMFLOAT4 PMRand[1000] = {XMFLOAT4(0,0,0,1)};
+
+
+
+
 
 	for (size_t i = 0; i < CUBECAPACITY; i++)//loop through all objects that needs to be assigned to a node in the quadtree
 	{

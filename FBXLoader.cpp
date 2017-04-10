@@ -334,7 +334,7 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 			// KFbxNode was used in previous versions of the FBX SDK to receive the cluster link, but now we only use a normal FbxNode
 			meshSkeleton.hierarchy[currentJointIndex].Node = currentCluster->GetLink();
-
+			
 			// Associate the joint with the control points it affects
 			unsigned int indicesCount = currentCluster->GetControlPointIndicesCount();
 

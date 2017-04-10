@@ -563,11 +563,7 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 	float ZCenter = (maxZ / 2) + (minZ / 2);
 	bbCenter = { XCenter, YCenter, ZCenter };
 
-	
-
 	HRESULT hr;
-
-	
 
 	if (fileFound == true)
 	{
@@ -587,8 +583,6 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 		}
 
 	}
-	
-
 	
 	return true;
 }
