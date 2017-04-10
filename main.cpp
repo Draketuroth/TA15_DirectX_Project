@@ -6,6 +6,10 @@
 // Philip Velandria, Jonathan Sundberg, Linnea Vajda, Fredrik Linde
 //----------------------------------------------------------------------------------------------------------------------------------//
 
+
+// sök på particle för att hitta partikel delen.
+
+
 #include <windows.h>
 #include <d3d11.h>	
 #include <d3dcompiler.h>	
@@ -232,6 +236,8 @@ int RunApplication() {
 
 			fbxImporter.UpdateAnimation(gHandler.gDeviceContext);
 
+			// now onto FBXLoader.cpp->UpdateAnimation
+
 			POINT p;
 			GetCursorPos(&p);
 
@@ -356,20 +362,20 @@ int RunApplication() {
 			// PARTICLE MOVEMENT
 			//----------------------------------------------------------------------------------------------------------------------------------//
 
-			time += deltaTime * 2000;
+			time += deltaTime * 2000; // vi sätter refresh rate på partikel rörelse.
 
 			if (time > 150)
 			{
-				hr = gHandler.gDeviceContext->Map(bHandler.gVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VertexBufferResource);
+				hr = gHandler.gDeviceContext->Map(bHandler.gVertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VertexBufferResource); // vi mappar våran constant buffer för updatering.
 			
 				VS_CONSTANT_BUFFER* vBufferPointer = (VS_CONSTANT_BUFFER*)VertexBufferResource.pData;
 				time = 0;
 				for (size_t i = 0; i < 1000; i++)
 				{
-					PMRand[i].x = ((float)rand()) / (float)RAND_MAX / 12;
+					PMRand[i].x = ((float)rand()) / (float)RAND_MAX / 12; // vi skapar random värden mellan 0 och 1 och sätter dem i x y z kanaler.
 					PMRand[i].y = ((float)rand()) / (float)RAND_MAX / 12;
 					PMRand[i].z = ((float)rand()) / (float)RAND_MAX / 12;
-					vBufferPointer->particleMovement[i] = PMRand[i];
+					vBufferPointer->particleMovement[i] = PMRand[i]; // vi tilldelar vår constant buffer dessa värden. hoppa till HLSL>standarshaders>vertexshader
 			
 			
 				}

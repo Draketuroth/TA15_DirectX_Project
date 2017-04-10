@@ -41,7 +41,7 @@ struct GS_IN
 
 struct GS_OUT
 {
-	//float4 Norm: NORMAL;
+
 	float2 Tex : TEXCOORD;
 	float4 Pos : SV_POSITION;
 	float3 WPos : POSITION;
@@ -51,7 +51,7 @@ struct GS_OUT
 
 // The geometry shader takes an entire primitive as an array as its input, but it also require an upper limit for the amount of 
 // vertices to output. Therefore the program runs for every primitive. Because we are going to output two triangles, the total 
-// vertex count must be a total of 6
+// vertex count must be a total of 6 // unless pointlist
 
 [maxvertexcount(4)]
  void GS_main(point GS_IN input[1], inout TriangleStream<GS_OUT> PStream)
@@ -60,7 +60,7 @@ struct GS_OUT
 
 	
 	 //Normal for quad
-	 float3 normal = cameraPos.xyz-input[0].Pos ;
+	 float3 normal = cameraPos.xyz-input[0].Pos; // vi skapar en normal för partikel quaden genom att köra en ny vector mellan punkten och cameran.
 	 normal = normalize(normal);
 
 
@@ -73,15 +73,15 @@ struct GS_OUT
 	
 
 	 // the new right vector for the billboard
-	 float3 rightVec = cross(cameraSpace,normal);
+	 float3 rightVec = cross(cameraSpace,normal); // vi skapar en ny rightvector genom att kryssa våran tvingade upvector mot våran normal.
 	 rightVec = normalize(rightVec);
 
 	 // the new upvector for the billboard ( not the forced  since it would be cylindricall billboarding with it.)
-	 float3 upVec = cross(normal, rightVec);
+	 float3 upVec = cross(normal, rightVec); // en ny upvector genom våran normal och nya rightvec.
 	 upVec = normalize(upVec);
 
-	 rightVec = cross(upVec,normal);
-	 rightVec = normalize(rightVec);
+	 //rightVec = cross(upVec,normal);
+	// rightVec = normalize(rightVec);
 	 
 
 
@@ -92,6 +92,8 @@ struct GS_OUT
 
 	
 	 // the math to offset the 4 vertices of the billboarded quad
+
+	 // vi offsetar 4 nya vertiser för att skapa vår quad som billboardas mot cameran pga rightvec och upvec.
 	float4 v = float4((input[0].Pos + (0.4 * rightVec) - (0.4 * upVec)),1.0f); // top left
 	float4 v2 = float4((input[0].Pos + (0.4 * rightVec) + (0.4 * upVec)),1.0f); // bottom left
 	float4 v3 = float4((input[0].Pos - (0.4 * rightVec) - (0.4 * upVec)),1.0f); // top right
@@ -125,6 +127,7 @@ struct GS_OUT
 
 
 
+	 // här tilldelar vi output våra 4 nya vertis positioner.
 	 // top left
 	 output.Pos = position;
 	 output.Tex = uvTL;
@@ -150,5 +153,5 @@ struct GS_OUT
 
 	 
 	 
-
+	// fortsätt till fragment.
 };

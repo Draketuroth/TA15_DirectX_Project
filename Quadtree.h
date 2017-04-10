@@ -12,12 +12,12 @@ public:
 	Quadtree(int subDiv, XMFLOAT3 Center, XMFLOAT3 Extents);
 	virtual ~Quadtree();
 
-	Quadtree* nodes[4];//Varje node har 4 barn(ökar exponentiellt)
-	BoundingBox BBox;//själva boundingboxen för quadtreet
+	Quadtree* nodes[4];//Varje node har 4 barn(ökar exponentiellt) lva boundingboxen för quadtreet
 	vector<CubeObjects*> objects;//Lista med objekt(kuber)
 	int SubDiv;//Nuvarande subdiv
 	int totalSubDiv;//Totala subdivions på trädet
 	int intersection;//Variabel för att kolla intersektion mellan frustum och quadtree (använder globala macros, se MacroDefinitions.h)
+	BoundingBox BBox;
 
 	//Funktioner för quadtree (x) indikerar i vilken ordning de körs i inuti main filen
 	/*(1)*/bool CreateTree(int SubDiv);//Skapar trädet

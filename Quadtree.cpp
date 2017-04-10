@@ -111,7 +111,7 @@ void Quadtree::checkBoundingBox(CubeObjects &Object)
 				if (this->nodes[i]->BBox.Contains(Object.bbox)) //check if children on index I has an object
 				{
 
-				//if it isn't the deepest level of subdiv we will continue to travel down the subdivision to find the lowest subdiv the object belongs to
+					//if it isn't the deepest level of subdiv we will continue to travel down the subdivision to find the lowest subdiv the object belongs to
 					
 					this->nodes[i]->checkBoundingBox(Object);	
 
@@ -181,7 +181,7 @@ void Quadtree::checkRenderObjects()
 		}
 		else//here we will stop at the second lowest subdiv, because we check the second lowest subdiv Quadtrees children, which is the lowes subdiv
 		{
-			if (this->nodes[i]->objects.size() > 0)
+			if (this->nodes[i]->objects.size() > 0)//Check if the node has objects in the vector(if the node contains a cube)
 			{
 				//cout << "Size: " << this->nodes[i]->objects.size() << endl << "ID: " << this->nodes[i]->ID << endl;
 				for (size_t j = 0; j < this->nodes[i]->objects.size(); j++)

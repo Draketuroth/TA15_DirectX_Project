@@ -1,9 +1,9 @@
-newmtl cube:phong1SG
+newmtl phong1SG
 illum 4
 Kd 0.00 0.00 0.00
-Ka 1.00 1.00 1.00
+Ka 0.14 0.14 0.14
 Tf 1.00 1.00 1.00
 map_Kd small.jpg
 Ni 1.00
-Ks 0.83 0.83 0.83
+Ks 0.49 0.49 0.49
 Ns 0.00

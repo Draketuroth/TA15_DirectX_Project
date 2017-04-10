@@ -6,6 +6,15 @@
 
 #include "FBXLoader.h"
 
+// loading funktions
+//1. ProcessControlPoints (process vertices)
+//2. LoadSkeletonHierarchy (processes joints and clusters)
+//3. GatherAnimationData ( processes keyframes and weights)
+//4. CreateVertexData ( makes vertex buffer for vertices) 
+
+// updating 
+//1. buffercomponents->createSkeletalBuffer.
+
 //----------------------------------------------------------------------------------------------------------------------------------//
 // PRIMARY FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------//
@@ -153,7 +162,8 @@ void FbxImport::LoadSkeletonHierarchy(FbxNode* rootNode) {
 
 	meshSkeleton.hierarchyDepth = 0;	// This variable is only here for debugging purposes to track the depth of the recursive search
 
-	for (int subNodeIndex = 0; subNodeIndex < rootNode->GetChildCount(); subNodeIndex++) {
+	for (int subNodeIndex = 0; subNodeIndex < rootNode->GetChildCount(); subNodeIndex++) // loops trough all joints in node
+	{
 
 		FbxNode* currentChildNode = rootNode->GetChild(subNodeIndex);	// Get current node in the file
 		RecursiveDepthFirstSearch(currentChildNode, meshSkeleton.hierarchyDepth, 0, -1);	// Skeleton root node should be labeled with an index of -1
@@ -338,7 +348,8 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 			// Associate the joint with the control points it affects
 			unsigned int indicesCount = currentCluster->GetControlPointIndicesCount();
 
-			for (unsigned int i = 0; i < indicesCount; i++) {
+			for (unsigned int i = 0; i < indicesCount; i++)
+			{
 
 				BlendingIndexWeightPair currentBlendPair;
 				currentBlendPair.BlendIndex = currentJointIndex;
@@ -417,7 +428,7 @@ void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 
 	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
 
-		Interpolate(boneBufferPointer,i, gDeviceContext);
+		Interpolate(boneBufferPointer,i, gDeviceContext); // check Interpolate function.
 	}
 
 	gDeviceContext->Unmap(gBoneBuffer, 0);
@@ -428,24 +439,26 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 
 	// Animation has just started, so return the first keyframe
 
-	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animation[0].TimePos) {
+	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animation[0].TimePos) //first keyframe
+	{
 
 		XMFLOAT4X4 M;
 
 		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Scale);
-		XMVECTOR P = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Translation);
+		XMVECTOR T = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Translation);
 		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[0].RotationQuat);
 
 		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, T));
 
 		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
 	}
 
 	// Animation has reached its end, so return the last keyframe
 
-	else if (animTimePos >= meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].TimePos) {
+	else if (animTimePos >= meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].TimePos) // last keyframe
+	{
 
 		XMFLOAT4X4 M;
 
@@ -462,7 +475,8 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 
 	// Animation time is between two frames so they should be interpolated
 
-	else{
+	else 
+	{
 
 		XMFLOAT4X4 M;
 		// I am using an int here to truncate the animation timepose to know which matrices I am interested about
@@ -473,7 +487,7 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 
 		float interpolationProcent = (animTimePos - kFirst) / (kLast - kFirst);
 
-		XMVECTOR kFirstScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Scale);
+		XMVECTOR kFirstScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.
 		XMVECTOR kLastScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].Scale);
 
 		XMVECTOR kFirstTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Translation);
@@ -493,7 +507,7 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 		boneBufferPointer->gBoneTransform[jointIndex] = XMMatrixTranspose(XMLoadFloat4x4(&M)) * XMMatrixTranspose(invertedBindPose[jointIndex]);
 
 	}
-
+	//HLSL->boneshaders->vertexshader
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------//

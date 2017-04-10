@@ -1,18 +1,25 @@
 #include "BufferComponents.h"
+// OBJ är i IMPORTER
+// Particles är i createVertexBuffer.
 
 void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int ParserSwitch, bool &fileFound, wstring &OBJTexturePath)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	struct String3
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP ONE: INITIALIZING VARIABLES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	struct String3 // a custom "float3" for strings when we parse faces from OBJ.
 	{
 		string x, y, z;
 	};
 
-	String3 initialize;
+	String3 initialize; // empty string3 to initialize vectors
 	initialize.x = "";
 	initialize.y = "";
 	initialize.z = "";
+
 	string* Farr;
 	vector<XMFLOAT3> VertexArr;
 	vector<XMFLOAT2> VertexTarr;
@@ -30,30 +37,22 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	Filler.VTarr.x = 0;
 	Filler.VTarr.y = 0;
 
-
 	int FarrSize = 50;
-
 	int Vsize = 0;
 	int VTsize = 0;
 	int VNsize = 0;
 	int Fsize = 0;
-
-
 
 	XMFLOAT3 initializeFloat3;
 	initializeFloat3.x = 0;
 	initializeFloat3.y = 0;
 	initializeFloat3.z = 0;
 
-
-	string delimiter = "/";
-
-
-
-
+	string delimiter = "/"; // Delimiter används för att specifiera en karaktär som vi kommer leta up när vi parsar faces.
 
 	Farr = new string[FarrSize];
 
+	// Tomma variabler för initsiering
 	XMFLOAT3 null;
 	null.x = 0;
 	null.y = 0;
@@ -64,64 +63,66 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 	null1.y = 0;
 
 
-
-	string::size_type sz;
+	
+	string::size_type sz; // används för convertering mellan string till floats.
 	string check;
 	string check2;
 	string check3;
 	string check4;
 
 
-	if (ParserSwitch == 0)
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP TWO: PARSING VERTICES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	if (ParserSwitch == 0) // vi kollar om vi parsar vertis information eller material information.
 	{
-		fstream file("OBJfiles//test//cube.obj", ios::in | ios::ate);
-		if (!file.is_open())
+		fstream file("OBJfiles//test//cube.obj", ios::in | ios::ate); // vi öppnar filen
+
+		if (!file.is_open()) // om filen inte finns eller inte öppnas så gör vi en early return
 		{
 			fileFound = false;
 			return;
 		}
-		fileFound = true;
+
+		fileFound = true; // annars har vi hittat filen.
 		string line;
 
-
-		file.seekg(0, file.end);
-		int size = file.tellg();
-		file.seekg(0, file.beg);
-
-
-	
-
+		
+				
+		file.seekg(0, file.beg);// vi sätter parsen till början av filen.
 
 		//----------------------------------------------------------------------------------//
-		while (!file.eof())
+		while (!file.eof()) // sålänge vi inte nått slutet av filen...
 		{
-			line.clear();
+			line.clear(); // vi rensar vår string som vi parsar in OBJ strängens värde i från förra loopen
+
+			getline(file, line); // vi hämtar en rad från file.
+			istringstream stringParse(line); // vi stoppar stringen i en istringstream.
 
 
-			getline(file, line);
-			istringstream stringParse(line);
+			stringParse >> check; // vi skickar in allt fram tills första mellanslaget till vår string check som vi parsar.
 
-
-			stringParse >> check;
-
-			if (check == "v")
+			if (check == "v") // om det vi tog var V så vet vi att de nästa 3 delarna av stringParse kommer vara vertisdata.
 			{
 				stringParse >> check2;
 				stringParse >> check3;
 				stringParse >> check4;
 
-				VertexArr.push_back(null);
-				VertexArr[Vsize].x = stod(check2, &sz);
+				VertexArr.push_back(null); // vi gör en tom plats i vår vector
+				VertexArr[Vsize].x = stod(check2, &sz);// som vi sedan fyller i. converterar från string till double.
 				VertexArr[Vsize].y = stod(check3, &sz);
 				VertexArr[Vsize].z = stod(check4, &sz);
-				Vsize++;
+				Vsize++;// plusar på counter som håller reda på hur många vertiser vi parsat in.
 			}
 
 			if (check == "vt")
 			{
 				stringParse >> check2;
 				stringParse >> check3;
+
 				VertexTarr.push_back(null1);
+
 				VertexTarr[VTsize].x = stod(check2, &sz);
 				VertexTarr[VTsize].y = stod(check3, &sz);
 				VTsize++;
@@ -132,7 +133,9 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				stringParse >> check2;
 				stringParse >> check3;
 				stringParse >> check4;
+
 				VertexNarr.push_back(null);
+
 				VertexNarr[VNsize].x = stod(check2, &sz);
 				VertexNarr[VNsize].y = stod(check3, &sz);
 				VertexNarr[VNsize].z = stod(check4, &sz);
@@ -144,7 +147,6 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				stringParse >> check;
 				stringParse >> check2;
 				stringParse >> check3;
-				//stringParse >> check4;
 
 				Farr[Fsize] = check;
 				Fsize++;
@@ -152,17 +154,14 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Fsize++;
 				Farr[Fsize] = check3;
 				Fsize++;
-				/*Farr[Fsize] = check4;
-				Fsize++;*/
+				
 			}
 
-			if (FarrSize - Fsize < 4)
+			if (FarrSize - Fsize < 4) // expand funktion för våran Face Array.
 			{
 				FarrSize += 50;
 
-
 				string* temp = new string[FarrSize];
-
 
 				for (size_t i = 0; i < Fsize; i++)
 				{
@@ -180,50 +179,57 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 
 	
 		size_t pos = 0;
-		vector<String3> FaceList;
-		vector<XMFLOAT3> converter;
+		vector<String3> FaceList; // vectoren för faces vi kommer sätta in i x y z format.
+		vector<XMFLOAT3> converter; // som vi sedan kommer konvertera till xmfloat3
 	
 
 		for (int i = 0; i < Fsize; i++)
 		{
-			FaceList.push_back(initialize);
-			pos = Farr[i].find(delimiter);
-			FaceList[i].x = Farr[i].substr(0, pos);
-			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
+			FaceList.push_back(initialize); // ger facelist en tom plats
 
-			pos = Farr[i].find(delimiter);
-			FaceList[i].y = Farr[i].substr(0, pos);
-			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length());
+			pos = Farr[i].find(delimiter); // tilldelar pos positionsvärdet av första "delimitern" om den är på plats 3 så blir värdet 2.
 
-			FaceList[i].z = Farr[i];
+			FaceList[i].x = Farr[i].substr(0, pos); // allting fram till första delimitern stoppar vi in i facelist.x
+
+			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length()); // vi deletar allting fram till och våran delimiter så om det va "1/1/1" innan så blir det "1/1" nu
+
+			pos = Farr[i].find(delimiter); // hitta nästa delimiter
+
+			FaceList[i].y = Farr[i].substr(0, pos); //rinse
+
+			Farr[i].erase(0, Farr[i].find(delimiter) + delimiter.length()); // repeat
+
+			FaceList[i].z = Farr[i]; // när det inte finns några delimiters kvar så tar vi allt.
 		
 
 		}
-		string::size_type typer;
+		string::size_type typer; // används för convertering.
 
 		for (int u = 0; u < Fsize; u++)
 		{
-			converter.push_back(initializeFloat3);
-			converter[u].x = stof(FaceList[u].x, &typer);
+			converter.push_back(initializeFloat3); // skapar en tom plats
+
+			converter[u].x = stof(FaceList[u].x, &typer); // vi konverterar string till float
 			converter[u].y = stof(FaceList[u].y, &typer);
 			converter[u].z = stof(FaceList[u].z, &typer);
-			converter[u].x -= 1;
+			converter[u].x -= 1; // eftersom OBJ börjar på index 1 men c++ på index 0 så tar vi -1 på alla värden.
 			converter[u].y -= 1;
 			converter[u].z -= 1;
 
-			//cout << converter[u].x << " " << converter[u].y << " " << converter[u].z << endl;
+			
 		}
 
 	
-		for (size_t i = 0; i < Fsize; i++)
+		for (size_t i = 0; i < Fsize; i++) // vi loopar antalet "faces" det är inte primitiv faces men det är ordningen som vertisdatan ska sättas ihop i.
+										   // ("1/1/1" tar index 0 från v,vt,vn) och det finns 3 sånna per rad för att skapa en triangel som är en primitiv.
 		{
 		
 			ImportStruct.push_back(Filler);
 
-			ImportStruct[i].Varr.x = VertexArr[converter[i].x].x;
-			ImportStruct[i].Varr.y = VertexArr[converter[i].x].y;
-			ImportStruct[i].Varr.z = VertexArr[converter[i].x].z;
-
+			ImportStruct[i].Varr.x = VertexArr[converter[i].x].x; // vi stoppar in i Varr, VTarr och VNarr på xyz från våra vector listor med Varr VTarr och VNarr information.
+			ImportStruct[i].Varr.y = VertexArr[converter[i].x].y; // vi använder våra konverterade faces list för att indexera detta
+			ImportStruct[i].Varr.z = VertexArr[converter[i].x].z; // converter[i] är vilken index i vectorlistan vi hämtar från
+																  // medans .X står för vilken typ vi indexerar för (Varr,VNarr,VTarr)
 			ImportStruct[i].VTarr.x = VertexTarr[converter[i].y].x;
 			ImportStruct[i].VTarr.y = VertexTarr[converter[i].y].y;
 
@@ -231,37 +237,40 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			ImportStruct[i].VNarr.y = VertexNarr[converter[i].z].y;
 			ImportStruct[i].VNarr.z = VertexNarr[converter[i].z].z;
 
-
-
-
-			
 		}
 	}
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// STEP THREE: PARSING MATERIAL ATTRIBUTES.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
-	if (ParserSwitch == 1)
+	if (ParserSwitch == 1) // kollar om vi parsar vertisdata eller materialdata
 	{
+
+
+		// HELA DENNA BIT ÄR IDENTISK I UTFÖRANDET SOM VERTISDATA BITEN i utförandet. 
+
+
+
 		fstream mtl_File("OBJfiles//test//cube.mtl", ios::in | ios::ate);
 	
 		
 		string temp = "OBJfiles//test//";
 		wstring temp2;
-		OBJTexturePath = (L"OBJfiles//test//");
+		OBJTexturePath = (L"OBJfiles//test//"); // vi hämtar destinationen till där våran textur ska ligga.
+
 		if (!mtl_File.is_open())
 		{
 			fileFound = false;
 			return;
 		}
+
 		fileFound = true;
 		string mtl_Line;
 	
 	
-		mtl_File.seekg(0, mtl_File.end);
-		int mtl_Size = mtl_File.tellg();
+		
 		mtl_File.seekg(0, mtl_File.beg);
 	
-	
-	
-		//string material;
 		float illum;
 		XMFLOAT3 Kd;
 		XMFLOAT3 Ka;
@@ -279,15 +288,13 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			istringstream mtl_StringParse(mtl_Line);
 	
 			mtl_StringParse >> check;
-			/*if (check == "newmtl")
-			{
-				mtl_StringParse >> material;
-			}*/
+			
 			if (check == "illum")
 			{
 				mtl_StringParse >>check;
 				illum = stof(check,&sz);
 			}
+
 			else if (check == "Kd")
 			{
 				mtl_StringParse >> check2;
@@ -299,6 +306,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Kd.z = stof(check4,&sz);
 	
 			}
+
 			else if (check == "Ka")
 			{
 				mtl_StringParse >> check2;
@@ -309,6 +317,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Ka.y = stof(check3,&sz);
 				Ka.z = stof(check4,&sz);
 			}
+
 			else if (check == "Tf")
 			{
 				mtl_StringParse >> check2;
@@ -319,12 +328,14 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Tf.y = stof(check3,&sz);
 				Tf.z = stof(check4,&sz);
 			}
+
 			else if (check == "Ni")
 			{
 				mtl_StringParse >> check;
 	
 				Ni = stof(check,&sz);
 			}
+
 			else if (check == "Ks")
 			{
 				mtl_StringParse >> check;
@@ -335,6 +346,7 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 				Ks.y = stof(check2, &sz);
 				Ks.z = stof(check3, &sz);
 			}
+
 			else if (check == "map_Kd")
 			{
 				mtl_StringParse >> check;
@@ -344,6 +356,8 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 			}
 	
 		}
+
+
 
 		//--------- MTLCONSTANT DATA ASSIGNMENTS ---------------//
 		MTLConstandData.Illum = illum;
@@ -361,30 +375,12 @@ void importer(vector<OBJStruct> &ImportStruct, MTL_STRUCT &MTLConstandData, int 
 		MTLConstandData.Ks.y = Ks.y;
 		MTLConstandData.Ks.z = Ks.z;
 		
-	//-----------------------------------------------------------------//
-		//cout << "material: " << material << endl;
-		/*cout << "illum: " << illum << endl;
-		cout << "kd: " << Kd.x << " " << Kd.y << " " << Kd.z << endl;
-		cout << "ka: " << Ka.x << " " << Ka.y << " " << Ka.z << endl;
-		cout << "Tf: " << Tf.x << " " << Tf.y << " " << Tf.z << endl;
-		cout << "Ni: " << Ni << endl;
-		cout << "Ks: " << Ks.x << " " << Ks.y << " " << Ks.z << endl;*/
+	
 	}
 
 	
 
-	delete[] Farr;
-
-
-	//----------------------------------------------------------------------------------//
-
-
-
-
-
-	
-
-
+	delete[] Farr; // deletar allokerat minne.
 
 }
 
@@ -589,41 +585,45 @@ bool BufferComponents::CreateTerrainBuffer(ID3D11Device* &gDevice) {
 
 bool BufferComponents::CreateVertexBuffer(ID3D11Device* &gDevice) {
 
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PARTICLE POINT CREATION.
+	//----------------------------------------------------------------------------------------------------------------------------------//
 	HRESULT hr;
-	XMFLOAT3 max = { 100,100,100 };
-	XMFLOAT3 min = { -100,0,-100 };
-	XMFLOAT3 range = { 0,0,0 };
-	range.x = max.x - min.x;
-	range.y = max.y - min.y;
-	range.z = max.z - min.z;
+	
 
 	
 	
 
-	TriangleVertex triangleVertices[1000];
+	TriangleVertex triangleVertices[1000]; // skapar en array med 1000 platser för vertispunkter.
 	
 
 	for (int i = 0; i < 1000; i++)
 	{
-		triangleVertices[i].posX.x = 0;
+		triangleVertices[i].posX.x = 0; // initsierar positionen
 		triangleVertices[i].posX.y = 0;
 		triangleVertices[i].posX.z = 0;
 		
 		XMFLOAT3 random = { 0,0,0 };
-		float randomNum = rand() % 200 + (-99);
-		float randomNum2 = rand() % 100 +5;
-		float randomNum3 = rand() % 200 + (-99);
-		//cout << randomNum << endl;
+		float randomNum = rand() % 200 + (-100); // vi ger x och z värdena ett random värde mellan -100 och 100
+		float randomNum2 = rand() % 100 +5; // Y axeln är mellan 5 och 100 för att inte vara under marken.
+		float randomNum3 = rand() % 200 + (-100);
+		
 		random.x = randomNum;
 		random.y = randomNum2;
 		random.z = randomNum3;
-		//cout << random.x << " " << random.y << " " << random.z << endl;
-		triangleVertices[i].posX.x = random.x;
+		
+		triangleVertices[i].posX.x = random.x; // vi tildelar våra vertispunkter dessa random värden så det blir ett random hav av vertispunkter.
 		triangleVertices[i].posX.y = random.y;
 		triangleVertices[i].posX.z = random.z;
 		
 	}
 	
+	// hoppa vidare till main.
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// PARTICLE VERTEX BUFFER
+	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
@@ -647,16 +647,16 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 
 	HRESULT hr;
 
-	fbxImporter.LoadFBX(&fbxVector);
+	fbxImporter.LoadFBX(&fbxVector); //load mesh vertices
 
-	VS_SKINNED_DATA skinData;
+	VS_SKINNED_DATA skinData; // constant buffer struct for inverse bindpose matrices.
 
 	for (unsigned int i = 0; i < fbxImporter.meshSkeleton.hierarchy.size(); i++) {
 
-		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i);
+		XMMATRIX inversedBindPose = fbxImporter.Load4X4JointTransformations(fbxImporter.meshSkeleton.hierarchy[i], i); // converts from float4x4 too xmmatrix
 
 		skinData.gBoneTransform[i] = inversedBindPose;
-		fbxImporter.invertedBindPose[i] = inversedBindPose;
+		fbxImporter.invertedBindPose[i] = inversedBindPose; // copy on the cpu
 
 	}
 
@@ -713,6 +713,8 @@ bool BufferComponents::CreateSkeletalBuffers(ID3D11Device* &gDevice, FbxImport &
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	return true;
+
+	// now go to main and search for fbxImporter.animtimepos
 }
 
 bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam) {	// Function to create the constant buffer
@@ -840,24 +842,19 @@ bool BufferComponents::CreateConstantBuffer(ID3D11Device* &gDevice, Camera &mCam
 
 bool BufferComponents::CreateOBJBuffer(ID3D11Device* &gDevice)
 {
+
+
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// LOAD MTL CONSTANT BUFFER.
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
 	HRESULT hr;
 
 	
-
-	//----------------------------------------------------------------------------------------------------------------------------------//
-
-	// Here we supply the constant buffer data
-
-	
-
 	importer(ImportStruct,MTLConstantData,1,fileFound,OBJTexturePath);
 
-	// The buffer description is filled in below, mainly so the graphic card understand the structure of it
 
-
-
-	
-	
 	D3D11_BUFFER_DESC MTLBufferDesc;
 	MTLBufferDesc.ByteWidth = sizeof(MTL_STRUCT);
 	MTLBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
