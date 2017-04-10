@@ -39,11 +39,14 @@ void FbxImport::ReleaseAll() {
 HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 	HRESULT hr;
-
 	// Data parsing file declaration
 	ofstream logFile;
 	// Storing a pointer for the FBX Manager
 	FbxManager* gFbxSdkManager = nullptr;
+	FbxNode* pFbxRootNode = nullptr;
+
+	const char* baseFilePath = "FbxModel\\bindpose.fbx";
+	const char* currentFilePath;
 
 	// Initialize the FBX loader and instruct it what types of data to load...
 
@@ -66,18 +69,6 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 	FbxScene* pFbxScene = FbxScene::Create(gFbxSdkManager, "");
 
-	/* // FbxAxisSystem Conversion might work in some cases, but not this one. ConvertScene only converts parent and not its children
-
-	FbxAxisSystem SceneAxisSystem = pFbxScene->GetGlobalSettings().GetAxisSystem();
-	FbxAxisSystem LeftAxisSystem(FbxAxisSystem::DirectX);
-
-	if (SceneAxisSystem != LeftAxisSystem) {
-
-		SceneAxisSystem.ConvertScene(pFbxScene);
-	}
-
-	*/
-
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	// LOG FILE: FBX HEADER
 	//----------------------------------------------------------------------------------------------------------------------------------//
@@ -92,42 +83,59 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 	//----------------------------------------------------------------------------------------------------------------------------------//
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n";
 	logFile << "BONE NAMES AND PARENT INDEX:\n";
+	logFile << "Base file name: " << baseFilePath << "\n";
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
 
 	logFile.close();
 
-	// We load the FBX file from a selected directory and get its root node (it can be seen as the "handle" to the FBX contents)
-
-	bool bSuccess = pImporter->Initialize("FbxModel\\walk.fbx", -1, gFbxSdkManager->GetIOSettings());
-
-	// We only start importing and receiving the file data if initilization of the file went right
-
-	if (!bSuccess) {
-
-		return E_FAIL;
-	}
-
-	bSuccess = pImporter->Import(pFbxScene);
-
-	if (!bSuccess) {
-
-		return E_FAIL;
-	}
-
-	pImporter->Destroy();
-
-	FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
-
-	// Go through each item in the FBX file and ignore any items that aren't meshes
-	// IMPORTANT! Every polygon in the mesh must be a triangle! Either triangulate the mesh directly in Maya or implement this feature in the code
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// LOAD SKELETON (ONCE)
+	//----------------------------------------------------------------------------------------------------------------------------------//
 	
-	ProcessControlPoints(pFbxRootNode);
+	LoadBaseFile(baseFilePath, gFbxSdkManager, pImporter, pFbxScene);
 
+	// Get root node from the base file
+	pFbxRootNode = pFbxScene->GetRootNode();
+
+	// Get skeleton hierarchy from the base file
 	LoadSkeletonHierarchy(pFbxRootNode);
 
-	GatherAnimationData(pFbxRootNode, pFbxScene);
+	// Get mesh from base file
+	currentMesh = GetMeshFromRoot(pFbxRootNode);
 
-	logFile.open("log.txt", ios::out | ios::app);
+	// Process control points of the mesh
+	ProcessControlPoints();
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// LOAD ANIMATIONS (ONCE PER FILE)
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	for (int i = 0; i < ANIMATIONCOUNT; i++){
+
+		if (i == 0) {
+
+			currentFilePath = "FbxModel\\walk.fbx";
+			hr = LoadAnimation(currentFilePath, gFbxSdkManager, pImporter, pFbxScene);
+
+			if (FAILED(hr)) {
+
+				cout << currentFilePath << " wasn't found" << endl;
+			}
+
+			for (UINT i = 0; i < 16; i++) {
+
+				cout << meshSkeleton.hierarchy[i].Name.c_str() << endl;
+			}
+			
+			pFbxRootNode = pFbxScene->GetRootNode();
+
+		}
+
+		GatherAnimationData(pFbxRootNode, pFbxScene);
+
+	}
+
+	/*logFile.open("log.txt", ios::out | ios::app);
 
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n";
 	logFile << "VERTEX WEIGHTS:\n";
@@ -143,10 +151,13 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 	logFile << "BIND POSE MATRICES:\n";
 	logFile << "# ----------------------------------------------------------------------------------------------------------------------------------\n\n";
 
-	logFile.close();
+	logFile.close();*/
+
+	CreateVertexData(pFbxRootNode, pOutVertexVector);
 
 	InitializeAnimation();
 
+	pImporter->Destroy();
 	gFbxSdkManager->Destroy();
 
 	hr = TRUE;
@@ -188,7 +199,7 @@ void FbxImport::RecursiveDepthFirstSearch(FbxNode* node, int depth, int index, i
 	Joint currentJoint;
 	currentJoint.ParentIndex = parentIndex;
 	currentJoint.Name = node->GetName();
-	logFile << currentJoint.Name << "   " << currentJoint.ParentIndex << "\n";
+	logFile << currentJoint.Name.c_str() << "   " << currentJoint.ParentIndex << "\n";
 	meshSkeleton.hierarchy.push_back(currentJoint);
 
 	}
@@ -212,8 +223,11 @@ void FbxImport::CreateVertexData(FbxNode* pFbxRootNode, vector<Vertex_Bone>* pOu
 		logFile.open("log.txt", ios::out | ios::app);
 		int vertexCounter = 0;
 
+		FbxMesh* currentMesh;
+
 		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++) {
 
+			currentMesh = GetMeshFromRoot(pFbxRootNode);
 			FbxVector4* pVertices = currentMesh->GetControlPoints();
 
 			for (int j = 0; j < currentMesh->GetPolygonCount(); j++) {
@@ -298,9 +312,8 @@ void FbxImport::CreateVertexData(FbxNode* pFbxRootNode, vector<Vertex_Bone>* pOu
 
 void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
-	currentMesh = GetMeshFromRoot(node);	// Get the mesh from the root node
-
-	unsigned int deformerCount = currentMesh->GetDeformerCount();	// A deformer is associated with manipulating geometry through clusters, which are the joints we're after
+	FbxMesh* mesh = GetMeshFromRoot(node);
+	unsigned int deformerCount = mesh->GetDeformerCount();	// A deformer is associated with manipulating geometry through clusters, which are the joints we're after
 
 	FbxAMatrix geometryTransform = GetGeometryTransformation(node); // Geometric offset must be taken into account, even though it's often an identity matrix
 
@@ -308,7 +321,7 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 		// To reach the link to the joint, we must go through a skin node containing the skinning data holding vertex weights from the binded mesh
 
-		FbxSkin* currentSkin = reinterpret_cast<FbxSkin*>(currentMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+		FbxSkin* currentSkin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
 
 		if (!currentSkin) {
 
@@ -650,26 +663,28 @@ FbxMesh* FbxImport::GetMeshFromRoot(FbxNode* node) {	// Function to receive a me
 	return currentMesh;
 }
 
-void FbxImport::ProcessControlPoints(FbxNode* node) {	// Function to process every vertex in the mesh
+void FbxImport::ProcessControlPoints() {	// Function to process every vertex in the mesh
 
-	FbxMesh* pMesh = GetMeshFromRoot(node);		// Receive current mesh from the root node
-	unsigned int controlPointCount = pMesh->GetControlPointsCount();	// Store the total amount of control points
+	unsigned int controlPointCount = currentMesh->GetControlPointsCount();	// Store the total amount of control points
 
 	// Loop through all vertices and create individual controlpoints that are store in the control points vector
 
 	for (unsigned int i = 0; i < controlPointCount; i++) {
 
-		ControlPoint* currentControlPoint = new ControlPoint();	
+		ControlPoint* currentControlPoint = new ControlPoint();
+
 		XMFLOAT3 position;
-		position.x = static_cast<float>(pMesh->GetControlPointAt(i).mData[0]);
+		position.x = static_cast<float>(currentMesh->GetControlPointAt(i).mData[0]);
 		
-		position.y = static_cast<float>(pMesh->GetControlPointAt(i).mData[1]);
+		position.y = static_cast<float>(currentMesh->GetControlPointAt(i).mData[1]);
 		
-		position.z = static_cast<float>(pMesh->GetControlPointAt(i).mData[2]);
+		position.z = static_cast<float>(currentMesh->GetControlPointAt(i).mData[2]);
 
 		currentControlPoint->Position = position;
 		controlPoints[i] = currentControlPoint;
 	}
+
+	
 }
 
 void FbxImport::ConvertToLeftHanded(FbxAMatrix &matrix) {
@@ -682,4 +697,42 @@ void FbxImport::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
 	matrix.SetT(translation);
 	matrix.SetR(rotation);
+}
+
+HRESULT FbxImport::LoadBaseFile(const char* fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene) {
+	
+	bool bSuccess = pImporter->Initialize(fileName, -1, gFbxSdkManager->GetIOSettings());
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	bSuccess = pImporter->Import(pScene);
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	return true;
+}
+
+HRESULT FbxImport::LoadAnimation(const char* fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene) {
+
+	bool bSuccess = pImporter->Initialize(fileName, -1, gFbxSdkManager->GetIOSettings());
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	bSuccess = pImporter->Import(pScene);
+
+	if (!bSuccess) {
+
+		return E_FAIL;
+	}
+
+	return true;
 }

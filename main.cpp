@@ -278,15 +278,15 @@ int RunApplication() {
 
 			else if (topDownViewFlag == 1) {
 
-				//to follow the hightmap
-				if (mCam.Collotion() == true)
-				{
-					XMFLOAT3 camPos = mCam.GetPosition(); 
-					//ger camrans postionvärden til terrängens get height
-					float y = terrain.GetHeight(camPos.x, camPos.z); 
-					//lägger på 5 på höjden för att gå över terrängen
-					mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
-				}
+				////to follow the hightmap
+				//if (mCam.Collotion() == true)
+				//{
+				//	XMFLOAT3 camPos = mCam.GetPosition(); 
+				//	//ger camrans postionvärden til terrängens get height
+				//	float y = terrain.GetHeight(camPos.x, camPos.z); 
+				//	//lägger på 5 på höjden för att gå över terrängen
+				//	mCam.SetPosition(camPos.x, y + 5.0f, camPos.z); 
+				//}
 
 				hr = gHandler.gDeviceContext->Map(bHandler.topDownCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &topDownBufferResource);
 

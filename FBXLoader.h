@@ -65,7 +65,7 @@ struct Keyframe { // Stores the attributes of a keyframe in an animation
 
 struct Joint { // Stores the attributes of a joint node
 
-	const char* Name;
+	string Name;
 	int ParentIndex;
 
 	FbxAMatrix GlobalBindposeInverse;
@@ -219,9 +219,16 @@ private:
 	// Receive only meshes from the Fbx root node
 	FbxMesh* GetMeshFromRoot(FbxNode* node);
 
-	void ProcessControlPoints(FbxNode* node);
+	void ProcessControlPoints();
 
 	void ConvertToLeftHanded(FbxAMatrix &matrix);
+
+	//----------------------------------------------------------------------------------------------------------------------------------//
+	// OPEN FILE FUNCTIONS
+	//----------------------------------------------------------------------------------------------------------------------------------//
+
+	HRESULT LoadBaseFile(const char* fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
+	HRESULT LoadAnimation(const char* fileName, FbxManager* gFbxSdkManager, FbxImporter* pImporter, FbxScene* pScene);
 
 private:
 

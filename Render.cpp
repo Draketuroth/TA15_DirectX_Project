@@ -5,29 +5,29 @@ void Render(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComp
 
 	ClearRenderTargets(gHandler, bHandler, tHandler);
 
-	RenderShadowMap(gHandler, bHandler, tHandler);
+	//RenderShadowMap(gHandler, bHandler, tHandler);
 
 	SetGeometryTexture(gHandler, bHandler, tHandler);
 
-	if (ENABLE_FRUSTUM_DEBUG == true){
+	/*if (ENABLE_FRUSTUM_DEBUG == true){
 
 	RenderFrustum(gHandler, bHandler, tHandler);
 
-	}
+	}*/
 
 	RenderSkeletalAnimation(gHandler, bHandler, tHandler, fbxImporter);
 
-	RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
+	//RenderObjTerrain(gHandler, bHandler, tHandler, terrain);
 
-	RenderCubes(gHandler, bHandler, tHandler);
+	//RenderCubes(gHandler, bHandler, tHandler);
 
-	RenderCylinder(gHandler, bHandler, tHandler);
+	//RenderCylinder(gHandler, bHandler, tHandler);
 
-	RenderParticles(gHandler, bHandler, tHandler);
+	//RenderParticles(gHandler, bHandler, tHandler);
 
-	ComputeBlur(gHandler, bHandler, tHandler);
+	//ComputeBlur(gHandler, bHandler, tHandler);
 
-	DrawFullScreenQuad(gHandler, bHandler, tHandler);
+	//DrawFullScreenQuad(gHandler, bHandler, tHandler);
 }
 
 void ClearRenderTargets(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {
@@ -73,7 +73,7 @@ void SetGeometryTexture(GraphicComponents &gHandler, BufferComponents &bHandler,
 	//----------------------------------------------------------------------------------------------------------------------------------//
 
 	//gHandler.gDeviceContext->OMSetDepthStencilState(bHandler.depthState, 1);
-	gHandler.gDeviceContext->OMSetRenderTargets(1, &tHandler.geometryTextureRTV, bHandler.depthView);
+	gHandler.gDeviceContext->OMSetRenderTargets(1, &gHandler.gBackbufferRTV, bHandler.depthView);
 }
 
 void RenderFrustum(GraphicComponents &gHandler, BufferComponents &bHandler, TextureComponents &tHandler) {

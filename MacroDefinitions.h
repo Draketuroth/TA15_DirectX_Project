@@ -8,6 +8,7 @@
 #define INSIDE 1
 #define INTERSECT 2
 #define CUBECAPACITY 10
+#define ANIMATIONCOUNT 1
 
 #define NEARPLANE 0.1f
 #define FARPLANE 150.0f
