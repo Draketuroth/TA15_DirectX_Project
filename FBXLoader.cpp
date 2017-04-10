@@ -121,17 +121,26 @@ HRESULT FbxImport::LoadFBX(std::vector<Vertex_Bone>* pOutVertexVector) {
 
 				cout << currentFilePath << " wasn't found" << endl;
 			}
-
-			for (UINT i = 0; i < 16; i++) {
-
-				cout << meshSkeleton.hierarchy[i].Name.c_str() << endl;
-			}
 			
 			pFbxRootNode = pFbxScene->GetRootNode();
 
 		}
 
-		GatherAnimationData(pFbxRootNode, pFbxScene);
+		if (i == 1) {
+
+			currentFilePath = "FbxModel\\wave.fbx";
+			hr = LoadAnimation(currentFilePath, gFbxSdkManager, pImporter, pFbxScene);
+
+			if (FAILED(hr)) {
+
+				cout << currentFilePath << " wasn't found" << endl;
+			}
+
+			pFbxRootNode = pFbxScene->GetRootNode();
+
+		}
+
+		GatherAnimationData(pFbxRootNode, pFbxScene, i);
 
 	}
 
@@ -310,7 +319,7 @@ void FbxImport::CreateVertexData(FbxNode* pFbxRootNode, vector<Vertex_Bone>* pOu
 	}
 }
 
-void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
+void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene, int animIndex) {
 
 	FbxMesh* mesh = GetMeshFromRoot(node);
 	unsigned int deformerCount = mesh->GetDeformerCount();	// A deformer is associated with manipulating geometry through clusters, which are the joints we're after
@@ -361,6 +370,8 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 			// Associate the joint with the control points it affects
 			unsigned int indicesCount = currentCluster->GetControlPointIndicesCount();
 
+			if( animIndex == 0){
+
 			for (unsigned int i = 0; i < indicesCount; i++)
 			{
 
@@ -368,6 +379,8 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 				currentBlendPair.BlendIndex = currentJointIndex;
 				currentBlendPair.BlendWeight = currentCluster->GetControlPointWeights()[i];
 				controlPoints[currentCluster->GetControlPointIndices()[i]]->BlendingInfo.push_back(currentBlendPair);
+
+			}
 
 			}
 
@@ -388,33 +401,34 @@ void FbxImport::GatherAnimationData(FbxNode* node, FbxScene* scene) {
 
 			animationLength = endTime.GetFrameCount(FbxTime::eFrames24) - startTime.GetFrameCount(FbxTime::eFrames24) + 1;	// To receive the total animation length, just subtract the start time frame with end time frame
 
-			meshSkeleton.hierarchy[currentJointIndex].Animation.resize(animationLength);
+			meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence.resize(animationLength);
+			//meshSkeleton.hierarchy[currentJointIndex].Animations
 			
 			for (FbxLongLong i = startTime.GetFrameCount(FbxTime::eFrames24); i <= animationLength - 1; i++) {
 
 				
 				FbxTime currentTime;
 				currentTime.SetFrame(i, FbxTime::eFrames24);
-				meshSkeleton.hierarchy[currentJointIndex].Animation[i].TimePos = currentTime.GetFrameCount(FbxTime::eFrames24);
+				meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].TimePos = currentTime.GetFrameCount(FbxTime::eFrames24);
 
 				FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currentTime) * geometryTransform;	// Receives global transformation at time t
-				meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
+				meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform = currentTransformOffset.Inverse() * currentCluster->GetLink()->EvaluateGlobalTransform(currentTime);
 
-				meshSkeleton.hierarchy[currentJointIndex].Animation[i].Translation = XMFLOAT3(
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[0],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[1],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetT().mData[2]);
+				meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].Translation = XMFLOAT3(
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetT().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetT().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetT().mData[2]);
 
-				meshSkeleton.hierarchy[currentJointIndex].Animation[i].Scale = XMFLOAT3(
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[0],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[1],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetS().mData[2]);
+				meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].Scale = XMFLOAT3(
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetS().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetS().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetS().mData[2]);
 
-				meshSkeleton.hierarchy[currentJointIndex].Animation[i].RotationQuat = XMFLOAT4(
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[0],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[1],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[2],
-					meshSkeleton.hierarchy[currentJointIndex].Animation[i].GlobalTransform.GetQ().mData[3]);
+				meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].RotationQuat = XMFLOAT4(
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetQ().mData[0],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetQ().mData[1],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetQ().mData[2],
+					meshSkeleton.hierarchy[currentJointIndex].Animations[animIndex].Sequence[i].GlobalTransform.GetQ().mData[3]);
 
 			}
 
@@ -439,27 +453,29 @@ void FbxImport::UpdateAnimation(ID3D11DeviceContext* gDeviceContext) {
 	gDeviceContext->Map(gBoneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMappedResource);
 	VS_SKINNED_DATA* boneBufferPointer = (VS_SKINNED_DATA*)boneMappedResource.pData;
 
+	int anim = 1;
+
 	for (int i = 0; i < meshSkeleton.hierarchy.size(); i++) {
 
-		Interpolate(boneBufferPointer,i, gDeviceContext); // check Interpolate function.
+		Interpolate(boneBufferPointer,i, gDeviceContext, anim); // check Interpolate function.
 	}
 
 	gDeviceContext->Unmap(gBoneBuffer, 0);
 
 }
 
-void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext) {
+void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDeviceContext, int animIndex) {
 
 	// Animation has just started, so return the first keyframe
 
-	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animation[0].TimePos) //first keyframe
+	if (animTimePos <= meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[0].TimePos) //first keyframe
 	{
 
 		XMFLOAT4X4 M;
 
-		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Scale);
-		XMVECTOR T = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[0].Translation);
-		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[0].RotationQuat);
+		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[0].Scale);
+		XMVECTOR T = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[0].Translation);
+		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[0].RotationQuat);
 
 		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -470,14 +486,14 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 
 	// Animation has reached its end, so return the last keyframe
 
-	else if (animTimePos >= meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].TimePos) // last keyframe
+	else if (animTimePos >= meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[animationLength - 1].TimePos) // last keyframe
 	{
 
 		XMFLOAT4X4 M;
 
-		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].Scale);
-		XMVECTOR P = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].Translation);
-		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[animationLength - 1].RotationQuat);
+		XMVECTOR S = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[animationLength - 1].Scale);
+		XMVECTOR P = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[animationLength - 1].Translation);
+		XMVECTOR Q = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[animationLength - 1].RotationQuat);
 
 		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -495,19 +511,19 @@ void FbxImport::Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, 
 		// I am using an int here to truncate the animation timepose to know which matrices I am interested about
 		// Ex. if time is 1.2, the returning frame is 1.
 		int currentFrameIndex = animTimePos;
-		float kFirst = meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].TimePos;
-		float kLast = meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].TimePos;
-
+		float kFirst = meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex].TimePos;
+		float kLast = meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex + 1].TimePos;
+		
 		float interpolationProcent = (animTimePos - kFirst) / (kLast - kFirst);
 
-		XMVECTOR kFirstScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.
-		XMVECTOR kLastScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].Scale);
+		XMVECTOR kFirstScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex].Scale); // interpolating between the current keyframe and the comming keyframe.
+		XMVECTOR kLastScale = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex + 1].Scale);
 
-		XMVECTOR kFirstTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].Translation);
-		XMVECTOR kLastTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].Translation);
+		XMVECTOR kFirstTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex].Translation);
+		XMVECTOR kLastTranslation = XMLoadFloat3(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex + 1].Translation);
 
-		XMVECTOR kFirstQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex].RotationQuat);
-		XMVECTOR kLastQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animation[currentFrameIndex + 1].RotationQuat);
+		XMVECTOR kFirstQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex].RotationQuat);
+		XMVECTOR kLastQuaternion = XMLoadFloat4(&meshSkeleton.hierarchy[jointIndex].Animations[animIndex].Sequence[currentFrameIndex + 1].RotationQuat);
 
 		XMVECTOR S = XMVectorLerp(kFirstScale, kLastScale, interpolationProcent);
 		XMVECTOR T = XMVectorLerp(kFirstTranslation, kLastTranslation, interpolationProcent);

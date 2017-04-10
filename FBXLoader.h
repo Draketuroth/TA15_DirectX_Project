@@ -63,6 +63,12 @@ struct Keyframe { // Stores the attributes of a keyframe in an animation
 
 };
 
+struct Animation {
+
+	vector<Keyframe> Sequence;
+	FbxLongLong Length;
+};
+
 struct Joint { // Stores the attributes of a joint node
 
 	string Name;
@@ -71,8 +77,8 @@ struct Joint { // Stores the attributes of a joint node
 	FbxAMatrix GlobalBindposeInverse;
 	FbxAMatrix TransformMatrix;
 	FbxAMatrix TransformLinkMatrix;
+	Animation Animations[2];
 
-	vector<Keyframe> Animation;
 	FbxNode* Node;
 
 	Joint() :
@@ -178,7 +184,7 @@ public:
 	XMMATRIX Load4X4JointTransformations(Joint joint, int transformIndex);
 	XMMATRIX Load4X4Transformations(FbxAMatrix fbxMatrix);
 	void UpdateAnimation(ID3D11DeviceContext* gDevice);
-	void Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDevice);
+	void Interpolate(VS_SKINNED_DATA* boneBufferPointer, int jointIndex, ID3D11DeviceContext* gDevice, int animIndex);
 	void InitializeAnimation();
 	
 	Skeleton meshSkeleton;
@@ -202,7 +208,7 @@ private:
 	void RecursiveDepthFirstSearch(FbxNode* node, int depth, int index, int parentIndex);
 
 	// Function to process the animation data when the skeleton hierarchy has been loaded
-	void GatherAnimationData(FbxNode* node, FbxScene* scene);
+	void GatherAnimationData(FbxNode* node, FbxScene* scene, int animIndex);
 
 	void SetGlobalTransform();
 
